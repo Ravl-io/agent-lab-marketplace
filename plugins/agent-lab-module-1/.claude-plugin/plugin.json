@@ -1,0 +1,16 @@
+{
+  "name": "agent-lab-module-1",
+  "displayName": "Agent Lab \u2014 Module 1: Claude Code & Agent Harnesses",
+  "version": "1.0.0",
+  "description": "A self-contained training sandbox simulating the weekly ops reporting workspace of a fictional wealth platform. Ships the summarize-ops Agent Skill and a setup command that creates the lab files, so a participant goes from install to first task in one step.",
+  "author": {
+    "name": "Chiheb Dkhil"
+  },
+  "keywords": [
+    "training",
+    "ops-reporting",
+    "agent-skills",
+    "harness",
+    "house-style"
+  ]
+}

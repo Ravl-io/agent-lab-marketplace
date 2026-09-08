@@ -1,0 +1,18 @@
+{
+  "name": "agent-lab",
+  "owner": {
+    "name": "Chiheb Dkhil"
+  },
+  "description": "Training sandboxes for the Enterprise AI Fluency course. Each plugin installs one self-contained lab module.",
+  "version": "1.0.0",
+  "plugins": [
+    {
+      "name": "agent-lab-module-1",
+      "source": "./plugins/agent-lab-module-1",
+      "description": "Module 1 — Claude Code and agent harnesses. Installs the summarize-ops skill plus a command that lays down the Crestview Wealth ops-reporting sandbox in the current directory.",
+      "version": "1.0.0",
+      "category": "training",
+      "tags": ["training", "ops-reporting", "agent-skills", "harness"]
+    }
+  ]
+}
