@@ -9,10 +9,15 @@
     {
       "name": "agent-lab-module-1",
       "source": "./plugins/agent-lab-module-1",
-      "description": "Module 1 — Claude Code and agent harnesses. Installs the summarize-ops skill plus a command that lays down the Crestview Wealth ops-reporting sandbox in the current directory.",
+      "description": "Module 1 \u2014 Claude Code and agent harnesses. Installs one command that lays down the Crestview Wealth ops-reporting workspace, complete with its own project memory, permission policy and skill.",
       "version": "1.0.0",
       "category": "training",
-      "tags": ["training", "ops-reporting", "agent-skills", "harness"]
+      "tags": [
+        "training",
+        "ops-reporting",
+        "agent-skills",
+        "harness"
+      ]
     }
   ]
 }

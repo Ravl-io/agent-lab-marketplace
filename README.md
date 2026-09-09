@@ -7,7 +7,7 @@ Enterprise AI Fluency course. Each module ships as one installable plugin.
 
 | Plugin | Module | What it installs |
 |---|---|---|
-| `agent-lab-module-1` | 1 — Claude Code & Agent Harnesses | The `summarize-ops` Agent Skill, and `/agent-lab-setup`, which creates the Crestview Wealth ops-reporting sandbox |
+| `agent-lab-module-1` | 1 — Claude Code & Agent Harnesses | `/agent-lab-setup`, which creates the Crestview Wealth ops-reporting workspace and its project-level `summarize-ops` skill |
 
 ## For participants
 
@@ -55,8 +55,9 @@ participants will find the answer already written.
 ## Adding a module
 
 1. Create `plugins/agent-lab-module-<n>/` with a `.claude-plugin/plugin.json`.
-2. Put skills in `skills/<name>/SKILL.md` and commands in `commands/<name>.md`. Both
-   directories are auto-discovered; they do not need declaring in the manifest.
+2. Put commands in `commands/<name>.md`, and skills in `skills/<name>/SKILL.md`. Both
+   directories are auto-discovered; they do not need declaring in the manifest. Module 1
+   deliberately keeps its skill inside the workspace instead, so the project owns it.
 3. Add an entry to the `plugins` array in `.claude-plugin/marketplace.json`.
 4. Run `claude plugin validate .` and install it locally before pushing.
 
@@ -67,7 +68,7 @@ participants will find the answer already written.
 plugins/
   agent-lab-module-1/
     .claude-plugin/plugin.json       the plugin manifest
-    skills/summarize-ops/SKILL.md    the Agent Skill participants observe firing
     commands/agent-lab-setup.md      creates the sandbox in the working directory
     workspace/                       the lab files, copied by the setup command
+      .claude/skills/summarize-ops/  the skill the project defines, and participants observe firing
 ```
