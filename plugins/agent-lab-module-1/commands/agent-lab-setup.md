@@ -13,8 +13,8 @@ Steps:
 
 1. If the target directory already exists and is not empty, STOP and tell the participant.
    Do not overwrite an in-progress lab. Offer a different directory name instead.
-2. Copy the sandbox payload into the target directory:
-   `cp -R "${CLAUDE_PLUGIN_ROOT}/sandbox/." "<target>/"`
+2. Copy the workspace payload into the target directory:
+   `cp -R "${CLAUDE_PLUGIN_ROOT}/workspace/." "<target>/"`
    The payload includes `CLAUDE.md`, `intent.md`, `README.md`, `.claude/settings.json`,
    and the `reports/`, `summaries/`, `scripts/` and `tasks/` directories.
 3. Initialise a git repository in the target directory and make one commit called

@@ -47,7 +47,7 @@ behaviours to narrate, including the intended resolution of the severity ambigui
 Aug 15 webhook report. It is excluded because a marketplace is a distribution channel and
 participants install from it. Keep it in the private facilitator materials.
 
-The sandbox payload also ships in its **starting state**. The Aug 24 summary that Card A
+The workspace payload also ships in its **starting state**. The Aug 24 summary that Card A
 asks participants to produce is not included, and `summaries/index.md` lists only the
 earlier summary. If you regenerate the payload from a working sandbox, strip those again or
 participants will find the answer already written.
@@ -69,5 +69,5 @@ plugins/
     .claude-plugin/plugin.json       the plugin manifest
     skills/summarize-ops/SKILL.md    the Agent Skill participants observe firing
     commands/agent-lab-setup.md      creates the sandbox in the working directory
-    sandbox/                         the lab payload, copied by the setup command
+    workspace/                       the lab files, copied by the setup command
 ```
