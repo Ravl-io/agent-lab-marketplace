@@ -11,8 +11,12 @@ Enterprise AI Fluency course. Each module ships as one installable plugin.
 
 ## For participants
 
+This repository is **private**. Participants need read access to the
+`Ravl-io` organisation, or the repository must be made public before the session,
+or `/plugin marketplace add` will fail for them.
+
 ```
-/plugin marketplace add <owner>/agent-lab-marketplace
+/plugin marketplace add Ravl-io/agent-lab-marketplace
 /plugin install agent-lab-module-1@agent-lab
 /agent-lab-setup
 ```
