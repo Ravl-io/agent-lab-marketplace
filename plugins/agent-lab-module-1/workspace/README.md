@@ -34,5 +34,6 @@ what did it read, what did it ask, what did it delegate, how did it know it was 
 
 ## Reset
 
-`git checkout . && git clean -fd` returns the sandbox to its starting state
+`git checkout .` followed by `git clean -fd` returns the sandbox to its starting state
+(run them as two separate commands; `&&` is not valid in Windows PowerShell 5.1)
 (or re-unzip the archive).
