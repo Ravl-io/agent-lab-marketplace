@@ -3,20 +3,25 @@
   "owner": {
     "name": "Chiheb Dkhil"
   },
-  "description": "Training sandboxes for the Enterprise AI Fluency course. Each plugin installs one self-contained lab module.",
-  "version": "1.0.0",
+  "description": "Agent Lab \u2014 the hands-on training marketplace for the Enterprise AI Fluency course. Add this marketplace, install the `lab` plugin, and run /lab:start.",
+  "version": "2.0.0",
   "plugins": [
     {
-      "name": "agent-lab-module-1",
-      "source": "./plugins/agent-lab-module-1",
-      "description": "Module 1 \u2014 Claude Code and agent harnesses. Installs one command that lays down the Crestview Wealth ops-reporting workspace, complete with its own project memory, permission policy and skill.",
-      "version": "1.0.0",
-      "category": "training",
+      "name": "lab",
+      "source": "./plugins/lab",
+      "version": "0.1.0",
+      "category": "education",
+      "description": "Tutor for the Agent Lab training: four 2-hour modules covering the Claude Code harness, RAG and retrieval, knowledge graphs and ontologies, and building a full AI system \u2014 by building one real plugin across all four. Run /lab:start to begin.",
       "tags": [
         "training",
-        "ops-reporting",
-        "agent-skills",
-        "harness"
+        "tutor",
+        "harness",
+        "skills",
+        "hooks",
+        "plugins",
+        "rag",
+        "knowledge-graph",
+        "ai-sdlc"
       ]
     }
   ]

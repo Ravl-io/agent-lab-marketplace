@@ -1,0 +1,8 @@
+{
+  "name": "triage-assistant",
+  "description": "/triage CASE-xxxx investigates the ticket and produces a classification (configuration, user error, or product defect), the evidence behind it, and the proposed resolution \u2014 a customer reply, a configuration fix, or a vendor escalation. Nothing is sent or applied until a human runs /approve.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Agent Lab participant"
+  }
+}

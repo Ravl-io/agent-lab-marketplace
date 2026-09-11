@@ -1,0 +1,13 @@
+{
+  "id": "m1s7-plugin",
+  "stage": "7",
+  "title": "Package it as a plugin",
+  "label": "plugin scaffold",
+  "install_tracer": true,
+  "scaffolds": {
+    "plugin.json": "{{SYSTEM_NAME}}/.claude-plugin/plugin.json",
+    "hooks.json": "{{SYSTEM_NAME}}/hooks/hooks.json",
+    "CLAUDE.md": "CLAUDE.md"
+  },
+  "commit": "Stage 7: the plugin scaffold"
+}

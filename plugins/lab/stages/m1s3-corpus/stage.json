@@ -1,0 +1,14 @@
+{
+  "id": "m1s3-corpus",
+  "stage": "3",
+  "title": "The rest of the corpus",
+  "label": "full corpus",
+  "install_tracer": true,
+  "from_track": [
+    "{{ALL}}"
+  ],
+  "commit": "Stage 3: the rest of the corpus, and the real task",
+  "scaffolds": {
+    "intent.md": "intent.md"
+  }
+}

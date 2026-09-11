@@ -1,0 +1,6 @@
+Read {{FIRST_INPUT}} and tell me two things:
+
+1. What is this about, in one sentence?
+2. What is the person asking for?
+
+Use only what is in the file. If something is not in it, say so.

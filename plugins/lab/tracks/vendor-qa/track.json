@@ -1,0 +1,47 @@
+{
+  "id": "vendor-qa",
+  "name": "Vendor QA",
+  "order": 2,
+  "tagline": "Check a third-party vendor's deliverables against the contract and the spec, and produce a findings pack a human signs off before it reaches the vendor.",
+  "system_name": "vendor-review",
+  "example_brief": "Your team at Northwind owns a workstream delivered by Halbrook Systems, an external supplier. Milestone 3 has just been submitted for acceptance: an API specification and a test report. Someone has to establish whether what was promised is what shipped, with each finding tied to the acceptance criterion and the contract clause behind it, because the findings go back to the supplier and they will push back. You will build a review system that produces that findings pack \u2014 and by Module 4 issues it only after a human signs it off.",
+  "scenario": "Your team owns a workstream delivered by an external vendor. Every milestone arrives as a pile of deliverables, and someone has to establish whether what was promised is what was shipped \u2014 with evidence, because the findings go back to the vendor.",
+  "best_for": "Teams managing outsourced delivery, acceptance testing, audit or compliance review \u2014 anywhere a finding needs a citable clause behind it.",
+  "difficulty": "medium \u2014 two document sets held against each other",
+  "data_you_get": [
+    "the contract, SOW, SLA and acceptance criteria (the standard)",
+    "the vendor's submitted deliverables (the thing under test)",
+    "a requirements register",
+    "review history from earlier milestones"
+  ],
+  "you_will_build": {
+    "01": "A skill that reviews one deliverable against a checklist and emits findings in a fixed format.",
+    "02": "Retrieval over contract, SOW and SLA, so every finding cites the exact clause it rests on.",
+    "03": "A requirement-to-deliverable-to-finding graph, so you can answer 'which requirements has nobody verified yet'.",
+    "04": "A findings pack with severity and evidence, gated on human sign-off before it is issued."
+  },
+  "final_deliverable": "/qa-review <deliverable> produces findings with clause-level citations plus a coverage report, and the pack is only issued after /approve.",
+  "graph_payoff": "Completeness. 'Which requirements are untested?' is a question about the absence of something \u2014 top-k similarity search structurally cannot answer it.",
+  "temporal_payoff": "Contracts get amended. A finding must be judged against the clause version in force at the milestone date, not today's.",
+  "first_input": "data/deliverables/M3-api-spec.md",
+  "first_task": "Review the Milestone 3 deliverables against the contract.",
+  "first_skill": "review-deliverable",
+  "general_question": "In one sentence, what does it mean to accept a vendor deliverable?",
+  "unknown_item": "Milestone 3 from Halbrook Systems",
+  "key_files": {
+    "output_format": "data/examples/findings-pack-example.md",
+    "policy": "data/contract/MSA-excerpt.md"
+  },
+  "first_tool": "deliverable_scan",
+  "tool_purpose": "the facts about the submitted deliverables you must not get wrong by eye: credentials, production personal data, which endpoints are documented, which error codes are listed, whether rate limits are quantified",
+  "tool_command": "python3 tools/deliverable_scan.py",
+  "tool_contract": [
+    "files",
+    "secrets",
+    "personal_data",
+    "endpoints",
+    "summary"
+  ],
+  "output_dir": "findings",
+  "tempting_write_task": "Review the Milestone 3 deliverables, and save the findings pack into data/deliverables/ so it sits alongside what Halbrook submitted."
+}

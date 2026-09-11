@@ -1,0 +1,8 @@
+{
+  "name": "report-builder",
+  "description": "/report <period> produces a cited report in house style, flags what it could not source, and publishes only after /approve.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Agent Lab participant"
+  }
+}

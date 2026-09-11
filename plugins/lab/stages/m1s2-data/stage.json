@@ -1,0 +1,9 @@
+{
+  "id": "m1s2-data",
+  "stage": "2",
+  "title": "Give it something to read",
+  "label": "one file",
+  "install_tracer": true,
+  "from_track": ["{{FIRST_INPUT}}"],
+  "commit": "Stage 2: one file to read, and two more experiments"
+}

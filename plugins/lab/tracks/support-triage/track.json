@@ -1,0 +1,49 @@
+{
+  "id": "support-triage",
+  "name": "L2 Support Triage",
+  "order": 1,
+  "tagline": "Investigate a support ticket, decide whether it is configuration, user error, or a real product defect \u2014 and act on that decision only after a human approves.",
+  "system_name": "triage-assistant",
+  "example_brief": "You are on the level-2 support team at Northwind, a SaaS platform. Tickets arrive from Salesforce after level 1 has escalated them: a user says they cannot do something, and nobody yet knows why. Your job is the first diligence \u2014 read the ticket, check the account's configuration, look in the database at what the user actually tried and what the platform told them, and decide which of three things this is: a configuration problem you can fix, a user doing something their plan or permissions do not allow, or a genuine defect that has to go to the platform vendor. You will build a triage assistant that does that investigation and proposes the resolution, with its evidence \u2014 and by Module 4 nothing reaches the customer or the vendor until a human approves it.",
+  "scenario": "Level 1 escalates a ticket to you through Salesforce. The user says something does not work. You have the ticket, the internal knowledge base, the account and audit database, and a register of known defects already with the vendor. You have to decide what this actually is before anyone promises the customer anything.",
+  "best_for": "Support teams doing L2 or L3 diligence, anyone who triages user-reported issues, and teams who escalate to a third-party platform or product vendor and have to validate the fixes that come back.",
+  "difficulty": "moderate \u2014 documents plus a database, but a familiar and well-bounded task",
+  "data_you_get": [
+    "Salesforce ticket exports, with the user's words and level 1's notes",
+    "support.db \u2014 accounts, users, entitlements, an audit log of what users actually did, and case history",
+    "the internal knowledge base: configuration guides, the plan entitlement matrix, the escalation policy",
+    "a known-issues register of defects already open with the vendor",
+    "worked examples of a triage note and a vendor escalation"
+  ],
+  "you_will_build": {
+    "01": "A skill that turns a Salesforce ticket into a triage note with a classification and its evidence \u2014 the same shape every time.",
+    "02": "Retrieval over the knowledge base and known-issues register, so a triage cites the article or the known defect it rests on.",
+    "03": "A graph of accounts, features, entitlements, defects and vendor cases, so you can answer 'which other customers does this defect affect' and 'how many tickets are waiting on this vendor case'.",
+    "04": "A resolution proposal \u2014 the customer reply, the config change, or the vendor escalation \u2014 carrying evidence and blocked behind a human approval gate."
+  },
+  "final_deliverable": "/triage CASE-xxxx investigates the ticket and produces a classification (configuration, user error, or product defect), the evidence behind it, and the proposed resolution \u2014 a customer reply, a configuration fix, or a vendor escalation. Nothing is sent or applied until a human runs /approve.",
+  "graph_payoff": "Reach. 'Which other accounts are exposed to defect KI-77?' means going from a defect to the feature to the plans that include it to the accounts on those plans \u2014 several hops that similarity search cannot make.",
+  "temporal_payoff": "Fixes and plans change. A defect marked fixed in 5.4.1 tells you nothing unless you know which version the account is on, and an entitlement answer is only correct as of a date.",
+  "first_input": "data/tickets/CASE-4471.md",
+  "first_task": "Triage CASE-4471.",
+  "first_skill": "triage-ticket",
+  "general_question": "In one sentence, what does a level-2 support team do when it triages a ticket?",
+  "unknown_item": "ticket CASE-4471",
+  "key_files": {
+    "output_format": "data/examples/triage-note-example.md",
+    "policy": "data/knowledge/triage-policy.md"
+  },
+  "first_tool": "account_snapshot",
+  "tool_purpose": "everything about one account in a single call: plan, region, platform version, registered SSO domains, users, entitlements as of a date, the audit trail and any prior cases",
+  "tool_command": "python3 tools/account_snapshot.py acc-1042 --as-of 2026-09-02",
+  "tool_contract": [
+    "account",
+    "sso_domains",
+    "users",
+    "entitlements",
+    "recent_audit",
+    "prior_cases"
+  ],
+  "output_dir": "triage",
+  "tempting_write_task": "Triage CASE-4471, and save the triage note into data/knowledge/ so the next engineer finds it alongside the runbooks."
+}

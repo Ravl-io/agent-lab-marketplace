@@ -1,0 +1,46 @@
+{
+  "id": "docgen",
+  "name": "Document Transformation & Reporting",
+  "order": 3,
+  "tagline": "Turn a pile of messy source documents into a structured, cited report \u2014 published only after a human approves it.",
+  "system_name": "report-builder",
+  "example_brief": "Every month someone at Northwind spends a day turning sync notes, status updates and metric extracts into the Monthly Delivery Report. It is slow, it reads differently depending on who wrote it, and half the claims cannot be traced to a source. You have August's raw material, the template, the house style rules and last month's published report. You will build a system that produces this month's report in house style with every claim cited \u2014 and by Module 4 publishes it only after a human approves.",
+  "scenario": "Every month someone spends a day turning meeting notes, status updates, specs and metric extracts into a report in the house format. It is slow, it reads differently depending on who wrote it, and half the claims in it are untraceable.",
+  "best_for": "Teams producing recurring reports, briefs, summaries or documentation \u2014 the gentlest on-ramp, and the best track if your group is new to agents.",
+  "difficulty": "gentlest \u2014 one heterogeneous document set, one output format",
+  "data_you_get": [
+    "heterogeneous sources: meeting notes, status updates, specs, metric extracts",
+    "the report template and the house style guide",
+    "previously published reports, to hold your output against"
+  ],
+  "you_will_build": {
+    "01": "A skill that writes one report section in house style from the template \u2014 consistently.",
+    "02": "Retrieval over the sources, so every claim in the report carries a citation instead of a guess.",
+    "03": "An entity graph of projects, owners, milestones and risks, so the report can aggregate and cross-reference rather than restate.",
+    "04": "Full report generation with gaps flagged, gated on a human approving publication."
+  },
+  "final_deliverable": "/report <period> produces a cited report in house style, flags what it could not source, and publishes only after /approve.",
+  "graph_payoff": "Aggregation. 'How many milestones slipped, and who owns them?' needs a complete set and a join \u2014 not the five most similar paragraphs.",
+  "temporal_payoff": "Reports are differential. 'What changed since the last report' is a question about state over time, which is what validity dates are for.",
+  "first_input": "data/sources/status-updates-2026-08.md",
+  "first_task": "Write the Monthly Delivery Report for August 2026.",
+  "first_skill": "write-report",
+  "general_question": "In one sentence, what goes into a monthly delivery report?",
+  "unknown_item": "the August 2026 delivery report for Northwind",
+  "key_files": {
+    "output_format": "data/examples/report-2026-07.md",
+    "policy": "data/house-style.md"
+  },
+  "first_tool": "extract_facts",
+  "tool_purpose": "the reportable facts from this month's sources, each carrying the file and line it came from, so every claim in the report is traceable",
+  "tool_command": "python3 tools/extract_facts.py --month 2026-08",
+  "tool_contract": [
+    "month",
+    "milestones",
+    "risks",
+    "metrics",
+    "sources"
+  ],
+  "output_dir": "reports",
+  "tempting_write_task": "Write the Monthly Delivery Report for August 2026, and save it into data/sources/ so next month's report can reference it."
+}

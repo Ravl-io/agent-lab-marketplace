@@ -1,0 +1,26 @@
+{
+  "id": "incident-response",
+  "name": "Incident Response",
+  "order": 1,
+  "tagline": "Triage a live incident from runbooks, incident history and logs \u2014 then propose a fix a human approves before anything is applied.",
+  "system_name": "triage-assistant",
+  "example_brief": "You are on the platform team at Northwind Payments, a fictional payments company. Alerts fire against services like payments-api and webhook-dispatcher, and whoever is on call has about three minutes to work out what is happening, whether it has happened before, what else it is affecting, and what to do about it. You have runbooks, past postmortems, a service catalogue and three live alerts waiting. You will build a triage assistant that does that work end to end \u2014 and by Module 4 proposes the fix, with evidence and a rollback plan, for a human to approve before anything is applied.",
+  "scenario": "You are on the platform team of a payments company. An alert fires at 02:14. The on-call engineer has three minutes to work out what is happening, whether it has happened before, what else it affects, and what to do about it.",
+  "best_for": "Teams doing SRE, ops, on-call or support engineering \u2014 and anyone who needs the human-approval gate to be real rather than theoretical.",
+  "difficulty": "highest \u2014 three different data shapes (documents, a database, log files)",
+  "data_you_get": [
+    "runbooks and postmortems (markdown documents)",
+    "incidents.db \u2014 an incident history you query with SQL",
+    "log samples from the affected services",
+    "a service catalogue with ownership and dependencies"
+  ],
+  "you_will_build": {
+    "01": "A skill that turns an alert into a consistent triage note \u2014 same shape every time.",
+    "02": "Retrieval over runbooks and postmortems, so triage cites the prior incident it resembles.",
+    "03": "A service dependency graph, so the agent can answer 'what else is affected by this' \u2014 which retrieval alone cannot.",
+    "04": "A remediation proposal carrying evidence, risk and a rollback plan, blocked behind a human approval gate."
+  },
+  "final_deliverable": "/triage INC-xxxx produces a cited triage note plus a proposed remediation, and cannot apply anything until a human runs /approve.",
+  "graph_payoff": "Blast radius. 'Which services depend on the component that caused INC-204?' is a multi-hop traversal that similarity search cannot do.",
+  "temporal_payoff": "Runbooks go stale. The agent must prefer the runbook version that was in force, and say when its guidance was last updated."
+}

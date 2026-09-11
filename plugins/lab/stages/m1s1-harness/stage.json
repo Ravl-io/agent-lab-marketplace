@@ -1,0 +1,9 @@
+{
+  "id": "m1s1-harness",
+  "stage": "1",
+  "title": "The harness, and nothing else",
+  "label": "harness only",
+  "settings": "settings.json",
+  "install_tracer": true,
+  "commit": "Stage 1: the harness, the tracer, and one experiment"
+}

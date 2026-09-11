@@ -1,0 +1,8 @@
+{
+  "id": "m1s4-skill",
+  "stage": "4",
+  "title": "Write the first skill",
+  "label": "skill scaffold",
+  "install_tracer": true,
+  "commit": "Stage 4: the skill scaffold"
+}

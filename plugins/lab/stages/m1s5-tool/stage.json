@@ -1,0 +1,9 @@
+{
+  "id": "m1s5-tool",
+  "stage": "5",
+  "title": "Write the first tool",
+  "label": "tool scaffold",
+  "install_tracer": true,
+  "scaffolds": { "tool.py": "tools/{{TOOL_NAME}}.py" },
+  "commit": "Stage 5: the tool scaffold"
+}

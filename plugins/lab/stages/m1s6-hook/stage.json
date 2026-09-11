@@ -1,0 +1,9 @@
+{
+  "id": "m1s6-hook",
+  "stage": "6",
+  "title": "Write the first hook",
+  "label": "hook scaffold",
+  "install_tracer": true,
+  "scaffolds": { "hook.py": ".claude/hooks/write_boundary.py" },
+  "commit": "Stage 6: the hook scaffold"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "vendor-review",
+  "description": "/qa-review <deliverable> produces findings with clause-level citations plus a coverage report, and the pack is only issued after /approve.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Agent Lab participant"
+  }
+}

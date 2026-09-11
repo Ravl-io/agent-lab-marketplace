@@ -1,74 +1,111 @@
 # Agent Lab Marketplace
 
-A Claude Code plugin marketplace that distributes the hands-on lab sandboxes for the
-Enterprise AI Fluency course. Each module ships as one installable plugin.
+A Claude Code plugin marketplace distributing the hands-on lab for the Enterprise AI Fluency
+course: **four two-hour modules in which each participant builds one real plugin**, covering
+the Claude Code harness, RAG and retrieval, knowledge graphs and ontologies, and what it takes
+to turn any of it into a system a team would rely on.
 
-## Available plugins
-
-| Plugin | Module | What it installs |
-|---|---|---|
-| `agent-lab-module-1` | 1 — Claude Code & Agent Harnesses | `/agent-lab-setup`, which creates the Crestview Wealth ops-reporting workspace and its project-level `summarize-ops` skill |
+| Plugin | What it is |
+|---|---|
+| `lab` | The tutor. Orients you, checks your machine, picks your track, then teaches the modules by having you build |
 
 ## For participants
 
-This repository is **private**. Participants need read access to the
-`Ravl-io` organisation, or the repository must be made public before the session,
-or `/plugin marketplace add` will fail for them.
+Three commands. Your facilitator will confirm nothing else is needed.
+
+**1. Make an empty folder and open VS Code in it.**
+
+```bash
+mkdir ~/agent-lab && cd ~/agent-lab && code .
+```
+
+The lab needs its own folder — it becomes a git repository holding your checkpoint commits.
+Do not open VS Code in your home directory or an existing project.
+
+**2. In the Claude Code panel, add the marketplace and install the tutor.**
 
 ```
 /plugin marketplace add Ravl-io/agent-lab-marketplace
-/plugin install agent-lab-module-1@agent-lab
-/agent-lab-setup
+/plugin install lab@agent-lab
 ```
 
-The last command creates a sandbox directory, initialises git in it so the reset
-instructions work, and verifies the style checker runs. Then `cd` into that directory and
-start a new Claude Code session there, so the project's `CLAUDE.md` and permission policy
-load. Task cards are in `tasks/TASK-CARDS.md`.
+If the install summary says `Run /reload-plugins to activate`, run that.
+
+**3. Start.**
+
+```
+/lab:start
+```
+
+That orients you, shows the curriculum, lists what you need installed, checks your machine,
+and asks which track you are on. It is also the command you run at the beginning of every
+session to pick up where you left off.
+
+**Accept the trust prompt** when Claude Code shows it. Until you do, the project's permission
+settings are ignored and every tool call stops to ask.
+
+### Commands
+
+| Command | What it does |
+|---|---|
+| `/lab:start` | Orientation, checklist, environment check, track selection — and your resume command each session |
+| `/lab:next` | Start the next module, or move to the next step |
+| `/lab:status` | Where you are: track, module, checkpoints, workspace health |
+| `/lab:hint` | A nudge when you are stuck — not the answer |
+| `/lab:catchup` | Repairs your workspace if something breaks |
+| `/lab:checklist` | What you need installed, and how |
+| `/lab:doctor` | Verify your machine is ready |
+| `/lab:track` | See the tracks, choose one, or switch |
+
+### The three tracks
+
+Same concepts and the same timeline; different corpus and task. Your facilitator may assign
+one, or you choose at `/lab:start`.
+
+| Track | The job |
+|---|---|
+| `support-triage` | L2 support: decide whether a ticket is configuration, user error, or a real product defect — with evidence |
+| `vendor-qa` | Check a vendor's deliverables against the contract, and produce findings they cannot argue with |
+| `docgen` | Turn a month of messy sources into a cited report in house style |
+
+## Requirements
+
+Python 3.10+, Git 2.30+, and VS Code with the Claude Code extension. Run `/lab:checklist`
+for the full list with install commands for your platform, or `/lab:doctor` to check your
+machine. macOS ships Python 3.9 as `python3`; the lab detects a newer interpreter
+automatically, so that is not a problem.
 
 ## For facilitators
 
-Test any change locally before publishing:
+- [PLAN.md](PLAN.md) — design, architecture, build phases, risks
+- [docs/CURRICULUM.md](docs/CURRICULUM.md) — the module-by-module outline with run-of-show timings
+- [plugins/lab/facilitator/session-0-setup.md](plugins/lab/facilitator/session-0-setup.md) — the
+  pre-flight message to send 48 hours ahead, how to open the session, and what to do when a
+  machine will not cooperate
+- [plugins/lab/modules/](plugins/lab/modules/) — the teaching content the tutor follows
 
+Before any change to a track, a stage or a command, run the self-test:
+
+```bash
+python3 plugins/lab/scripts/selftest.py
 ```
-claude plugin validate .                       # marketplace manifest
-claude plugin validate plugins/agent-lab-module-1
-/plugin marketplace add ./agent-lab-marketplace
-/plugin install agent-lab-module-1@agent-lab
+
+It applies every stage for every track and checks the failures that only show up in front of
+a room: a stage payload leaking one track's task to every group, an unresolved placeholder, a
+file the module tells participants to open that does not exist on their track, or a command
+promised in the text but never implemented.
+
+Test the plugin without installing it:
+
+```bash
+claude --plugin-dir ./plugins/lab
+claude plugin validate ./plugins/lab
+claude plugin validate .
 ```
 
-Run `/plugin marketplace update` after pushing changes, or participants keep the cached
-version.
+## Retired
 
-### What is deliberately not in this repository
-
-`demo-crib.md` is the facilitator crib sheet. It contains the prepared demo prompts and the
-behaviours to narrate, including the intended resolution of the severity ambiguity in the
-Aug 15 webhook report. It is excluded because a marketplace is a distribution channel and
-participants install from it. Keep it in the private facilitator materials.
-
-The workspace payload also ships in its **starting state**. The Aug 24 summary that Card A
-asks participants to produce is not included, and `summaries/index.md` lists only the
-earlier summary. If you regenerate the payload from a working sandbox, strip those again or
-participants will find the answer already written.
-
-## Adding a module
-
-1. Create `plugins/agent-lab-module-<n>/` with a `.claude-plugin/plugin.json`.
-2. Put commands in `commands/<name>.md`, and skills in `skills/<name>/SKILL.md`. Both
-   directories are auto-discovered; they do not need declaring in the manifest. Module 1
-   deliberately keeps its skill inside the workspace instead, so the project owns it.
-3. Add an entry to the `plugins` array in `.claude-plugin/marketplace.json`.
-4. Run `claude plugin validate .` and install it locally before pushing.
-
-## Layout
-
-```
-.claude-plugin/marketplace.json      the marketplace manifest
-plugins/
-  agent-lab-module-1/
-    .claude-plugin/plugin.json       the plugin manifest
-    commands/agent-lab-setup.md      creates the sandbox in the working directory
-    workspace/                       the lab files, copied by the setup command
-      .claude/skills/summarize-ops/  the skill the project defines, and participants observe firing
-```
+`agent-lab-module-1` — the earlier Crestview Wealth ops-reporting lab. Superseded by `lab`,
+which covers the same ground across three domain tracks with progress tracking and validation
+gates. Its files remain in `plugins/agent-lab-module-1/` and in git history; it is no longer
+listed in the marketplace, so it cannot be installed.
