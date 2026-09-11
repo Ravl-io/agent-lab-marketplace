@@ -9,7 +9,7 @@
     {
       "name": "lab",
       "source": "./plugins/lab",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "category": "education",
       "description": "Tutor for the Agent Lab training: four 2-hour modules covering the Claude Code harness, RAG and retrieval, knowledge graphs and ontologies, and building a full AI system \u2014 by building one real plugin across all four. Run /lab:start to begin.",
       "tags": [

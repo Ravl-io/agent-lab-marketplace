@@ -554,6 +554,35 @@ def check_workspace_lifecycle(verbose: bool) -> None:
         shutil.rmtree(root, ignore_errors=True)
 
 
+def check_version_is_publishable(verbose: bool) -> None:
+    """The plugin version must match the marketplace entry, or nobody gets the update.
+
+    Claude Code only re-installs a plugin when its declared version changes. A push that
+    leaves the version alone reaches nobody: `plugin install` reports "already installed"
+    and the participant keeps the old build, silently. This check will not know whether the
+    version was bumped for *this* change, but it does catch the two manifests drifting apart,
+    which is the half that is mechanically detectable.
+    """
+    print("version is publishable")
+    plugin = load(os.path.join(PLUGIN_ROOT, ".claude-plugin", "plugin.json"))
+    declared = plugin.get("version")
+    check(bool(declared), "plugin.json declares a version", verbose=verbose)
+
+    market = os.path.join(os.path.dirname(PLUGIN_ROOT), ".claude-plugin", "marketplace.json")
+    if not os.path.exists(market):
+        warn("no marketplace.json above the plugin — cannot compare declared versions")
+        return
+    entries = [p for p in load(market).get("plugins", [])
+               if p.get("name") == plugin.get("name")]
+    check(bool(entries), f"marketplace.json lists a plugin named {plugin.get('name')!r}",
+          verbose=verbose)
+    if entries:
+        check(entries[0].get("version") == declared,
+              "marketplace entry version matches plugin.json",
+              f"marketplace says {entries[0].get('version')!r}, plugin says {declared!r}",
+              verbose=verbose)
+
+
 def check_scripts_run(verbose: bool) -> None:
     print("scripts")
     for name, args in [("doctor.py", ["--checklist"]),
@@ -591,6 +620,7 @@ def main() -> int:
     check_tutor_facing_text(args.verbose)
     check_promised_commands(args.verbose)
     check_workspace_lifecycle(args.verbose)
+    check_version_is_publishable(args.verbose)
     check_scripts_run(args.verbose)
 
     print()

@@ -68,6 +68,24 @@ room moving in step.
 Expect this to take twelve to fifteen minutes with a room that did the pre-flight, and
 thirty without it.
 
+## Bump the version, or nobody gets your change
+
+Claude Code only re-installs a plugin when its declared `version` changes. Push a fix without
+bumping `version` in **both** `plugin.json` and the marketplace entry, and
+`/plugin install lab@agent-lab` reports *"already installed"* and the participant keeps the
+old build — silently, with no error to notice.
+
+So every push that participants need gets a version bump. `selftest.py` checks the two
+manifests agree; it cannot know whether you bumped for the right change, so that part is on
+you.
+
+Participants pick up a new version with:
+
+```
+/plugin marketplace update agent-lab
+/plugin install lab@agent-lab
+```
+
 ## The trust dialog
 
 Claude Code ignores a project's `permissions` block until the workspace is trusted. The

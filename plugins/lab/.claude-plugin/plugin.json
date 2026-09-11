@@ -1,7 +1,7 @@
 {
   "name": "lab",
   "displayName": "Agent Lab",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Tutor for the Agent Lab training: an 8-hour hands-on course in AI fluency \u2014 going from understanding how agents work to building a full AI system. Four modules of 2h covering the harness and coding agents, RAG and retrieval systems, knowledge graphs and ontologies, and building a full AI system that delivers real value, by building one real-world example and improving it in every module. Start with /lab:start.",
   "author": {
     "name": "Chiheb Dkhil"
