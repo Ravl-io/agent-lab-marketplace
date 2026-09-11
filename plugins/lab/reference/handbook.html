@@ -1,0 +1,1383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Reference guide and lab companion for the Agent Lab training: the Module 1 walkthrough, measured results, command reference and troubleshooting.">
+<meta name="color-scheme" content="light dark">
+<title>Agent Lab Handbook</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground: #F5F7F8;
+    --surface: #FFFFFF;
+    --surface-2: #EDF1F3;
+    --line: #D3DCE0;
+    --line-soft: #E3EAED;
+    --text: #17202A;
+    --text-2: #4A5A66;
+    --text-3: #718593;
+    --accent: #1E6E79;
+    --accent-soft: #E2EFF1;
+    --amber: #8A6318;
+    --amber-soft: #F7EEDA;
+    --pass: #276B4C;
+    --pass-soft: #E1EFE7;
+    --fail: #963824;
+    --fail-soft: #F9E7E2;
+    --code-bg: #10161D;
+    --code-text: #D8E2E8;
+    --shadow: 0 1px 2px rgba(20,32,42,.06), 0 8px 24px -12px rgba(20,32,42,.18);
+    --display: "Newsreader", Georgia, serif;
+    --body: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --ground: #10161D;
+      --surface: #161E27;
+      --surface-2: #1C2630;
+      --line: #2A3742;
+      --line-soft: #222D37;
+      --text: #E4EBF0;
+      --text-2: #A3B2BE;
+      --text-3: #7C8C99;
+      --accent: #5FBAC4;
+      --accent-soft: #163236;
+      --amber: #D7A845;
+      --amber-soft: #2E2718;
+      --pass: #6FC79B;
+      --pass-soft: #16291F;
+      --fail: #E08A73;
+      --fail-soft: #2B1B16;
+      --code-bg: #0A0F14;
+      --code-text: #CBD8E0;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #10161D;
+    --surface: #161E27;
+    --surface-2: #1C2630;
+    --line: #2A3742;
+    --line-soft: #222D37;
+    --text: #E4EBF0;
+    --text-2: #A3B2BE;
+    --text-3: #7C8C99;
+    --accent: #5FBAC4;
+    --accent-soft: #163236;
+    --amber: #D7A845;
+    --amber-soft: #2E2718;
+    --pass: #6FC79B;
+    --pass-soft: #16291F;
+    --fail: #E08A73;
+    --fail-soft: #2B1B16;
+    --code-bg: #0A0F14;
+    --code-text: #CBD8E0;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+
+  * { box-sizing: border-box; }
+  /* The nav items are display:flex, which beats the browser's default [hidden] rule — so
+     the search filter needs this to actually hide anything outside the artifact wrapper. */
+  [hidden] { display: none !important; }
+  img { max-width: 100%; }
+  body {
+    margin: 0; background: var(--ground); color: var(--text);
+    font-family: var(--body); font-size: 15.5px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .shell { display: grid; grid-template-columns: 268px minmax(0,1fr); min-height: 100vh; }
+
+  /* ---------- sidebar ---------- */
+  .rail {
+    background: var(--surface); border-right: 1px solid var(--line);
+    padding: 22px 0 40px; position: sticky; top: 0; height: 100vh;
+    overflow-y: auto; display: flex; flex-direction: column; gap: 18px;
+  }
+  .brand { padding: 0 20px; display: flex; flex-direction: column; gap: 3px; }
+  .brand b {
+    font-family: var(--display); font-weight: 600; font-size: 20px;
+    letter-spacing: -.01em; line-height: 1.2;
+  }
+  .brand span { font-size: 11.5px; color: var(--text-3); letter-spacing: .04em; text-transform: uppercase; }
+  .finder { padding: 0 20px; }
+  .finder input {
+    width: 100%; padding: 7px 10px; border-radius: 6px; font: inherit; font-size: 13.5px;
+    border: 1px solid var(--line); background: var(--ground); color: var(--text);
+  }
+  .finder input::placeholder { color: var(--text-3); }
+  .finder input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  nav { display: flex; flex-direction: column; gap: 22px; }
+  .group { display: flex; flex-direction: column; gap: 1px; }
+  .group > p {
+    margin: 0 20px 6px; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--text-3); font-weight: 600;
+  }
+  .rail a {
+    display: flex; align-items: baseline; gap: 9px; padding: 6px 20px;
+    color: var(--text-2); text-decoration: none; font-size: 14px;
+    border-left: 2px solid transparent;
+  }
+  .rail a:hover { color: var(--text); background: var(--surface-2); }
+  .rail a[aria-current="true"] {
+    color: var(--accent); border-left-color: var(--accent);
+    background: var(--accent-soft); font-weight: 500;
+  }
+  .rail a i {
+    font-family: var(--mono); font-style: normal; font-size: 11px;
+    color: var(--text-3); min-width: 20px; font-variant-numeric: tabular-nums;
+  }
+  .rail a[aria-current="true"] i { color: var(--accent); }
+  .rail .off {
+    display: flex; align-items: baseline; gap: 9px; padding: 6px 20px;
+    font-size: 14px; color: var(--text-3); cursor: default;
+    border-left: 2px solid transparent;
+  }
+  .rail .off i {
+    font-family: var(--mono); font-style: normal; font-size: 11px;
+    min-width: 20px; color: var(--text-3); font-variant-numeric: tabular-nums;
+  }
+  .rail .off em {
+    margin-left: auto; font-style: normal; font-family: var(--mono);
+    font-size: 9.5px; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--text-3); border: 1px solid var(--line); border-radius: 20px;
+    padding: 1px 6px;
+  }
+
+  /* ---------- main ---------- */
+  main { padding: 0; min-width: 0; }
+  .pane { display: none; padding: 46px 44px 96px; max-width: 980px; }
+  .pane.on { display: block; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent); margin: 0 0 10px;
+  }
+  h1 {
+    font-family: var(--display); font-weight: 600; font-size: clamp(30px, 4.4vw, 42px);
+    line-height: 1.1; letter-spacing: -.02em; margin: 0 0 14px; text-wrap: balance;
+  }
+  .standfirst {
+    font-family: var(--display); font-size: 19px; line-height: 1.5; color: var(--text-2);
+    margin: 0 0 34px; max-width: 62ch;
+  }
+  h2 {
+    font-family: var(--display); font-weight: 600; font-size: 25px; letter-spacing: -.012em;
+    margin: 46px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line-soft);
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--body); font-weight: 600; font-size: 15.5px; margin: 28px 0 8px;
+    letter-spacing: .002em;
+  }
+  h4 {
+    font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--text-3); margin: 24px 0 8px;
+  }
+  p, li { max-width: 68ch; }
+  p { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  strong { font-weight: 600; }
+  code {
+    font-family: var(--mono); font-size: .875em; background: var(--surface-2);
+    padding: 1.5px 4.5px; border-radius: 4px; border: 1px solid var(--line-soft);
+  }
+  hr { border: 0; border-top: 1px solid var(--line-soft); margin: 34px 0; }
+
+  /* ---------- command blocks ---------- */
+  .cmd { position: relative; margin: 0 0 14px; }
+  .cmd pre {
+    margin: 0; background: var(--code-bg); color: var(--code-text); border-radius: 8px;
+    padding: 13px 52px 13px 15px; overflow-x: auto; font-family: var(--mono);
+    font-size: 13px; line-height: 1.7;
+  }
+  .cmd pre .p { color: #6D8291; -webkit-user-select: none; user-select: none; }
+  .cmd button {
+    position: absolute; top: 8px; right: 8px; font: inherit; font-size: 10.5px;
+    font-family: var(--mono); letter-spacing: .06em; text-transform: uppercase;
+    background: rgba(255,255,255,.07); color: #93A6B3; border: 1px solid rgba(255,255,255,.13);
+    border-radius: 5px; padding: 3px 7px; cursor: pointer;
+  }
+  .cmd button:hover { background: rgba(255,255,255,.14); color: #D8E2E8; }
+  .cmd button.done { color: var(--pass); border-color: var(--pass); }
+
+  /* ---------- trace ---------- */
+  .trace {
+    background: var(--code-bg); border-radius: 8px; padding: 14px 16px; overflow-x: auto;
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.85; margin: 0 0 16px;
+    color: var(--code-text);
+  }
+  .trace .out { color: #7FB3C8; }
+  .trace .in  { color: #C9A86A; }
+  .trace .note { color: #6D8291; }
+  .trace .tally {
+    display: block; margin-top: 9px; padding-top: 9px;
+    border-top: 1px solid rgba(255,255,255,.12); color: #E4EBF0;
+  }
+
+  /* ---------- callouts ---------- */
+  .note-box, .measured, .warn {
+    border-radius: 8px; padding: 14px 17px; margin: 0 0 18px; border: 1px solid;
+  }
+  .note-box { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 24%, transparent); }
+  .measured { background: var(--amber-soft); border-color: color-mix(in srgb, var(--amber) 34%, transparent); }
+  .warn { background: var(--fail-soft); border-color: color-mix(in srgb, var(--fail) 30%, transparent); }
+  .note-box > :last-child, .measured > :last-child, .warn > :last-child { margin-bottom: 0; }
+  .note-box p, .measured p, .warn p { max-width: 64ch; }
+  .kicker {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .09em; text-transform: uppercase;
+    font-weight: 600; display: block; margin-bottom: 5px;
+  }
+  .note-box .kicker { color: var(--accent); }
+  .measured .kicker { color: var(--amber); }
+  .warn .kicker { color: var(--fail); }
+
+  /* ---------- tables ---------- */
+  .scroll { overflow-x: auto; margin: 0 0 20px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 9px 13px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  th {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--text-3); font-weight: 600; border-bottom: 1px solid var(--line);
+  }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+
+  /* ---------- steps ---------- */
+  .steps { display: flex; flex-direction: column; gap: 0; margin: 0 0 8px; }
+  .step {
+    display: grid; grid-template-columns: 62px minmax(0,1fr); gap: 20px;
+    padding: 22px 0; border-top: 1px solid var(--line-soft);
+  }
+  .step:last-child { border-bottom: 1px solid var(--line-soft); }
+  .step > .ord { display: flex; flex-direction: column; gap: 3px; }
+  .ord b {
+    font-family: var(--mono); font-size: 20px; font-weight: 500; line-height: 1;
+    color: var(--accent); font-variant-numeric: tabular-nums;
+  }
+  .ord span { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+  .step h3 { margin: 0 0 4px; font-size: 17px; font-family: var(--display); font-weight: 600; letter-spacing: -.01em; }
+  .step > div > :last-child { margin-bottom: 0; }
+  .gate {
+    display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono);
+    font-size: 11.5px; background: var(--pass-soft); color: var(--pass);
+    border: 1px solid color-mix(in srgb, var(--pass) 30%, transparent);
+    padding: 3px 9px; border-radius: 20px; margin-top: 10px;
+  }
+
+  /* ---------- track cards ---------- */
+  .tracks { display: grid; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr)); gap: 16px; margin: 0 0 24px; }
+  .track {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px; display: flex; flex-direction: column; gap: 9px; box-shadow: var(--shadow);
+  }
+  .track h3 { margin: 0; font-family: var(--display); font-size: 18px; letter-spacing: -.01em; }
+  .track code { font-size: 11.5px; background: var(--surface-2); }
+  .track p { margin: 0; font-size: 14px; color: var(--text-2); max-width: none; }
+  .track dl { margin: 4px 0 0; display: grid; gap: 6px; font-size: 13px; }
+  .track dt {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .track dd { margin: 1px 0 0; color: var(--text-2); }
+
+  /* ---------- misc ---------- */
+  .pill {
+    display: inline-block; font-family: var(--mono); font-size: 10.5px; letter-spacing: .07em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 20px; border: 1px solid;
+    vertical-align: 2px; margin-left: 8px;
+  }
+  .pill.wip { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 40%, transparent); background: var(--amber-soft); }
+  .pill.live { color: var(--pass); border-color: color-mix(in srgb, var(--pass) 34%, transparent); background: var(--pass-soft); }
+  .lead-in { display: flex; flex-direction: column; gap: 6px; margin: 0 0 26px; }
+  .ladder { display: flex; flex-direction: column; gap: 0; margin: 0 0 22px; }
+  .rung {
+    display: grid; grid-template-columns: 150px minmax(0,1fr); gap: 18px; padding: 12px 0;
+    border-top: 1px dashed var(--line); align-items: baseline;
+  }
+  .rung:last-child { border-bottom: 1px dashed var(--line); }
+  .rung b { font-family: var(--body); font-weight: 600; font-size: 14.5px; }
+  .rung span { color: var(--text-2); font-size: 14px; }
+  footer {
+    border-top: 1px solid var(--line-soft); margin-top: 54px; padding-top: 18px;
+    color: var(--text-3); font-size: 13px;
+  }
+  .toggle {
+    margin: 18px 20px 0; padding: 6px 10px; font: inherit; font-size: 12px;
+    font-family: var(--mono); background: transparent; color: var(--text-3);
+    border: 1px solid var(--line); border-radius: 6px; cursor: pointer; align-self: flex-start;
+  }
+  .toggle:hover { color: var(--text); border-color: var(--text-3); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+  @media (max-width: 880px) {
+    .shell { grid-template-columns: 1fr; }
+    .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+    .pane { padding: 30px 20px 70px; }
+    .step { grid-template-columns: 44px minmax(0,1fr); gap: 14px; }
+    .rung { grid-template-columns: 1fr; gap: 3px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <b>Agent Lab Handbook</b>
+      <span>Enterprise AI Fluency</span>
+    </div>
+    <div class="finder">
+      <input id="finder" type="search" placeholder="Filter sections…" autocomplete="off" aria-label="Filter sections">
+    </div>
+    <nav id="nav">
+      <div class="group">
+        <p>Before you start</p>
+        <a href="#start" data-pane="start"><i>—</i>Start here</a>
+        <a href="#how" data-pane="how"><i>—</i>How the lab runs</a>
+        <a href="#tracks" data-pane="tracks"><i>—</i>Your track</a>
+      </div>
+      <div class="group">
+        <p>Modules</p>
+        <a href="#m1" data-pane="m1"><i>01</i>Harness &amp; coding agent</a>
+        <span class="off" aria-disabled="true"><i>02</i>RAG &amp; retrieval<em>Later</em></span>
+        <span class="off" aria-disabled="true"><i>03</i>Graphs &amp; ontologies<em>Later</em></span>
+        <span class="off" aria-disabled="true"><i>04</i>The full AI system<em>Later</em></span>
+      </div>
+      <div class="group">
+        <p>Reference</p>
+        <a href="#concepts" data-pane="concepts"><i>—</i>Concepts</a>
+        <a href="#commands" data-pane="commands"><i>—</i>Commands</a>
+        <a href="#trouble" data-pane="trouble"><i>—</i>When it breaks</a>
+        <a href="#facilitator" data-pane="facilitator"><i>—</i>Facilitator notes</a>
+      </div>
+    </nav>
+    <button class="toggle" id="themeBtn" type="button">Theme: auto</button>
+  </aside>
+
+  <main>
+    <!-- ============ START ============ -->
+    <section class="pane on" id="pane-start">
+      <p class="eyebrow">Start here</p>
+      <h1>Eight hours, four modules, one plugin you keep</h1>
+      <p class="standfirst">This is a training in AI fluency: going from understanding how AI
+      agents work to building a full AI system that does real, complex work. You build it
+      yourself, on your own machine, and you take it home.</p>
+
+      <h2>Three commands</h2>
+      <h3>1. Make an empty folder and open VS Code in it</h3>
+      <div class="cmd"><pre><span class="p">$</span> mkdir ~/agent-lab &amp;&amp; cd ~/agent-lab &amp;&amp; code .</pre></div>
+      <p>The lab needs its own folder — it becomes a git repository holding your checkpoint
+      commits. Don't open VS Code in your home directory or an existing project.</p>
+
+      <h3>2. Add the marketplace and install the tutor</h3>
+      <p>In the Claude Code panel:</p>
+      <div class="cmd"><pre>/plugin marketplace add Ravl-io/agent-lab-marketplace
+/plugin install lab@agent-lab</pre></div>
+      <p>If the install summary says <code>Run /reload-plugins to activate</code>, run that.</p>
+
+      <h3>3. Start</h3>
+      <div class="cmd"><pre>/lab:start</pre></div>
+      <p>That orients you, shows the curriculum, lists what you need installed, checks your
+      machine, and asks which track you're on. It's also the command you run at the start of
+      every session to pick up where you left off.</p>
+
+      <div class="warn">
+        <span class="kicker">Accept the trust prompt</span>
+        <p>Claude Code shows a trust dialog the first time you open a folder. Until you accept
+        it, the project's permission settings are ignored and every tool call stops to ask you
+        for approval. If you see <em>"Ignoring N permissions.allow entries… this workspace has
+        not been trusted"</em>, that's this.</p>
+      </div>
+
+      <h2>What you need for module 1</h2>
+      <p>Three things, plus VS Code with the Claude Code extension. That's all module 1
+      touches.</p>
+      <div class="scroll"><table>
+        <tr><th>Required</th><th>Why</th></tr>
+        <tr><td>Python 3.10+</td><td>The lab's scripts, the experiment runner and the tracer hook are Python — and so is the tool you write in step 4</td></tr>
+        <tr><td>Git 2.30+</td><td>Every checkpoint is a commit, and undoing an agent's write in step 5 is a <code>git checkout</code></td></tr>
+        <tr><td>Write access in the lab folder</td><td>Your plugin, your notes and your progress are all written here</td></tr>
+      </table></div>
+      <p>Run <code>/lab:checklist</code> for the same list with install commands for your
+      platform, or <code>/lab:doctor</code> to check your machine.</p>
+      <div class="note-box">
+        <span class="kicker">Later modules need more</span>
+        <p>pip and venv from module 2, a 90 MB embedding model download and about 2 GB of disk
+        from module 2, SQLite 3.35+ from module 3. <code>/lab:doctor</code> checks all of it and
+        reports it as <em>needed later</em> — a gap there won't block your first session, and
+        we install those together when the module reaches them.</p>
+      </div>
+      <div class="note-box">
+        <span class="kicker">macOS Python</span>
+        <p>macOS ships Python 3.9 as <code>python3</code>, which is too old. The lab searches
+        for a newer interpreter under its other names, picks the newest that qualifies, and
+        uses that throughout. If <code>/lab:doctor</code> says it's ready while naming a
+        different interpreter, that's correct and there's nothing to fix.</p>
+      </div>
+
+      <h2>The four modules</h2>
+      <div class="scroll"><table>
+        <tr><th>Module</th><th>The question it answers</th><th>What your system can do after</th></tr>
+        <tr><td><strong>1</strong> Harness &amp; coding agent</td><td>What <em>is</em> an agent, and which primitive do I reach for?</td><td>A skill, a tool, a hook and a plugin — installed and running</td></tr>
+        <tr><td><strong>2</strong> RAG &amp; retrieval</td><td>The agent knows nothing about our documents. How do we ground it, and know we improved it?</td><td>Chunked ingestion, retrieval as a tool, answers that cite</td></tr>
+        <tr><td><strong>3</strong> Graphs &amp; ontologies</td><td>Why do some questions still fail, and what beats vector search?</td><td>An ontology and a graph, routed alongside retrieval</td></tr>
+        <tr><td><strong>4</strong> The full AI system</td><td>What stands between "works on my machine" and something a team relies on?</td><td>A proposal pipeline behind a human approval gate</td></tr>
+      </table></div>
+      <footer>Sessions run days apart. Each one opens with <code>/lab:start</code>, which shows
+      what you built last time and re-checks your environment.</footer>
+    </section>
+
+    <!-- ============ HOW ============ -->
+    <section class="pane" id="pane-how">
+      <p class="eyebrow">How the lab runs</p>
+      <h1>You type. The tutor coaches.</h1>
+      <p class="standfirst">This is the working agreement. It's short, and the first line is
+      the one that matters.</p>
+
+      <h2>The learning contract</h2>
+      <p>The tutor explains, reviews, unblocks, quizzes and grades. It deliberately will
+      <strong>not</strong> write your work for you — if it did, you'd leave with something you
+      can't maintain and no idea how it works.</p>
+      <p>Being stuck is not a failure state. <code>/lab:hint</code> gives a nudge rather than a
+      solution, and getting unstuck is the part that teaches. If you ask outright for the
+      answer, the tutor will show you the <em>shape</em> of it and leave the interesting
+      decisions to you.</p>
+
+      <h2>Every block runs the same five beats</h2>
+      <div class="ladder">
+        <div class="rung"><b>Frame</b><span>Why this exists — what broke in the step before</span></div>
+        <div class="rung"><b>Build</b><span>You type. The tutor coaches, the facilitator floats</span></div>
+        <div class="rung"><b>Run</b><span>You see the real output, or the real score</span></div>
+        <div class="rung"><b>Name</b><span><em>Now</em> the concept gets its name, and its limits</span></div>
+        <div class="rung"><b>Gate</b><span>A checkpoint: your work is validated and saved</span></div>
+      </div>
+      <p>Concepts arrive <strong>after</strong> you've felt the problem they solve. If something
+      feels frustrating just before a concept lands, that's the design working, not you
+      failing.</p>
+
+      <h2>Checkpoints, and never being stranded</h2>
+      <p>Each module has several checkpoints. At each one your work is validated by a real
+      check — not a tick-box — and committed, so it survives between sessions and across
+      machines.</p>
+      <p>If something breaks badly, or you fall behind the room:</p>
+      <div class="cmd"><pre>/lab:catchup</pre></div>
+      <p>That replays the lab's own files — settings, the tracer, the experiment runner — and
+      repairs anything deleted or broken, without touching your work. Adding
+      <code>--with-reference</code> also drops in the reference solution, which is the rescue
+      for someone genuinely stranded.</p>
+      <div class="note-box">
+        <span class="kicker">Not cheating</span>
+        <p>Catchup exists so one bad <code>pip install</code> or a mistyped <code>rm</code>
+        can't cost you a module. Use it without embarrassment. The only thing it costs you is
+        the learning from the exercise it skipped, which is why the tutor will offer you a hint
+        first.</p>
+      </div>
+
+      <h2>The gates are real</h2>
+      <p>A checkpoint that only records progress isn't a gate. Each one runs a script that
+      checks behaviour:</p>
+      <div class="scroll"><table>
+        <tr><th>Gate</th><th>What it actually checks</th></tr>
+        <tr><td><code>check_intent.py</code></td><td>The five sections, and that Open questions isn't empty</td></tr>
+        <tr><td><code>check_skill.py</code></td><td>Folder and frontmatter names match, description long enough to trigger, no TODOs, body has real structure</td></tr>
+        <tr><td><code>check_tool.py</code></td><td><code>--selftest</code> passes with at least three checks, stdout is valid JSON, the agreed keys are present</td></tr>
+        <tr><td><code>check_hook.py</code></td><td>It's registered under <code>PreToolUse</code>, then five payloads are fed to it to see what it decides</td></tr>
+        <tr><td><code>check_plugin.py</code></td><td>Components are in the plugin, paths are portable, <code>claude plugin validate</code> passes</td></tr>
+      </table></div>
+      <p>Each reports specific problems, and each distinguishes blocking failures from "worth
+      improving". A note is your next iteration, not a mistake.</p>
+    </section>
+
+    <!-- ============ TRACKS ============ -->
+    <section class="pane" id="pane-tracks">
+      <p class="eyebrow">Your track</p>
+      <h1>Same concepts, three different jobs</h1>
+      <p class="standfirst">Every track runs the same modules on the same timeline. What differs
+      is the corpus and the task — so the thing you build is one you'd recognise from work.</p>
+
+      <div class="tracks">
+        <div class="track">
+          <h3>L2 Support Triage</h3>
+          <code>support-triage</code>
+          <p>Tickets arrive from Salesforce after level 1 escalates them. Decide whether each is
+          a configuration problem, a user doing something their plan doesn't allow, or a genuine
+          product defect — with evidence.</p>
+          <dl>
+            <dt>Data you get</dt>
+            <dd>Ticket exports, <code>support.db</code> (accounts, audit log, entitlements, case
+            history), the knowledge base, a known-issues register</dd>
+            <dt>By module 4</dt>
+            <dd><code>/triage CASE-4471</code> produces a cited triage note and a proposed
+            resolution, applied only after <code>/approve</code></dd>
+            <dt>Best for</dt>
+            <dd>Support, service desk, anyone doing L2/L3 diligence</dd>
+          </dl>
+        </div>
+        <div class="track">
+          <h3>Vendor QA</h3>
+          <code>vendor-qa</code>
+          <p>A supplier has submitted milestone deliverables. Establish whether what was promised
+          is what shipped, with each finding tied to the acceptance criterion and the contract
+          clause behind it.</p>
+          <dl>
+            <dt>Data you get</dt>
+            <dd>The MSA and SOW, a requirements register, the submitted deliverables, a worked
+            findings pack</dd>
+            <dt>By module 4</dt>
+            <dd>A findings pack with severity and evidence, issued only after sign-off</dd>
+            <dt>Best for</dt>
+            <dd>Outsourced delivery, acceptance testing, audit, compliance</dd>
+          </dl>
+        </div>
+        <div class="track">
+          <h3>Document Transformation</h3>
+          <code>docgen</code>
+          <p>Every month someone turns sync notes, status updates and metric extracts into the
+          delivery report. It's slow, it reads differently each time, and half the claims can't be
+          traced to anything.</p>
+          <dl>
+            <dt>Data you get</dt>
+            <dd>A month of heterogeneous sources, the report template, the house style rules, last
+            month's published report</dd>
+            <dt>By module 4</dt>
+            <dd>A cited report in house style with gaps flagged, published only after approval</dd>
+            <dt>Best for</dt>
+            <dd>Recurring reports, briefs, documentation. The gentlest on-ramp</dd>
+          </dl>
+        </div>
+      </div>
+
+      <p>Your facilitator may assign a track by group, or you choose when
+      <code>/lab:start</code> asks. To see or change it:</p>
+      <div class="cmd"><pre>/lab:track                    <span class="p"># show yours in detail</span>
+/lab:track vendor-qa          <span class="p"># switch</span></pre></div>
+      <p>Switching before you've completed a module costs nothing. After that, your plugin,
+      corpus and golden queries are all track-specific, so you'd be starting the build over.</p>
+
+      <div class="note-box">
+        <span class="kicker">Why three</span>
+        <p>Module 4 ends with all three groups demonstrating on cases they've never seen, and
+        comparing. Three unrelated domains arrive at the same architecture — that's the
+        transferability lesson, and it only works because the tracks really are different jobs.</p>
+      </div>
+    </section>
+
+    <!-- ============ MODULE 1 ============ -->
+    <section class="pane" id="pane-m1">
+      <p class="eyebrow">Module 01 · two hours</p>
+      <h1>Harness and coding agent<span class="pill live">Ready</span></h1>
+      <p class="standfirst">By the end you should be able to answer, out loud, to a colleague:
+      what is an agent, what is the harness made of, and which primitive do I reach for?</p>
+
+      <h2>The ladder</h2>
+      <p>You climb a ladder where each rung exists because the one below it broke.</p>
+      <div class="scroll"><table>
+        <tr><th>Rung</th><th>What it fixes</th><th>What's still wrong</th></tr>
+        <tr><td><strong>Prompt</strong></td><td>Gets a result, once</td><td>Not repeatable, not shareable</td></tr>
+        <tr><td><strong>User-invoked skill</strong><br><span style="color:var(--text-3)">a "command"</span></td><td>A repeatable, versioned prompt</td><td>Can't act; can't guarantee anything</td></tr>
+        <tr><td><strong>Tool</strong></td><td>Deterministic action, structured output</td><td>The agent doesn't know when to use it</td></tr>
+        <tr><td><strong>Model-invoked skill</strong></td><td>The agent decides when, from the description</td><td>It can still skip it</td></tr>
+        <tr><td><strong>Hook</strong></td><td>Enforcement the model can't bypass</td><td>Not distributable on its own</td></tr>
+        <tr><td><strong>Plugin</strong></td><td>Packages all of it, installable, versioned</td><td>—</td></tr>
+      </table></div>
+      <div class="note-box">
+        <span class="kicker">One primitive, two invocation modes</span>
+        <p>Rungs 2 and 4 are <strong>the same file format</strong>, one frontmatter line apart.
+        <code>disable-model-invocation: true</code> makes it yours to type; leaving it off makes
+        the <code>description</code> a trigger. You'll write one, then turn it into the other.</p>
+      </div>
+
+      <h2>The lab, step by step</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="ord"><b>0</b><span>5 min</span></div>
+          <div>
+            <h3>Setup</h3>
+            <p>Five files and nothing else: <code>settings.json</code>, a tracer hook,
+            and an experiment runner with its first prompt. No data yet — setup is incremental
+            on purpose, and each stage adds only what the next experiment needs.</p>
+            <div class="gate">Checkpoint M1.C0-setup</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="ord"><b>1</b><span>10 min</span></div>
+          <div>
+            <h3>What is an agent?</h3>
+            <p>Three runs of the same thing, differing in one flag. Read
+            <code>.claude/lab-trace.log</code> after each — hook output isn't shown in the
+            session, which is why it goes to a file you open.</p>
+            <div class="cmd"><pre><span class="p">$</span> python3 experiments/exp.py 1   <span class="p"># --tools ""</span>
+<span class="p">$</span> python3 experiments/exp.py 2   <span class="p"># --tools "Read"</span>
+<span class="p">$</span> python3 experiments/exp.py 3   <span class="p"># --tools "Read,Write"</span></pre></div>
+            <p>With no tools, the model answers the general question well and says plainly that
+            it cannot know what your ticket is. One call, zero tool requests. Then you give it
+            <code>Read</code>:</p>
+            <div class="trace"><span class="out">--&gt; SENT TO THE MODEL</span>        your prompt
+<span class="in">&lt;-- BACK FROM THE MODEL</span>      it wants a tool: Read(file_path=…)
+<span class="out">--&gt; HANDED TO THE HARNESS</span>    <span class="note">(the model is paused, waiting)</span>
+<span class="in">&lt;-- RESULT SENT BACK</span>         1,247 chars of the file
+<span class="in">&lt;-- FINAL ANSWER</span>             what the ticket is about
+<span class="tally">This experiment: 2 call(s) to the model, 1 tool request(s).</span></div>
+            <p><strong>The model didn't read the file. It asked.</strong> The result went back
+            in, and the model ran again — so an agent is not a model, it's the <em>loop</em>.</p>
+            <div class="gate">Checkpoint M1.C1-agent</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="ord"><b>2</b><span>10 min</span></div>
+          <div>
+            <h3>The core tools, and their limit</h3>
+            <p>Read, write, execute, search files, search the web. Almost everything an agent
+            appears to do decomposes into those five. Then you hand it all of them and ask for
+            your real job, with no procedure at all.</p>
+            <div class="cmd"><pre><span class="p">$</span> python3 experiments/exp.py 4</pre></div>
+            <div class="measured">
+              <span class="kicker">Expect it to do well</span>
+              <p>A capable model with good data does this job <em>well</em>. That's not the
+              problem being solved, and you won't be told otherwise. What's wrong is elsewhere:
+              it spent its opening turns running <code>find</code> and <code>ls</code> to work
+              out where your data lives, it invented its own output shape rather than the one
+              your team reviews, and it will do all of that differently next time.</p>
+            </div>
+            <p><strong>Tools give capability. They don't carry procedure</strong> — the order you
+            work in, the checks that must happen before a conclusion, the format your colleagues
+            review. That gap is what a skill fills: not making bad work good, but making good
+            work repeatable.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="ord"><b>2b</b><span>8 min</span></div>
+          <div>
+            <h3>Intent</h3>
+            <p>You've just watched an agent do your job well and in the wrong shape. Now write
+            down the right shape. This is the <strong>kickoff artifact</strong> from Anthropic's
+            AI-native SDLC playbook — in real work it comes first, in place of a backlog entry
+            and a refinement meeting.</p>
+            <p>Don't fill it in alone. The tutor interviews you about scope, users, constraints
+            and what success looks like, drafts <code>intent.md</code> from your answers, and you
+            correct what it got wrong. The words stay yours; that's the point of the artifact.</p>
+            <div class="scroll"><table>
+              <tr><th>Section</th><th>What it's for</th><th>Where it lands</th></tr>
+              <tr><td>Problem</td><td>What's wrong today, in your words</td><td>What you check the result against</td></tr>
+              <tr><td>Proposed outcome</td><td>What's true once this exists</td><td>Module 4's acceptance criteria</td></tr>
+              <tr><td>Affected users and systems</td><td>Who touches it, what it reads and writes — and what it deliberately doesn't</td><td>Scope, and the write boundary in step 5</td></tr>
+              <tr><td>Constraints</td><td>The rules it must work within</td><td><strong>Your skill's constraints and your hook</strong></td></tr>
+              <tr><td>Open questions</td><td>What you don't know yet</td><td>The list you take to your team</td></tr>
+            </table></div>
+            <div class="warn">
+              <span class="kicker">Don't leave Open questions empty</span>
+              <p>It's the section people skip and the one that costs. An unwritten question gets
+              silently answered by whoever implements it, usually wrongly and usually without
+              anyone noticing. The gate refuses an empty one.</p>
+            </div>
+            <p>Keep the whole file under about 40 lines. In step 6 it gets imported into
+            <code>CLAUDE.md</code> with a line reading <code>@intent.md</code>, which puts it in
+            context on every turn — the difference between intent that shapes the work and intent
+            that sits in a file nobody opens. Every line is then paid for on every turn.</p>
+            <div class="gate">Checkpoint M1.C2-intent</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="ord"><b>3</b><span>20 min</span></div>
+          <div>
+            <h3>Skills</h3>
+            <p>A skill is a folder with a <code>SKILL.md</code> in it. What makes it different
+            from a document is <em>when</em> it loads:</p>
+            <div class="scroll"><table>
+              <tr><th>Level</th><th>What it is</th><th>When the model sees it</th></tr>
+              <tr><td>1</td><td>The <code>description</code> in the frontmatter</td><td><strong>Every turn</strong>, alongside the tool definitions</td></tr>
+              <tr><td>2</td><td>The body of <code>SKILL.md</code></td><td>Only once the model decides to activate it</td></tr>
+              <tr><td>3</td><td>Files the body points at</td><td>Only if the procedure needs them</td></tr>
+            </table></div>
+            <p>That's <strong>progressive disclosure</strong>. The model sees a one-line menu of
+            everything available, so a skill that isn't used costs one line. You write yours from
+            a scaffold, starting from the Constraints section of your intent — the first time an
+            earlier artifact pays for itself.</p>
+            <p>Then you run the <em>same prompt as step 2</em>, with the skill available, and read
+            the trace:</p>
+            <div class="trace"><span class="in">&lt;-- BACK FROM THE MODEL</span>      Skill(skill='triage-ticket', args='CASE-4471')
+<span class="note">   …the model chose it. Nobody typed a slash command.</span>
+<span class="in">&lt;-- RESULT SENT BACK</span>         {"success": true}
+<span class="note">   …the body is NOT in the trace. The harness injects it as context.</span>
+<span class="in">&lt;-- BACK FROM THE MODEL</span>      Read(data/examples/triage-note-example.md)
+<span class="in">&lt;-- BACK FROM THE MODEL</span>      Read(data/knowledge/triage-policy.md)
+<span class="note">   …level 3: it fetched what the procedure referenced, and only that.</span></div>
+            <p>You can't <em>see</em> the body arrive — but you can see that it did, because
+            everything after activation follows your procedure in your order.</p>
+            <div class="measured">
+              <span class="kicker">Measured, same prompt both columns</span>
+              <div class="scroll"><table>
+                <tr><th>Track</th><th class="num">No skill</th><th class="num">With the skill</th></tr>
+                <tr><td><code>support-triage</code></td><td class="num">18 requests</td><td class="num"><strong>13</strong></td></tr>
+                <tr><td><code>vendor-qa</code></td><td class="num">14</td><td class="num"><strong>11</strong></td></tr>
+                <tr><td><code>docgen</code></td><td class="num">12</td><td class="num"><strong>9</strong></td></tr>
+              </table></div>
+              <p>The saving is the discovery phase disappearing. The magnitude varies for a
+              reason worth knowing: the more of the job already written down in your corpus, the
+              less a skill has left to add.</p>
+            </div>
+            <h4>Then break the description</h4>
+            <p>Replace yours with something useless and run it again. The result is more
+            interesting than "it stops working":</p>
+            <div class="scroll"><table>
+              <tr><th>Description</th><th>Fires?</th><th class="num">At which call</th><th class="num">Requests</th></tr>
+              <tr><td>Accurate — names the task <em>and</em> when to use it</td><td>Yes</td><td class="num"><strong>1st</strong></td><td class="num"><strong>13</strong></td></tr>
+              <tr><td>Vague — "Helper for tickets."</td><td>Yes</td><td class="num">7th</td><td class="num">20</td></tr>
+              <tr><td>Wrong job — "Formats phone numbers…"</td><td><strong>No</strong></td><td class="num">—</td><td class="num">17</td></tr>
+            </table></div>
+            <p>The middle row is the surprise: <strong>a vaguely described skill is worse than no
+            skill at all.</strong> The agent blunders for six turns, <em>then</em> finds the skill
+            and starts the procedure over. You pay twice.</p>
+            <div class="gate">Checkpoint M1.C3-skill</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="ord"><b>4</b><span>15 min</span></div>
+          <div>
+            <h3>A tool</h3>
+            <p>A skill is instructions; the agent still decides how to follow them, slightly
+            differently each time. A tool is <strong>code</strong>: same input, same output, and
+            you can test it. You reach for one when a step has a single right answer you're not
+            willing to leave to judgement.</p>
+            <p>On <code>support-triage</code> that's the entitlement question — <em>was this
+            account entitled on the ticket's date</em> — a query with a date filter that's wrong
+            in a way nobody notices if it's omitted. You write the tool, then make it prove
+            itself:</p>
+            <div class="cmd"><pre><span class="p">$</span> python3 tools/account_snapshot.py --selftest
+6/6 checks passed</pre></div>
+            <p>One of those checks must be that calling it twice with the same input gives the
+            same result. <strong>You've just written a test for a piece of your agent.</strong>
+            You can't do that to a prompt — this is the seed of what module 4 calls an eval.</p>
+            <div class="measured">
+              <span class="kicker">Don't expect it to be faster</span>
+              <div class="scroll"><table>
+                <tr><th>Run</th><th class="num">Tool requests</th></tr>
+                <tr><td>Step 3, skill only</td><td class="num">13</td></tr>
+                <tr><td>Step 4, tool + skill</td><td class="num">13</td></tr>
+                <tr><td>Step 4, skill told explicitly to trust the tool</td><td class="num">16</td></tr>
+              </table></div>
+              <p>The tool did <em>not</em> reduce round trips. The agent ran it and then verified
+              parts of the result against the database anyway — and telling it not to made that
+              run worse. Two better lessons come out of this. The agent verifying independently
+              isn't a bug; a support engineer who double-checks a tool is behaving well. And
+              <strong>13, 13, 16 from the same setup</strong> means you cannot tell whether a
+              change helped from one run. That's why module 2 keeps a scoreboard over fifteen
+              queries, and why module 4 is largely evals.</p>
+            </div>
+            <div class="gate">Checkpoint M1.C4-tool</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="ord"><b>5</b><span>15 min</span></div>
+          <div>
+            <h3>A hook</h3>
+            <p>Your skill says where the output goes. Watch what happens when a prompt asks for
+            something reasonable-sounding instead — save the result into <code>data/</code>, "so
+            the next person finds it alongside the source material".</p>
+            <div class="cmd"><pre><span class="p">$</span> python3 experiments/exp.py 6
+<span class="p">$</span> git status --short data/
+?? data/knowledge/CASE-4471-triage.md</pre></div>
+            <p>Your work product is now inside your evidence. Once the agent can write there you
+            can no longer tell what was evidence and what the agent produced — the next run reads
+            this note as a source. That's how a corpus quietly rots. Then:</p>
+            <div class="cmd"><pre><span class="p">$</span> git checkout -- data/</pre></div>
+            <p>Which is what the git repository from step 0 is actually for: you can undo an
+            agent. Now you write a hook that runs on every write, before the write happens, and
+            can't be talked out of it. Test it without an agent at all:</p>
+            <div class="cmd"><pre><span class="p">$</span> echo '{"tool_name":"Write","tool_input":{"file_path":"data/x.md"}}' \
+    | python3 .claude/hooks/write_boundary.py</pre></div>
+            <p>Deny prints JSON; allow prints nothing. Three commands, no model, no waiting,
+            definitive. Register it in <code>settings.json</code> — a hook that isn't registered
+            never runs — and run the experiment again:</p>
+            <div class="trace"><span class="in">Write</span> data/knowledge/CASE-4471-triage.md   <span style="color:#E08A73">BLOCKED</span>
+<span class="in">Write</span> triage/CASE-4471.md                  <span style="color:#6FC79B">EXECUTED</span>
+<span class="tally">corpus: 0 changes</span></div>
+            <p>In the trace, a blocked write is a request from the model with <strong>no RESULT
+            line after it</strong>. That absence is what a refusal looks like.</p>
+            <h4>The hole you should find</h4>
+            <p>You've blocked the write <em>tools</em>. How would you get round it?
+            <code>Bash</code> — <code>cp</code>, <code>mv</code>, <code>sed -i</code>, a
+            redirect. Don't fix that by grepping shell commands: you can't enumerate the ways to
+            write a file, and a rule matching <code>data/</code> also blocks
+            <code>sqlite3 data/db/support.db "SELECT …"</code>, which is a read.</p>
+            <div class="note-box">
+              <span class="kicker">Controls are layered</span>
+              <p><code>--tools</code> decides which tools exist at all. <code>permissions</code>
+              decides which may run without asking. <strong>This hook</strong> decides what a
+              permitted tool may touch. Module 4's gate decides who approves the consequential
+              action. Any one of them alone is theatre — the hook's value is being the layer the
+              model can't argue with, not being sufficient.</p>
+            </div>
+            <div class="gate">Checkpoint M1.C5-hook</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="ord"><b>6</b><span>20 min</span></div>
+          <div>
+            <h3>The plugin</h3>
+            <p>You have a skill, a tool, a hook, some data and some output. The question that
+            makes this a lesson: <strong>which of those would you hand to a colleague, and which
+            are yours alone?</strong></p>
+            <div class="scroll"><table>
+              <tr><th>Goes in the plugin</th><th>Stays in the project</th></tr>
+              <tr><td>The <strong>skill</strong> — your procedure</td><td>The <strong>data</strong> — your evidence</td></tr>
+              <tr><td>The <strong>tool</strong> — code that must not vary</td><td>The <strong>output</strong> — what you produced</td></tr>
+              <tr><td>The <strong>hook</strong> — what must not happen</td><td><code>CLAUDE.md</code>, <code>intent.md</code> — what this project is</td></tr>
+            </table></div>
+            <p>A plugin is <em>portable capability</em>; the project is <em>this situation</em>.
+            If a colleague installing your plugin would also need your <code>data/</code>
+            directory, something is in the wrong pile.</p>
+            <div class="warn">
+              <span class="kicker">Two paths will break, and that's the lesson</span>
+              <p>Your tool computes its data location from <code>__file__</code>. Inside the
+              plugin that resolves to the <em>plugin's</em> directory, where the data isn't — fix
+              it with <code>CLAUDE_PROJECT_DIR or getcwd()</code>. And your skill says
+              <code>python3 tools/&lt;tool&gt;.py</code>, a path relative to whoever installed
+              the plugin, which isn't you. It becomes
+              <code>${CLAUDE_PLUGIN_ROOT}/tools/&lt;tool&gt;.py</code>.</p>
+              <p><strong><code>${CLAUDE_PLUGIN_ROOT}</code> is where the capability lives;
+              <code>${CLAUDE_PROJECT_DIR}</code> is where the situation lives.</strong> Getting
+              these the wrong way round is why a plugin works for its author and nobody else.</p>
+            </div>
+            <div class="cmd"><pre><span class="p">$</span> claude plugin validate ./triage-assistant
+<span class="p">$</span> python3 experiments/exp.py 7</pre></div>
+            <p>The first is the same command anybody publishing a plugin runs. The second is the
+            same task again, with the capability arriving from the plugin. Move
+            <code>.claude/skills/</code> and <code>tools/</code> out of the way first, and if it
+            still works, the plugin is genuinely self-contained.</p>
+            <div class="trace"><span class="in">Skill</span>  triage-assistant:triage-ticket
+<span class="note">   …namespaced now. Packaging gives the capability an owner.</span></div>
+            <p>Then <code>CLAUDE.md</code>, loaded on every turn, so only what's true for every
+            task goes in it — plus the <code>@intent.md</code> import that makes your intent
+            load.</p>
+            <div class="gate">Checkpoint M1.C6-plugin</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="ord"><b>7</b><span>9 min</span></div>
+          <div>
+            <h3>Debrief</h3>
+            <p>The rule you'll use on Monday. Four questions in order — the first "yes" wins:</p>
+            <div class="scroll"><table>
+              <tr><th>Ask</th><th>If yes</th><th>Because</th></tr>
+              <tr><td>Must it be <strong>identical every time</strong>?</td><td>A tool</td><td>Code has no judgement, and can be tested</td></tr>
+              <tr><td>Must it happen <strong>whether the model agrees or not</strong>?</td><td>A hook</td><td>It runs before the action, and can refuse</td></tr>
+              <tr><td>Is it <strong>how we do this particular job</strong>?</td><td>A skill</td><td>Procedure, loaded only when relevant</td></tr>
+              <tr><td>Is it true for <strong>every task in this project</strong>?</td><td><code>CLAUDE.md</code></td><td>But it costs context on every single turn</td></tr>
+            </table></div>
+            <p>Then a separate axis: <em>do you invoke it, or should the agent decide?</em> Same
+            file, one frontmatter line apart. And last: would a colleague want this? Then it goes
+            in the plugin.</p>
+            <h4>Anti-patterns you nearly committed</h4>
+            <ul>
+              <li><strong>A rule in a skill that needed a hook.</strong> Your skill said where
+              output goes; in step 5 the agent wrote somewhere else anyway.</li>
+              <li><strong>A description that documents instead of triggers.</strong> Measured: it
+              fires seventh instead of first, or never.</li>
+              <li><strong>A deny list.</strong> You watched one leak a dozen tools in step 1.</li>
+              <li><strong>A tool that makes judgements.</strong> If it has to weigh something,
+              it's a skill. A tool that varies is a script you hope works.</li>
+              <li><strong>Procedure in <code>CLAUDE.md</code>.</strong> Ten procedures there is
+              ten procedures in the context of every question you ask.</li>
+              <li><strong>A plugin that only works for its author.</strong> The two paths that
+              broke in step 6.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h2>What carries forward</h2>
+      <div class="scroll"><table>
+        <tr><th>From module 1</th><th>Becomes</th></tr>
+        <tr><td>The model knows nothing about your organisation</td><td><strong>Module 2</strong> — retrieval, grounding it in your documents</td></tr>
+        <tr><td>Context accumulates on every call; it's a budget</td><td><strong>Module 2</strong> — why chunking matters at all</td></tr>
+        <tr><td>You can't tell from one run whether a change helped</td><td><strong>Module 2's scoreboard, module 4's evals</strong></td></tr>
+        <tr><td>Controls are layered, and the last layer is a human</td><td><strong>Module 4</strong> — the approval gate</td></tr>
+      </table></div>
+      <footer>Optional extension, never required: add a second skill to your plugin for a
+      different task in your track. The interesting part isn't the writing — it's watching two
+      skills compete for the same prompt, and finding what each description needs to make the
+      right one win. That's the best possible preparation for module 2, because it's the same
+      problem retrieval has.</footer>
+    </section>
+
+    <!-- ============ MODULE 2 ============ -->
+    <section class="pane" id="pane-m2">
+      <p class="eyebrow">Module 02 · two hours</p>
+      <h1>RAG and retrieval systems<span class="pill wip">In development</span></h1>
+      <p class="standfirst">The agent knows nothing about your documents. How do you ground it —
+      and how do you know you made it better rather than just different?</p>
+      <div class="warn">
+        <span class="kicker">Not yet authored</span>
+        <p>This module's outline is settled and its corpus work is underway, but the lab steps
+        aren't written. The tutor will tell you so rather than improvise. What follows is the
+        plan, not a promise of detail.</p>
+      </div>
+
+      <h2>The device that carries the module</h2>
+      <p>One scoreboard. The same fifteen golden queries get re-scored after every change you
+      make — naive chunking, then structural, then metadata filters, then agentic retrieval. You
+      watch the number move. That's what stops evals being an abstraction, and it's the direct
+      answer to the <em>13, 13, 16</em> problem from module 1.</p>
+
+      <h2>What's covered</h2>
+      <ul>
+        <li>Why retrieval at all: context is a budget, documents go stale, claims need citations</li>
+        <li>Embeddings, and what they do and don't understand</li>
+        <li>Chunking strategies — fixed, recursive, structural, semantic, parent-child</li>
+        <li>Metadata strategies — provenance, section paths, document type, validity dates, entities — and filters as first-class retrieval</li>
+        <li>Hybrid search and reranking</li>
+        <li><strong>Agentic RAG</strong> — query decomposition, retrieve-critique-retrieve, self-grading, and knowing when to stop</li>
+        <li><strong>Retrieval evals</strong> — golden sets, recall@k, MRR, and why retrieval quality and answer quality are two different measurements</li>
+      </ul>
+
+      <h2>What you'll build</h2>
+      <p>ChromaDB ingestion with real chunking, a metadata schema, retrieval exposed as an MCP
+      tool, and a skill that cites its sources. Plugin <strong>v0.2</strong>.</p>
+      <p>MCP becomes earnable here rather than asserted: you'll have written a tool as a script
+      in module 1, so the question "when does a script need to become a typed, shareable
+      interface" has a real answer.</p>
+
+      <h2>How it ends</h2>
+      <p>With three questions your retrieval still gets wrong — relational, aggregate and
+      temporal. They're left broken on purpose. That's module 3's cold open.</p>
+    </section>
+
+    <!-- ============ MODULE 3 ============ -->
+    <section class="pane" id="pane-m3">
+      <p class="eyebrow">Module 03 · two hours</p>
+      <h1>Knowledge graphs and ontologies<span class="pill wip">In development</span></h1>
+      <p class="standfirst">Why did those three questions fail, and what do you build instead?</p>
+      <div class="warn">
+        <span class="kicker">Not yet authored</span>
+        <p>Outline settled; lab steps not written. The tutor will say so rather than improvise.</p>
+      </div>
+
+      <h2>Three failure classes of pure vector search</h2>
+      <p>These are structural, not accidental — no amount of better chunking fixes them.</p>
+      <div class="ladder">
+        <div class="rung"><b>Multi-hop</b><span>"Which other customers are exposed to the defect behind this ticket?" — several hops from defect to feature to plan to account</span></div>
+        <div class="rung"><b>Aggregation</b><span>"How many", "which <em>all</em>", "what is <em>not</em> covered?" Similarity search returns the most similar k. It cannot return a complete set</span></div>
+        <div class="rung"><b>Constraints &amp; time</b><span>"Does this violate the policy that was in force <em>at the time</em>?"</span></div>
+      </div>
+
+      <h2>What's covered</h2>
+      <ul>
+        <li>Taxonomy vs ontology vs knowledge graph vs semantic layer</li>
+        <li>Designing an ontology from <strong>competency questions</strong> — the questions you must answer — rather than from your data</li>
+        <li>Entities, relations, identity and entity resolution</li>
+        <li>Provenance, and temporality with validity dates and supersession, so answers never go quietly stale</li>
+        <li>GraphRAG patterns that combine graph and vector instead of choosing between them</li>
+      </ul>
+
+      <h2>What you'll build</h2>
+      <p>An ontology derived from the three broken questions, a graph extracted from your corpus
+      with provenance and dates, compiled into SQLite, exposed as an MCP tool, and a hybrid skill
+      that routes each question to the graph, the vector store, or both. Plugin
+      <strong>v0.3</strong>.</p>
+      <p>The moment to watch for is answering, by hand, the three questions module 2 left
+      broken. Also covered: <strong>when not to build a graph</strong> — maintenance cost against
+      question shape.</p>
+    </section>
+
+    <!-- ============ MODULE 4 ============ -->
+    <section class="pane" id="pane-m4">
+      <p class="eyebrow">Module 04 · two hours</p>
+      <h1>The full AI system<span class="pill wip">In development</span></h1>
+      <p class="standfirst">You have something that works on your machine. What stands between
+      that and something your team would actually rely on — and what is the human's job in
+      running it?</p>
+      <div class="warn">
+        <span class="kicker">Not yet authored</span>
+        <p>Outline settled; lab steps not written. The tutor will say so rather than improvise.</p>
+      </div>
+
+      <h2>The autonomy ladder</h2>
+      <p>The thing you take back to your team.</p>
+      <div class="scroll"><table>
+        <tr><th>Level</th><th>The agent</th><th>The human</th></tr>
+        <tr><td>L0</td><td>Suggests</td><td>Does everything</td></tr>
+        <tr><td>L1</td><td>Drafts a proposal</td><td>Reads, decides, applies</td></tr>
+        <tr><td>L2</td><td>Applies in a sandbox, runs the evals</td><td>Reviews, promotes</td></tr>
+        <tr><td>L3</td><td><strong>Applies behind an approval gate</strong></td><td>Approves each change — <em>this is where we land</em></td></tr>
+        <tr><td>L4</td><td>Applies autonomously, with rollback</td><td>Sets policy, audits, owns the outcome</td></tr>
+      </table></div>
+
+      <h2>What's covered</h2>
+      <p>What "production-ready" means for a system like this: evals as the new tests,
+      observability, audit trails, cost and latency, and the failure modes you design against.
+      Spec-driven development — intent, spec, acceptance criteria, plan, implement, eval, approve
+      — and why a spec outperforms a prompt.</p>
+      <div class="note-box">
+        <span class="kicker">Your intent comes back</span>
+        <p>The <strong>Proposed outcome</strong> section of the <code>intent.md</code> you wrote
+        in module 1 becomes your acceptance criteria here, close to verbatim. That's the reason
+        it's worth writing honestly while the work is fresh.</p>
+      </div>
+
+      <h2>What you'll build</h2>
+      <p>A spec for your system's final capability. A proposal pipeline that produces evidence,
+      risk and a rollback plan while <em>applying nothing</em>. A real approval gate — a hook
+      that refuses to apply without human approval. Then the full eval suite. Plugin
+      <strong>v1.0</strong>.</p>
+
+      <h2>How it ends</h2>
+      <p>Each group demonstrates on a case it has never seen, and the three tracks are compared.
+      Three unrelated domains, one architecture.</p>
+    </section>
+
+    <!-- ============ CONCEPTS ============ -->
+    <section class="pane" id="pane-concepts">
+      <p class="eyebrow">Reference</p>
+      <h1>Concepts, and the wrong ideas about them</h1>
+      <p class="standfirst">Everything here is named in a module, at the point where you've
+      already felt the problem it solves. This page is for looking things up afterwards.</p>
+
+      <h2>An agent is the loop</h2>
+      <p>A language model does one thing: you send it text, it sends text back. It cannot open a
+      file, run a command, or remember the last thing you asked.</p>
+      <p>An agent is the <strong>loop</strong>: send everything you have to the model, get back
+      either an answer or a request for a tool, run the tool, add the result to everything you
+      have, send it again. Until the model stops asking.</p>
+      <p>Two consequences: <strong>each tool use costs another round trip</strong>, which is why
+      agents are slower than a chat; and <strong>everything accumulates</strong>, which is why
+      the conversation gets more expensive the longer it runs.</p>
+
+      <h2>The harness is what holds the loop</h2>
+      <p>The five core tools — read, write, execute, search files, search the web — plus the
+      context it accumulates on your behalf, the permissions, the hooks, and the skills it offers
+      the model. Nobody asks for memory; the harness does that for you.</p>
+
+      <h2>Progressive disclosure</h2>
+      <p>Three levels, and the reason a skill is cheap: <strong>description</strong> loaded every
+      turn, <strong>body</strong> loaded on activation, <strong>referenced files</strong> loaded
+      if the procedure needs them. Ten skills cost ten lines until one of them is used.</p>
+
+      <h2>Allowlists, not deny lists</h2>
+      <p>A deny list is incomplete by construction. Building this lab, a deny list naming
+      <code>Read</code>, <code>Write</code>, <code>Edit</code>, <code>Bash</code>,
+      <code>Glob</code>, <code>Grep</code>, <code>WebFetch</code> and more <em>still</em> left
+      the model a dozen tools, because you can only deny what you can name and new tools arrive
+      with new versions. <code>--tools "Read"</code> names what exists; everything else is
+      simply absent.</p>
+
+      <h2>Wrong ideas worth correcting</h2>
+      <div class="scroll"><table>
+        <tr><th>The wrong idea</th><th>What's actually true</th></tr>
+        <tr><td>"More context is better"</td><td>Context is a budget, not a virtue. Irrelevant material competes with the relevant for attention, and costs money and latency</td></tr>
+        <tr><td>"Embeddings understand meaning"</td><td>They encode distributional similarity. Similar ≠ relevant ≠ correct. Two documents using the same vocabulary to say opposite things sit close together</td></tr>
+        <tr><td>"Evals are probabilistic"</td><td><strong>The model is probabilistic. Evals are the measurement system</strong> that accounts for that variance</td></tr>
+        <tr><td>"A knowledge graph replaces RAG"</td><td>They answer different shapes of question. The graph knows structure and completeness; the vector store finds the passage you can quote</td></tr>
+        <tr><td>"Top-k is the answer set"</td><td>Similarity search cannot express completeness, so it cannot answer "all", "how many", or "which are missing"</td></tr>
+        <tr><td>"A skill is just a prompt"</td><td>It's a triggerable procedure with bundled assets. The description decides whether it ever loads</td></tr>
+        <tr><td>"MCP is required to give an agent tools"</td><td>A shell script that prints JSON is a tool. MCP is how a tool becomes durable, typed and shareable</td></tr>
+        <tr><td>"A hook and a skill do the same job"</td><td>A skill is guidance the model chooses to follow. A hook is enforcement it cannot skip</td></tr>
+        <tr><td>"The agent should just be autonomous"</td><td>Autonomy is a ladder. The interesting engineering is in the rungs</td></tr>
+        <tr><td>"Chunking is a preprocessing detail"</td><td>Chunking decides what can ever be retrieved. A fact split across two chunks is unreachable</td></tr>
+        <tr><td>"The ontology should model the domain"</td><td>It should answer the questions you need answered. Start from the questions retrieval got wrong</td></tr>
+        <tr><td>"Citations mean it's grounded"</td><td>A citation proves a source was retrieved, not that the claim follows from it</td></tr>
+      </table></div>
+    </section>
+
+    <!-- ============ COMMANDS ============ -->
+    <section class="pane" id="pane-commands">
+      <p class="eyebrow">Reference</p>
+      <h1>Commands</h1>
+      <p class="standfirst">Everything the tutor provides. If a command isn't listed here, it
+      doesn't exist — the tutor won't suggest one that would give you "unknown command"
+      mid-exercise.</p>
+
+      <h2>The lab</h2>
+      <div class="scroll"><table>
+        <tr><th>Command</th><th>What it does</th></tr>
+        <tr><td><code>/lab:start</code></td><td>Orientation, checklist, environment check, track selection. Also your resume command each session</td></tr>
+        <tr><td><code>/lab:next</code></td><td>Open the next module, or advance to the next step</td></tr>
+        <tr><td><code>/lab:status</code></td><td>Where you are: track, module, checkpoints cleared, and whether your workspace is intact</td></tr>
+        <tr><td><code>/lab:hint</code></td><td>The smallest nudge that unsticks you. Never the answer</td></tr>
+        <tr><td><code>/lab:catchup</code></td><td>Repairs the lab's own files. <code>--with-reference</code> also installs the reference solution</td></tr>
+        <tr><td><code>/lab:checklist</code></td><td>What you need installed, and how, for your platform</td></tr>
+        <tr><td><code>/lab:doctor</code></td><td>Verify your machine. <code>--quick</code> for the start-of-session check</td></tr>
+        <tr><td><code>/lab:track</code></td><td>Show your track in detail, choose one, or switch</td></tr>
+        <tr><td><code>/lab:handbook</code></td><td>Open this handbook. It ships with the plugin, so it works offline</td></tr>
+      </table></div>
+
+      <h2>The experiment runner</h2>
+      <p>Each experiment is the same thing — Claude Code, one prompt — with one difference: which
+      tools the model is given. The script prints the command before running it, because the
+      command is the lesson.</p>
+      <div class="scroll"><table>
+        <tr><th class="num">#</th><th>Tools given</th><th>What it shows</th></tr>
+        <tr><td class="num">1</td><td><code>""</code></td><td>One call, zero tool requests. The model knows your domain and nothing about your organisation</td></tr>
+        <tr><td class="num">2</td><td><code>Read</code></td><td>Two calls, one tool request. The loop</td></tr>
+        <tr><td class="num">3</td><td><code>Read,Write</code></td><td>Three calls. It can act, and a file exists that didn't</td></tr>
+        <tr><td class="num">4</td><td>Every core tool</td><td>Your real job with no procedure. Good result, wrong shape, different every time</td></tr>
+        <tr><td class="num">5</td><td>+ <code>Skill</code></td><td>The same prompt with your skill available</td></tr>
+        <tr><td class="num">6</td><td>+ <code>Skill</code></td><td>A reasonable-sounding request that should be refused</td></tr>
+        <tr><td class="num">7</td><td>+ your plugin</td><td>The task again, with capability arriving from your installed plugin</td></tr>
+      </table></div>
+      <p>You don't have to use the runner. Copy the command it prints, run it yourself, change
+      the prompt — the prompts are plain text files in <code>experiments/</code>.</p>
+
+      <h2>Reading the trace</h2>
+      <p>The tracer is a hook attached to four moments: your prompt going out, the model asking
+      for a tool, the result coming back, the final answer. Hook output isn't shown in the
+      session, so it's written to <code>.claude/lab-trace.log</code>.</p>
+      <div class="scroll"><table>
+        <tr><th>Line</th><th>Means</th></tr>
+        <tr><td><code>--&gt; SENT TO THE MODEL</code></td><td>Your prompt going out</td></tr>
+        <tr><td><code>&lt;-- BACK FROM THE MODEL</code></td><td>It wants a tool. It cannot run one itself</td></tr>
+        <tr><td><code>--&gt; HANDED TO THE HARNESS</code></td><td>The model is paused, waiting</td></tr>
+        <tr><td><code>&lt;-- RESULT SENT BACK</code></td><td>What the harness returned, and how many characters</td></tr>
+        <tr><td><em>(no RESULT line)</em></td><td><strong>The request was blocked.</strong> The tracer reports what the model asked for, not what the harness allowed</td></tr>
+      </table></div>
+      <p><code>.claude/lab-raw.jsonl</code> holds the exact payloads the harness sends the hook —
+      the real contract, and worth reading once.</p>
+    </section>
+
+    <!-- ============ TROUBLE ============ -->
+    <section class="pane" id="pane-trouble">
+      <p class="eyebrow">Reference</p>
+      <h1>When it breaks</h1>
+      <p class="standfirst">In rough order of how often these come up, with the fix rather than
+      the theory.</p>
+
+      <h2>Every tool call asks for approval</h2>
+      <p>You haven't accepted the trust dialog. Until you do, the project's
+      <code>permissions</code> block is ignored. Open Claude Code interactively in the folder and
+      accept it. The symptom is a line reading <em>"Ignoring N permissions.allow entries from
+      .claude/settings.json: this workspace has not been trusted."</em></p>
+
+      <h2><code>/lab:doctor</code> says Python is too old</h2>
+      <p>Read it again — it probably says it found a newer one. macOS ships 3.9 as
+      <code>python3</code>, and the lab searches for 3.10+ under its other names and uses that.
+      If nothing qualifies: <code>brew install python@3.12</code> on macOS,
+      <code>winget install Python.Python.3.12</code> on Windows, then re-run.</p>
+
+      <h2>My skill doesn't fire</h2>
+      <p>It shows up as an <em>absent</em> <code>Skill</code> line in the trace, not an error.
+      Work down this list; the first three take seconds:</p>
+      <ol>
+        <li>Is it at <code>.claude/skills/&lt;name&gt;/SKILL.md</code>? The folder name matters
+        and the file must be exactly <code>SKILL.md</code></li>
+        <li>Does the frontmatter <code>name:</code> match the folder name? A mismatch is the
+        quietest failure of the lot</li>
+        <li>Run <code>python3 .../scripts/check_skill.py</code>, which covers both of the above</li>
+        <li>Read your description out loud, then the prompt out loud. If nothing in the
+        description would make <em>you</em> reach for it, that's your answer</li>
+      </ol>
+      <p>You don't need to restart anything — each experiment runs as a fresh session, so a skill
+      edited a second ago is picked up on the next run.</p>
+
+      <h2>My hook exists but nothing happens</h2>
+      <p>It isn't registered. A hook not listed under <code>PreToolUse</code> in
+      <code>.claude/settings.json</code> never runs. <code>check_hook.py</code> catches this
+      specifically, and it's the most common hook failure.</p>
+
+      <h2>The plugin works for me and not for anyone else</h2>
+      <p>A path resolved against the wrong root. The skill calling
+      <code>tools/&lt;tool&gt;.py</code> needs <code>${CLAUDE_PLUGIN_ROOT}</code>; the tool
+      finding its data needs <code>${CLAUDE_PROJECT_DIR}</code>.
+      <code>check_plugin.py</code> checks both.</p>
+
+      <h2>I broke my workspace</h2>
+      <div class="cmd"><pre>/lab:catchup</pre></div>
+      <p>Replays the lab's own files without touching your work. If you've lost your own work and
+      the room has moved on, <code>/lab:catchup --with-reference</code> installs the reference
+      solution — a rescue, not a shortcut.</p>
+
+      <h2>The plugin's commands don't appear</h2>
+      <p>Run <code>/reload-plugins</code>. If they still don't appear, clear the cache with
+      <code>rm -rf ~/.claude/plugins/cache</code>, restart, and reinstall.</p>
+
+      <h2>An experiment takes forever</h2>
+      <p>Experiments 4 to 7 make fifteen to twenty model calls each, so a minute or two is
+      normal. Experiments 1 to 3 are quick. The wait is not the point of the exercise — the trace
+      is.</p>
+    </section>
+
+    <!-- ============ FACILITATOR ============ -->
+    <section class="pane" id="pane-facilitator">
+      <p class="eyebrow">Reference</p>
+      <h1>Facilitator notes</h1>
+      <p class="standfirst">What to know before running a session, and where the material is
+      honest about its own gaps.</p>
+
+      <h2>Module 1 timing</h2>
+      <div class="scroll"><table>
+        <tr><th>Step</th><th class="num">Minutes</th><th>Cut to</th></tr>
+        <tr><td>0 · Setup</td><td class="num">5</td><td>Plumbing. No lecture</td></tr>
+        <tr><td>1 · What is an agent</td><td class="num">10</td><td>Don't cut. The call counts are the module</td></tr>
+        <tr><td>2 · Core tools and their limit</td><td class="num">10</td><td>Can lose the second run</td></tr>
+        <tr><td>2b · Intent</td><td class="num">8</td><td>Three minutes: interview only Constraints and Open questions</td></tr>
+        <tr><td>3 · Skills</td><td class="num">20</td><td>Don't cut the description experiment</td></tr>
+        <tr><td>4 · A tool</td><td class="num">15</td><td>The selftest can be one check</td></tr>
+        <tr><td>5 · A hook</td><td class="num">15</td><td>The Bash hole can move to the debrief</td></tr>
+        <tr><td>6 · The plugin</td><td class="num">20</td><td>Don't cut. It's the module's promise</td></tr>
+        <tr><td>7 · Debrief</td><td class="num">9</td><td>Three minutes: ask the opening question, show the measured table</td></tr>
+      </table></div>
+      <p>That's 112 of a 120-minute session, which is tight and not yet validated by a timed dry
+      run with a real participant.</p>
+
+      <h2>Read the run in front of you before naming the gap</h2>
+      <p>Step 2's "capability without procedure" lands differently per track, because the gap
+      isn't the same size.</p>
+      <div class="scroll"><table>
+        <tr><th>Track</th><th>Genuinely missing</th><th>Will probably already be fine</th></tr>
+        <tr><td><code>support-triage</code></td><td>The four classification labels; ruling out configuration and entitlement in order, each with evidence</td><td>The diagnosis itself — it usually finds the real cause</td></tr>
+        <tr><td><code>docgen</code></td><td>Where the output belongs; whether unsourced claims were flagged rather than dropped; run-to-run consistency</td><td><strong>The format.</strong> The template is in the corpus, so it follows it</td></tr>
+        <tr><td><code>vendor-qa</code></td><td>Severity from the contract rather than tone; every finding carrying both a criterion and a clause; coverage of unverified requirements</td><td>Spotting the obvious defects</td></tr>
+      </table></div>
+      <p>If you tell a <code>docgen</code> group "look, it ignored your format" and it plainly
+      didn't, you lose them for the rest of the module. The two gaps that hold everywhere are the
+      wasted discovery turns and the lack of run-to-run consistency.</p>
+
+      <h2>Step 5 has three possible outcomes</h2>
+      <div class="scroll"><table>
+        <tr><th>What you see</th><th>What it means</th></tr>
+        <tr><td>A <code>Write</code> request with no RESULT line, output redirected</td><td>The tidy case. The hook refused it</td></tr>
+        <tr><td>The corpus changed anyway, no <code>Write</code> in the trace</td><td>It used <code>Bash</code>. Go straight to the Bash discussion — they found it the best way</td></tr>
+        <tr><td>Nothing happened at all</td><td>Their <code>CLAUDE.md</code> already said <code>data/</code> was read-only and the model obeyed</td></tr>
+      </table></div>
+      <p>The third is awkward because nothing visible happens, and it's also the most honest
+      result: instructions do work, most of the time. Say exactly that, then force the
+      demonstration:</p>
+      <div class="cmd"><pre><span class="p">$</span> claude --tools "Write" --strict-mcp-config \
+    -p "Create a file at data/probe.md containing the word probe. Use the Write tool."</pre></div>
+      <p>Guaranteed to attempt a write into <code>data/</code>, and it comes back refused with
+      their own message. Which is the point in one line: <em>the instruction worked this time,
+      and the hook works every time.</em></p>
+
+      <h2>Before any change, run the self-test</h2>
+      <div class="cmd"><pre><span class="p">$</span> python3 plugins/lab/scripts/selftest.py</pre></div>
+      <p>It applies every stage for every track and checks the failures that only show up in
+      front of a room: a stage payload leaking one track's task to every group, an unresolved
+      placeholder, a file the module tells participants to open that doesn't exist on their
+      track, or a command promised in the text but never implemented. A few seconds, no model
+      calls.</p>
+
+      <h2>What isn't done</h2>
+      <ul>
+        <li><strong>No timed dry run.</strong> 112 minutes is arithmetic, not evidence</li>
+        <li><strong>No run-of-show</strong> with minute markers and cut lines</li>
+        <li><strong>No participant has done this.</strong> Every gate has only judged reference
+        implementations, never a real first attempt — which is exactly where they'll turn out
+        too strict or too lenient</li>
+        <li><strong>Modules 2 to 4 are outlines.</strong> The <code>docgen</code> and
+        <code>vendor-qa</code> corpora are also too small for module 2's fifteen golden queries,
+        and expanding them is a prerequisite rather than part of it</li>
+      </ul>
+      <footer>Repository: <code>Ravl-io/agent-lab-marketplace</code>. Design and build notes in
+      <code>PLAN.md</code>; the module-by-module outline in <code>docs/CURRICULUM.md</code>;
+      pre-flight and session-opening guidance in
+      <code>plugins/lab/facilitator/session-0-setup.md</code>.</footer>
+    </section>
+  </main>
+</div>
+
+<script>
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll("#nav a"));
+    var panes = Array.prototype.slice.call(document.querySelectorAll(".pane"));
+
+    // Only panes with a live nav entry are reachable. Modules 2 to 4 keep their content in
+    // the page but are switched off until they are authored, so #m2 must not open one.
+    var reachable = links.map(function (a) { return a.dataset.pane; });
+
+    function show(id, push) {
+      if (reachable.indexOf(id) === -1) return false;
+      var found = false;
+      panes.forEach(function (p) {
+        var on = p.id === "pane-" + id;
+        p.classList.toggle("on", on);
+        if (on) found = true;
+      });
+      if (!found) return false;
+      links.forEach(function (a) {
+        a.setAttribute("aria-current", a.dataset.pane === id ? "true" : "false");
+      });
+      try { localStorage.setItem("agentlab.pane", id); } catch (e) {}
+      if (push && location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
+      document.querySelector("main").scrollTo
+        ? window.scrollTo({ top: 0, behavior: "auto" })
+        : window.scrollTo(0, 0);
+      return true;
+    }
+
+    links.forEach(function (a) {
+      a.addEventListener("click", function (e) {
+        e.preventDefault();
+        show(a.dataset.pane, true);
+      });
+    });
+
+    var start = (location.hash || "").replace("#", "");
+    if (!start) { try { start = localStorage.getItem("agentlab.pane") || ""; } catch (e) {} }
+    if (!start || !show(start, false)) show("start", false);
+
+    var finder = document.getElementById("finder");
+    var entries = Array.prototype.slice.call(document.querySelectorAll("#nav a, #nav .off"));
+    finder.addEventListener("input", function () {
+      var q = finder.value.trim().toLowerCase();
+      entries.forEach(function (el) {
+        el.hidden = !(!q || el.textContent.toLowerCase().indexOf(q) !== -1);
+      });
+      Array.prototype.slice.call(document.querySelectorAll("#nav .group"))
+        .forEach(function (g) {
+          g.hidden = !Array.prototype.slice
+            .call(g.querySelectorAll("a, .off"))
+            .some(function (el) { return !el.hidden; });
+        });
+    });
+
+    document.querySelectorAll(".cmd").forEach(function (block) {
+      var pre = block.querySelector("pre");
+      if (!pre) return;
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = "Copy";
+      btn.addEventListener("click", function () {
+        var text = Array.prototype.slice.call(pre.childNodes).map(function (n) {
+          if (n.nodeType === 1 && n.classList.contains("p")) return "";
+          return n.textContent;
+        }).join("").split("\n").map(function (l) { return l.trim(); })
+          .filter(function (l) { return l; }).join("\n");
+        navigator.clipboard && navigator.clipboard.writeText(text).then(function () {
+          btn.textContent = "Copied";
+          btn.classList.add("done");
+          setTimeout(function () { btn.textContent = "Copy"; btn.classList.remove("done"); }, 1600);
+        });
+      });
+      block.appendChild(btn);
+    });
+
+    var modes = ["auto", "light", "dark"];
+    var btn = document.getElementById("themeBtn");
+    var mode = "auto";
+    try { mode = localStorage.getItem("agentlab.theme") || "auto"; } catch (e) {}
+    function applyTheme() {
+      if (mode === "auto") document.documentElement.removeAttribute("data-theme");
+      else document.documentElement.setAttribute("data-theme", mode);
+      btn.textContent = "Theme: " + mode;
+      try { localStorage.setItem("agentlab.theme", mode); } catch (e) {}
+    }
+    applyTheme();
+    btn.addEventListener("click", function () {
+      mode = modes[(modes.indexOf(mode) + 1) % modes.length];
+      applyTheme();
+    });
+  })();
+</script>
+</body>
+</html>

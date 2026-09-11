@@ -34,7 +34,13 @@ PASS, FAIL, WARN, INFO = "pass", "fail", "warn", "info"
 
 @dataclass
 class Requirement:
-    """One thing the training needs. `check` is filled in when we actually run."""
+    """One thing the training needs. `check` is filled in when we actually run.
+
+    `needed_from` names the module that first needs it. Module 1 only needs Python, git and
+    a writable folder, so blocking a participant's first session on a chromadb dependency
+    they will not touch for a week is a false failure — it sends them to fix something that
+    is not stopping them.
+    """
 
     id: str
     label: str
@@ -42,12 +48,14 @@ class Requirement:
     required: bool
     install: dict = field(default_factory=dict)   # os -> hint
     quick: bool = True                            # included in --quick?
+    needed_from: str = "1"                        # module that first needs this
 
 
 REQUIREMENTS = [
     Requirement(
         "python", "Python 3.10 or newer",
-        "Module 2 and 3 build the retrieval pipeline and the knowledge graph in Python.",
+        "The lab's own scripts, the experiment runner and the tracer hook are Python, and "
+        "the tool you write in Module 1 step 4 is too.",
         required=True,
         install={
             "macos": "brew install python@3.12   (or python.org installer)",
@@ -58,7 +66,7 @@ REQUIREMENTS = [
     Requirement(
         "pip", "pip (Python package installer)",
         "Installs chromadb and the embedding runtime at the start of Module 2.",
-        required=True,
+        required=True, needed_from="2",
         install={
             "macos": "python3 -m ensurepip --upgrade",
             "windows": "python -m ensurepip --upgrade",
@@ -67,8 +75,8 @@ REQUIREMENTS = [
     ),
     Requirement(
         "venv", "Python venv module",
-        "Keeps the lab's packages isolated from your system Python.",
-        required=True,
+        "Keeps Module 2's packages isolated from your system Python.",
+        required=True, needed_from="2",
         install={
             "macos": "ships with python3",
             "windows": "ships with python3",
@@ -77,8 +85,9 @@ REQUIREMENTS = [
     ),
     Requirement(
         "sqlite", "SQLite 3.35 or newer (via Python)",
-        "Module 3 stores the knowledge graph in SQLite. 3.35+ is needed for RETURNING/CTE support.",
-        required=True,
+        "Module 3 stores the knowledge graph in SQLite, and 3.35+ is needed for its queries. "
+        "Python bundles sqlite3, so this is almost never a separate install.",
+        required=True, needed_from="3",
         install={
             "macos": "ships with python3",
             "windows": "ships with python3",
@@ -87,7 +96,8 @@ REQUIREMENTS = [
     ),
     Requirement(
         "git", "Git 2.30 or newer",
-        "Every checkpoint is a commit. /lab:catchup and reset depend on git.",
+        "Every checkpoint is a commit from Module 1 onward, and undoing an agent's write "
+        "in Module 1 step 5 is a `git checkout`.",
         required=True,
         install={
             "macos": "xcode-select --install   (or brew install git)",
@@ -103,15 +113,15 @@ REQUIREMENTS = [
     ),
     Requirement(
         "disk", f"At least {MIN_DISK_GB:g} GB free disk",
-        "The embedding model (~90 MB), the vector index and the graph all live on disk.",
-        required=True,
+        "Module 2's embedding model (~90 MB) and vector index, and Module 3's graph.",
+        required=True, needed_from="2",
         quick=False,
         install={"all": "free up space, or pick a different drive"},
     ),
     Requirement(
         "network", "Network access to PyPI",
         "Module 2 installs chromadb and downloads the local embedding model once.",
-        required=True,
+        required=True, needed_from="2",
         quick=False,
         install={"all": "check VPN / proxy / firewall, then re-run /lab:doctor"},
     ),
@@ -357,6 +367,11 @@ def check_chromadb() -> tuple[str, str]:
     return INFO, "not installed yet — we do this together in Module 2"
 
 
+def gates_module(req: dict, module: str) -> bool:
+    """Does this requirement block the given module?"""
+    return req["required"] and req.get("needed_from", "1") <= module
+
+
 def run_checks(root: str, quick: bool = False) -> list[dict]:
     runners = {
         "python": check_python,
@@ -397,18 +412,27 @@ def _install_hint(req: dict) -> str:
     return install.get(_os_key()) or install.get("all") or ""
 
 
-def render_checklist() -> str:
+def render_checklist(module: str = "1") -> str:
     lines = ["AGENT LAB — SETUP CHECKLIST", ""]
     lines.append(f"Detected platform: {_os_key()}")
     lines.append("")
-    for group, title in ((True, "REQUIRED — the lab cannot run without these"),
-                         (False, "RECOMMENDED — nice to have, never blocking")):
+    groups = [
+        (lambda r: r.required and r.needed_from <= module,
+         f"NEEDED FOR MODULE {module} — the session cannot start without these"),
+        (lambda r: r.required and r.needed_from > module,
+         "NEEDED LATER — we install and check these together when the module needs them"),
+        (lambda r: not r.required,
+         "RECOMMENDED — nice to have, never blocking"),
+    ]
+    for matches, title in groups:
+        chosen = [r for r in REQUIREMENTS if matches(r)]
+        if not chosen:
+            continue
         lines.append(title)
         lines.append("-" * len(title))
-        for req in REQUIREMENTS:
-            if req.required is not group:
-                continue
-            lines.append(f"[ ] {req.label}")
+        for req in chosen:
+            suffix = "" if req.needed_from <= module else f"  (from Module {req.needed_from})"
+            lines.append(f"[ ] {req.label}{suffix}")
             lines.append(f"      why: {req.why}")
             hint = _install_hint(asdict(req))
             if hint:
@@ -421,16 +445,23 @@ def render_checklist() -> str:
 SYMBOL = {PASS: "PASS", FAIL: "FAIL", WARN: "WARN", INFO: "INFO"}
 
 
-def render_report(results: list[dict], quick: bool) -> str:
-    required = [r for r in results if r["required"]]
+def render_report(results: list[dict], quick: bool, module: str = "1") -> str:
+    blocking = [r for r in results if gates_module(r, module)]
+    later = [r for r in results if r["required"] and not gates_module(r, module)]
     optional = [r for r in results if not r["required"]]
-    failed = [r for r in required if r["status"] == FAIL]
+    failed = [r for r in blocking if r["status"] == FAIL]
 
     title = "AGENT LAB — ENVIRONMENT CHECK" + (" (quick)" if quick else "")
     lines = [title, "=" * len(title), ""]
-    lines.append("REQUIRED")
-    for r in required:
+    lines.append(f"NEEDED FOR MODULE {module}")
+    for r in blocking:
         lines.append(f"  [{SYMBOL[r['status']]}] {r['label']}: {r['detail']}")
+    if later:
+        lines.append("")
+        lines.append("NEEDED LATER (not blocking today)")
+        for r in later:
+            lines.append(f"  [{SYMBOL[r['status']]}] {r['label']} "
+                         f"(Module {r.get('needed_from', '?')}): {r['detail']}")
     if optional:
         lines.append("")
         lines.append("RECOMMENDED")
@@ -461,24 +492,27 @@ def main() -> int:
     ap.add_argument("--json", action="store_true", dest="as_json", help="machine-readable output")
     ap.add_argument("--quick", action="store_true", help="fast subset for session resume")
     ap.add_argument("--root", default=os.getcwd(), help="lab root directory (default: cwd)")
+    ap.add_argument("--module", default="1",
+                    help="which module is starting; only its requirements block (default: 1)")
     args = ap.parse_args()
 
     if args.checklist:
         if args.as_json:
-            print(json.dumps({"platform": _os_key(),
+            print(json.dumps({"platform": _os_key(), "module": args.module,
                               "requirements": [asdict(r) for r in REQUIREMENTS]}, indent=2))
         else:
-            print(render_checklist())
+            print(render_checklist(args.module))
         return 0
 
     results = run_checks(args.root, quick=args.quick)
-    failed = [r for r in results if r["required"] and r["status"] == FAIL]
+    failed = [r for r in results if gates_module(r, args.module) and r["status"] == FAIL]
 
     if args.as_json:
         print(json.dumps({
             "platform": _os_key(),
             "root": args.root,
             "quick": args.quick,
+            "module": args.module,
             "ready": not failed,
             "python_bin": _PY_BEST or sys.executable,
             "python_version": ".".join(map(str, _PY_VER)) if _PY_VER else None,
@@ -486,7 +520,7 @@ def main() -> int:
             "checks": results,
         }, indent=2))
     else:
-        print(render_report(results, args.quick))
+        print(render_report(results, args.quick, args.module))
     return 1 if failed else 0
 
 

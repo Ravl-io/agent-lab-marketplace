@@ -56,6 +56,7 @@ settings are ignored and every tool call stops to ask.
 | `/lab:checklist` | What you need installed, and how |
 | `/lab:doctor` | Verify your machine is ready |
 | `/lab:track` | See the tracks, choose one, or switch |
+| `/lab:handbook` | Open the handbook — the reference guide, shipped with the plugin so it works offline |
 
 ### The three tracks
 
@@ -70,10 +71,24 @@ one, or you choose at `/lab:start`.
 
 ## Requirements
 
-Python 3.10+, Git 2.30+, and VS Code with the Claude Code extension. Run `/lab:checklist`
-for the full list with install commands for your platform, or `/lab:doctor` to check your
-machine. macOS ships Python 3.9 as `python3`; the lab detects a newer interpreter
-automatically, so that is not a problem.
+**Module 1 needs three things:** Python 3.10+, Git 2.30+, and write access in the lab folder
+— plus VS Code with the Claude Code extension.
+
+Later modules need more: pip and venv and about 2 GB of disk from module 2, SQLite 3.35+ from
+module 3. `/lab:doctor` checks all of it but only *blocks* on what the module you are starting
+actually needs, so a missing module-2 dependency will not stop your first session.
+
+Run `/lab:checklist` for the list with install commands for your platform. macOS ships Python
+3.9 as `python3`; the lab finds a newer interpreter under its other names and uses that, so
+that is not a problem.
+
+## The handbook
+
+A single self-contained HTML file ships with the plugin at
+[`plugins/lab/reference/handbook.html`](plugins/lab/reference/handbook.html): the reference
+guide covering the modules, the commands, the concepts, and what to do when something breaks.
+Participants open it with `/lab:handbook`, or straight from disk. It works offline — the only
+thing it fetches is the web font.
 
 ## For facilitators
 
