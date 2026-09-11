@@ -568,9 +568,20 @@ def check_version_is_publishable(verbose: bool) -> None:
     declared = plugin.get("version")
     check(bool(declared), "plugin.json declares a version", verbose=verbose)
 
-    market = os.path.join(os.path.dirname(PLUGIN_ROOT), ".claude-plugin", "marketplace.json")
-    if not os.path.exists(market):
-        warn("no marketplace.json above the plugin — cannot compare declared versions")
+    # The plugin sits one level below the repo root locally and two in the marketplace
+    # layout (plugins/lab/), so walk up rather than assuming a depth.
+    market = None
+    here = PLUGIN_ROOT
+    for _ in range(4):
+        here = os.path.dirname(here)
+        if not here or here == os.sep:
+            break
+        candidate = os.path.join(here, ".claude-plugin", "marketplace.json")
+        if os.path.exists(candidate):
+            market = candidate
+            break
+    if not market:
+        warn("no marketplace.json found above the plugin — cannot compare declared versions")
         return
     entries = [p for p in load(market).get("plugins", [])
                if p.get("name") == plugin.get("name")]
