@@ -49,6 +49,12 @@ the answer is not in the ticket, and that is the point.
 | 3 | Reason over a graph of accounts, features, defects and vendor cases — "who else is affected by this" |
 | 4 | Propose the resolution — customer reply, config fix, or vendor escalation — behind a human approval gate |
 
+## The handbook
+
+`handbook.html` in this folder is the reference for the whole course — the modules, the
+commands, how to read a trace, and what to do when something breaks. Open it from the file
+tree and leave it in a tab. It is a local file, so it needs no network.
+
 ## Starting
 
 Run `/lab:next`.

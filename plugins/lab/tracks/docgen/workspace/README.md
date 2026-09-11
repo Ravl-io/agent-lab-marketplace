@@ -33,6 +33,12 @@ the two.
 | 3 | An entity graph of projects, owners, milestones and risks, so the report can aggregate and cross-reference |
 | 4 | Full report generation with gaps flagged, gated on a human approving publication |
 
+## The handbook
+
+`handbook.html` in this folder is the reference for the whole course — the modules, the
+commands, how to read a trace, and what to do when something breaks. Open it from the file
+tree and leave it in a tab. It is a local file, so it needs no network.
+
 ## Starting
 
 Run `/lab:next`. The tutor will tell you what to do first.

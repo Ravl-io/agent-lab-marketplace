@@ -120,7 +120,6 @@ claude plugin validate .
 
 ## Retired
 
-`agent-lab-module-1` — the earlier Crestview Wealth ops-reporting lab. Superseded by `lab`,
-which covers the same ground across three domain tracks with progress tracking and validation
-gates. Its files remain in `plugins/agent-lab-module-1/` and in git history; it is no longer
-listed in the marketplace, so it cannot be installed.
+`agent-lab-module-1` — the earlier Crestview Wealth ops-reporting lab — has been removed.
+It is superseded by `lab`, which covers the same ground across three domain tracks with
+progress tracking and validation gates. The files remain in git history if anyone needs them.

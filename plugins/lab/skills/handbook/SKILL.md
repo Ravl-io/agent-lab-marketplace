@@ -7,24 +7,34 @@ allowed-tools: Bash, Read
 
 Open the handbook for the participant.
 
-It is a single self-contained HTML file that ships with this plugin:
+It is a single self-contained HTML file, and there are two copies. **Prefer the one in their
+own folder** — it is the one they can bookmark, and the path is short enough to read out:
 
 ```
-${CLAUDE_PLUGIN_ROOT}/reference/handbook.html
+./handbook.html                             <- copied into their workspace at setup
+${CLAUDE_PLUGIN_ROOT}/reference/handbook.html   <- the plugin's copy, always present
+```
+
+If `./handbook.html` does not exist yet, they have not run the Module 1 setup step. Copy it
+for them rather than sending them into the plugin cache:
+
+```
+cp "${CLAUDE_PLUGIN_ROOT}/reference/handbook.html" ./handbook.html
 ```
 
 ## What to do
 
-Try to open it in their browser, picking the command for their platform:
+Open it in their browser, picking the command for their platform:
 
 ```
-open "${CLAUDE_PLUGIN_ROOT}/reference/handbook.html"          # macOS
-xdg-open "${CLAUDE_PLUGIN_ROOT}/reference/handbook.html"      # Linux
-start "" "${CLAUDE_PLUGIN_ROOT}/reference/handbook.html"      # Windows
+open handbook.html            # macOS
+xdg-open handbook.html        # Linux
+start "" handbook.html        # Windows
 ```
 
-If that fails, or you cannot tell which platform they are on, **print the full resolved path**
-and tell them to open it themselves. Do not keep trying different commands.
+If that fails, or you cannot tell which platform they are on, **print the path and stop**.
+They can open it from the file tree in VS Code, which is usually faster than any of this. Do
+not keep trying different commands.
 
 ## Then say what is in it, in one or two lines
 
@@ -40,8 +50,9 @@ are written yet.
 
 ## Notes
 
-- It works offline. The only thing it fetches is the web font, so with no network it renders
-  in fallback faces and everything else is unchanged.
+- It works offline, and it works on a network that blocks external sites. The only thing it
+  fetches is the web font; without it the page renders in fallback faces and nothing else
+  changes. This is why the handbook is a file in their folder rather than a link.
 - Do **not** read the file into context to answer a question from it. It is 80 KB of HTML.
   Answer from the `agent-lab` tutor skill and the module files instead, and point them at the
   handbook to read for themselves.

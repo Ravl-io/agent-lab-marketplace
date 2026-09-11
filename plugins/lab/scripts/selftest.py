@@ -179,6 +179,21 @@ def check_substitution(verbose: bool) -> None:
             check(not leaked, f"{tid}: no unresolved placeholders in the workspace",
                   ", ".join(sorted(set(leaked))[:6]), verbose=verbose)
 
+            # the handbook has to reach the participant's own folder: the client network
+            # blocks external sites, so a link is not a delivery mechanism
+            handbook = os.path.join(root, "handbook.html")
+            check(os.path.exists(handbook), f"{tid}: handbook.html lands at the workspace root",
+                  verbose=verbose)
+            if os.path.exists(handbook):
+                body = open(handbook, encoding="utf-8").read()
+                check(body.lstrip().startswith("<!doctype html>"),
+                      f"{tid}: the workspace handbook is a standalone document",
+                      verbose=verbose)
+                check("fonts.googleapis.com" in body
+                      and body.count("http") == body.count("fonts.googleapis.com"),
+                      f"{tid}: the handbook fetches nothing but the web font",
+                      verbose=verbose)
+
             # the prompts each experiment needs must exist once its stage is applied
             exp_py = os.path.join(root, "experiments", "exp.py")
             check(os.path.exists(exp_py), f"{tid}: experiments/exp.py installed",

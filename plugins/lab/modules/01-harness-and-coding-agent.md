@@ -73,8 +73,14 @@ Five files, and nothing else:
 | `experiments/exp.py` | Runs one experiment. Prints the command before it runs it |
 | `experiments/exp1.prompt` | The first experiment's prompt, as plain text they can edit |
 | `experiments/README.md` | What the three experiments are |
+| `handbook.html` | The course handbook — the whole reference, in one file, in their folder |
 
 No data yet. That is deliberate, and Step 1 explains itself.
+
+**Point at `handbook.html` once and move on.** It is the reference for the whole course —
+the modules, the commands, how to read a trace, and what to do when something breaks. Tell
+them to open it from the VS Code file tree and leave it in a browser tab. It is a local file
+on purpose: it needs no network and no access to anything outside their machine.
 
 **If they see a warning about an untrusted workspace**, they need to accept the trust
 dialog once — open Claude Code interactively in the folder and accept it. Until then the

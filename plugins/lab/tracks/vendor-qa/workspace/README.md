@@ -33,6 +33,12 @@ date. That is deliberate, and it will matter in Module 3.
 | 3 | A requirement-to-deliverable-to-finding graph, so you can answer "which requirements has nobody verified" |
 | 4 | A findings pack with severity and evidence, gated on human sign-off |
 
+## The handbook
+
+`handbook.html` in this folder is the reference for the whole course — the modules, the
+commands, how to read a trace, and what to do when something breaks. Open it from the file
+tree and leave it in a tab. It is a local file, so it needs no network.
+
 ## Starting
 
 Run `/lab:next`. The tutor will tell you what to do first.

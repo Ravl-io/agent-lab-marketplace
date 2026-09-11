@@ -240,7 +240,20 @@ def cmd_stage(args) -> int:
         shutil.copy2(src, dst)
         written.append(rel)
 
-    # 6. per-track scaffolds: starter files that differ by track, so they cannot live in
+    # 6. files copied straight out of the plugin. Used for things that must exist in the
+    #    participant's own folder — the handbook, so it is reachable without a browser
+    #    leaving their network — while living in exactly one place in the repo.
+    for source, dest in (stage.get("plugin_files") or {}).items():
+        src = os.path.join(PLUGIN_ROOT, source)
+        if not os.path.exists(src):
+            sys.exit(f"stage wants plugin file '{source}', which this plugin does not have")
+        rel = fill(dest)
+        dst = os.path.join(root, rel)
+        os.makedirs(os.path.dirname(dst) or root, exist_ok=True)
+        shutil.copy2(src, dst)
+        written.append(rel)
+
+    # 7. per-track scaffolds: starter files that differ by track, so they cannot live in
     #    the shared stage payload. Never overwrite one the participant has started editing.
     for source, dest in (stage.get("scaffolds") or {}).items():
         src = os.path.join(TRACKS_DIR, track, "scaffolds", source)
