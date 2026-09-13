@@ -136,8 +136,9 @@ def selftest() -> int:
 
     d = extract("2026-08")
     names = [m["project"] for m in d["milestones"]]
-    expect("all four projects found", len(names) == 4)
+    expect("all five projects found", len(names) == 5)
     expect("Cirrus API is present", any("Cirrus" in n for n in names))
+    expect("Halo Reporting is present", any("Halo" in n for n in names))
     cirrus = next(m for m in d["milestones"] if "Cirrus" in m["project"])
     expect("the Cirrus slip is captured as a movement",
            cirrus["due"] == "2026-09-15 -> 2026-09-30")

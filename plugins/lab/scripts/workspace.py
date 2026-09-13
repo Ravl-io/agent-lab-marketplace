@@ -139,6 +139,43 @@ def track_meta(track: str) -> dict:
         return json.load(fh)
 
 
+def substitutions_for(meta: dict) -> dict:
+    """The one placeholder map. Every caller uses this — stages and catchup alike.
+
+    There is exactly one of these on purpose. The last time the map was duplicated, one copy
+    was updated and the other shipped the lead track's task to every group.
+    """
+    key_files = meta.get("key_files") or {}
+    graph_questions = meta.get("graph_questions") or {}
+    return {
+        "{{FIRST_INPUT}}": meta.get("first_input", ""),
+        "{{FIRST_TASK}}": meta.get("first_task", ""),
+        "{{SKILL_NAME}}": meta.get("first_skill", ""),
+        "{{TOOL_NAME}}": meta.get("first_tool", ""),
+        "{{TOOL_COMMAND}}": meta.get("tool_command", ""),
+        "{{TOOL_PURPOSE}}": meta.get("tool_purpose", ""),
+        "{{OUTPUT_DIR}}": meta.get("output_dir", ""),
+        "{{SYSTEM_NAME}}": meta.get("system_name", ""),
+        "{{TEMPTING_WRITE_TASK}}": meta.get("tempting_write_task", ""),
+        "{{GENERAL_QUESTION}}": meta.get("general_question", ""),
+        "{{UNKNOWN_ITEM}}": meta.get("unknown_item", ""),
+        "{{OUTPUT_FORMAT_FILE}}": key_files.get("output_format", ""),
+        "{{POLICY_FILE}}": key_files.get("policy", ""),
+        # Module 3's ontology template arrives carrying the track's own three broken
+        # questions, because an ontology is supposed to be derived from the questions you
+        # have to answer — handing over a blank template loses the whole method.
+        "{{CQ_MULTI_HOP}}": graph_questions.get("multi_hop", ""),
+        "{{CQ_AGGREGATION}}": graph_questions.get("aggregation", ""),
+        "{{CQ_TEMPORAL}}": graph_questions.get("temporal", ""),
+    }
+
+
+def substitute(text: str, substitutions: dict) -> str:
+    for token, value in substitutions.items():
+        text = text.replace(token, value)
+    return text
+
+
 def cmd_stage(args) -> int:
     """Apply one incremental stage: a little more workspace, a little more capability.
 
@@ -165,30 +202,13 @@ def cmd_stage(args) -> int:
         sys.exit("no track known — pass --track or run /lab:start first")
 
     meta = track_meta(track)
-    key_files = meta.get("key_files") or {}
     # Stage payloads are shared by every track, so anything track-specific in them is a
     # placeholder resolved from track.json. Forgetting one ships the lead track's task to
     # every group, which is exactly the bug this replaced.
-    substitutions = {
-        "{{FIRST_INPUT}}": meta.get("first_input", ""),
-        "{{FIRST_TASK}}": meta.get("first_task", ""),
-        "{{SKILL_NAME}}": meta.get("first_skill", ""),
-        "{{TOOL_NAME}}": meta.get("first_tool", ""),
-        "{{TOOL_COMMAND}}": meta.get("tool_command", ""),
-        "{{TOOL_PURPOSE}}": meta.get("tool_purpose", ""),
-        "{{OUTPUT_DIR}}": meta.get("output_dir", ""),
-        "{{SYSTEM_NAME}}": meta.get("system_name", ""),
-        "{{TEMPTING_WRITE_TASK}}": meta.get("tempting_write_task", ""),
-        "{{GENERAL_QUESTION}}": meta.get("general_question", ""),
-        "{{UNKNOWN_ITEM}}": meta.get("unknown_item", ""),
-        "{{OUTPUT_FORMAT_FILE}}": key_files.get("output_format", ""),
-        "{{POLICY_FILE}}": key_files.get("policy", ""),
-    }
+    substitutions = substitutions_for(meta)
 
     def fill(text: str) -> str:
-        for token, value in substitutions.items():
-            text = text.replace(token, value)
-        return text
+        return substitute(text, substitutions)
 
     written = []
 
@@ -251,6 +271,23 @@ def cmd_stage(args) -> int:
         dst = os.path.join(root, rel)
         os.makedirs(os.path.dirname(dst) or root, exist_ok=True)
         shutil.copy2(src, dst)
+        written.append(rel)
+
+    # 6b. shared scaffolds: starter files a participant edits that are the SAME on every
+    #     track, so triplicating them under tracks/ would mean three copies to keep in step.
+    #     Never overwrite — from here on the file belongs to the participant.
+    for source, dest in (stage.get("shared_scaffolds") or {}).items():
+        src = os.path.join(PLUGIN_ROOT, "scaffolds", source)
+        if not os.path.exists(src):
+            sys.exit(f"stage wants shared scaffold '{source}', which this plugin does not have")
+        rel = fill(dest)
+        dst = os.path.join(root, rel)
+        if os.path.exists(dst):
+            continue
+        os.makedirs(os.path.dirname(dst) or root, exist_ok=True)
+        with open(src) as fh:
+            open(dst, "w").write(fill(fh.read()))
+        os.chmod(dst, 0o755)
         written.append(rel)
 
     # 7. per-track scaffolds: starter files that differ by track, so they cannot live in
@@ -373,6 +410,35 @@ def cmd_setup(args) -> int:
     return 0
 
 
+def register_reference_hook(root: str) -> bool:
+    """Add write_boundary.py to PreToolUse in settings.json, if it is not already there.
+
+    Idempotent, and it leaves the tracer alone: both hooks run on the same event, which is
+    the arrangement Module 1 ends with.
+    """
+    path = os.path.join(root, ".claude", "settings.json")
+    if not os.path.exists(path):
+        return False
+    try:
+        with open(path) as fh:
+            settings = json.load(fh)
+    except (OSError, ValueError):
+        return False
+    if "write_boundary" in json.dumps(settings):
+        return True
+    command = ('python3 "${CLAUDE_PROJECT_DIR}/.claude/hooks/write_boundary.py"')
+    entry = {"matcher": "Write|Edit",
+             "hooks": [{"type": "command", "command": command}]}
+    hooks = settings.setdefault("hooks", {})
+    hooks.setdefault("PreToolUse", []).append(entry)
+    tmp = path + ".tmp"
+    with open(tmp, "w") as fh:
+        json.dump(settings, fh, indent=2)
+        fh.write("\n")
+    os.replace(tmp, path)
+    return True
+
+
 def cmd_catchup(args) -> int:
     """Restore the lab-provided parts of the workspace.
 
@@ -442,17 +508,74 @@ def cmd_catchup(args) -> int:
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copy2(hook_src, dst)
             reference_hook = ".claude/hooks/write_boundary.py"
+            # Restoring the file is not restoring the hook. A hook absent from
+            # settings.json never runs, which is the single most common thing to get wrong
+            # in Module 1 — and a catchup that leaves it unregistered hands the participant
+            # a workspace that looks repaired and is not.
+            if register_reference_hook(root):
+                reference_hook += " (registered under PreToolUse)"
         project_src = os.path.join(TRACKS_DIR, track, "reference", "project")
         if os.path.isdir(project_src):
             for name in sorted(os.listdir(project_src)):
                 shutil.copy2(os.path.join(project_src, name), os.path.join(root, name))
                 reference_project.append(name)
 
+    # Module 2's answer keys are track-neutral and live in the plugin's own reference/,
+    # not under tracks/. Restore only what the participant has actually reached, so a
+    # catchup never hands them the solution to a step they have not been shown.
+    reference_later = []
+    if args.with_reference:
+        # (stage that has to have been reached, source, destination). A source under
+        # "tracks/<track>/" is per-track; anything else is shared across tracks.
+        later = [
+            ("m2s2-vectors", "reference/rag/chunkers.py", "rag/chunkers.py"),
+            ("m2s2-vectors", "reference/rag/ingest.py", "rag/ingest.py"),
+            ("m2s2-vectors", "reference/rag/retrieve.py", "rag/retrieve.py"),
+            ("m2s3-mcp", "reference/mcp/retrieval_server.py", "mcp/retrieval_server.py"),
+            ("m2s4-agentic", "reference/skills/retrieve-and-answer/SKILL.md",
+             ".claude/skills/retrieve-and-answer/SKILL.md"),
+            # Module 3. The ontology and the graph are per-track; everything else is shared.
+            # Module 3's step 7 tells a facilitator who is out of time to hand over the
+            # verified graph with exactly this command, so it has to actually arrive.
+            ("m3s1-ontology", "tracks/{track}/reference/ontology/{track}.yaml",
+             "ontology/{track}.yaml"),
+            ("m3s2-extract", "reference/skills/extract-graph/SKILL.md",
+             ".claude/skills/extract-graph/SKILL.md"),
+            ("m3s2-extract", "tracks/{track}/reference/graph/nodes.jsonl",
+             "graph/nodes.jsonl"),
+            ("m3s2-extract", "tracks/{track}/reference/graph/edges.jsonl",
+             "graph/edges.jsonl"),
+            ("m3s3-kg-tool", "reference/mcp/kg_server.py", "mcp/kg_server.py"),
+            ("m3s4-hybrid", "reference/skills/answer-with-graph/SKILL.md",
+             ".claude/skills/answer-with-graph/SKILL.md"),
+        ]
+        for stage_id, src_rel, dest_rel in later:
+            if stage_id not in applied:
+                continue
+            src = os.path.join(PLUGIN_ROOT, src_rel.format(track=track))
+            if not os.path.exists(src):
+                continue
+            dst = os.path.join(root, dest_rel.format(track=track))
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            with open(src) as fh:
+                open(dst, "w").write(substitute(fh.read(), substitutions_for(meta)))
+            os.chmod(dst, 0o755)
+            reference_later.append(dest_rel.format(track=track))
+
+        # The template the participant was given is a different file from the reference
+        # ontology, so leaving it in place means kg/compile.py picks whichever sorts first.
+        template = os.path.join(root, "ontology", "ontology.yaml")
+        if any(r.startswith("ontology/") for r in reference_later) \
+                and os.path.exists(template):
+            os.remove(template)
+            reference_later.append("(removed the unfinished ontology/ontology.yaml)")
+
     print(json.dumps({"track": track, "replayed": replayed,
                       "reference_skill": reference,
                       "reference_tool": reference_tool,
                       "reference_hook": reference_hook,
-                      "reference_project": reference_project}, indent=2))
+                      "reference_project": reference_project,
+                      "reference_later": reference_later}, indent=2))
     return 0 if all(r["ok"] for r in replayed) else 1
 
 

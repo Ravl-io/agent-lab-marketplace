@@ -1,0 +1,12 @@
+{
+  "id": "m4s1-spec",
+  "stage": "16",
+  "title": "Write the spec",
+  "label": "spec scaffold",
+  "install_tracer": true,
+  "shared_scaffolds": {
+    "spec/capability.md": "spec/capability.md",
+    "spec/capability.json": "spec/capability.json"
+  },
+  "commit": "Module 4 stage 1: the spec"
+}

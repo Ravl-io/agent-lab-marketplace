@@ -3,15 +3,15 @@
   "owner": {
     "name": "Chiheb Dkhil"
   },
-  "description": "Agent Lab \u2014 the hands-on training marketplace for the Enterprise AI Fluency course. Add this marketplace, install the `lab` plugin, and run /lab:start.",
+  "description": "Agent Lab — the hands-on training marketplace for the Enterprise AI Fluency course. Add this marketplace, install the `lab` plugin, and run /lab:start.",
   "version": "2.0.0",
   "plugins": [
     {
       "name": "lab",
       "source": "./plugins/lab",
-      "version": "0.3.0",
+      "version": "1.0.0",
       "category": "education",
-      "description": "Tutor for the Agent Lab training: four 2-hour modules covering the Claude Code harness, RAG and retrieval, knowledge graphs and ontologies, and building a full AI system \u2014 by building one real plugin across all four. Run /lab:start to begin.",
+      "description": "Tutor for the Agent Lab training: four 2-hour modules covering the Claude Code harness, RAG and retrieval, knowledge graphs and ontologies, and building a full AI system behind a human approval gate — by building one real plugin across all four. Run /lab:start to begin.",
       "tags": [
         "training",
         "tutor",

@@ -1,0 +1,89 @@
+{"dst": "M1", "rel": "belongs_to", "source": "data/contract/SOW-milestone-1.md", "src": "AC-1 (M1)", "valid_from": null, "valid_to": null}
+{"dst": "M1", "rel": "belongs_to", "source": "data/contract/SOW-milestone-1.md", "src": "AC-2 (M1)", "valid_from": null, "valid_to": null}
+{"dst": "M1", "rel": "belongs_to", "source": "data/contract/SOW-milestone-1.md", "src": "AC-3 (M1)", "valid_from": null, "valid_to": null}
+{"dst": "M1", "rel": "belongs_to", "source": "data/contract/SOW-milestone-1.md", "src": "AC-4 (M1)", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "belongs_to", "source": "data/contract/SOW-milestone-2.md", "src": "AC-3 (M2)", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "belongs_to", "source": "data/contract/SOW-milestone-2.md", "src": "AC-4 (M2)", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "belongs_to", "source": "data/contract/SOW-milestone-2.md", "src": "AC-5 (M2)", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "belongs_to", "source": "data/contract/SOW-milestone-2.md", "src": "AC-6 (M2)", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "belongs_to", "source": "data/contract/SOW-milestone-2.md", "src": "AC-7 (M2)", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "belongs_to", "source": "data/contract/SOW-milestone-2.md", "src": "AC-8 (M2)", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "belongs_to", "source": "data/contract/SOW-milestone-3.md", "src": "AC-1 (M3)", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "belongs_to", "source": "data/contract/SOW-milestone-3.md", "src": "AC-2 (M3)", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "belongs_to", "source": "data/contract/SOW-milestone-3.md", "src": "AC-3 (M3)", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "belongs_to", "source": "data/contract/SOW-milestone-3.md", "src": "AC-4 (M3)", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "belongs_to", "source": "data/contract/SOW-milestone-3.md", "src": "AC-5 (M3)", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "belongs_to", "source": "data/contract/SOW-milestone-3.md", "src": "AC-6 (M3)", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "belongs_to", "source": "data/contract/SOW-milestone-3.md", "src": "AC-7 (M3)", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "belongs_to", "source": "data/contract/SOW-milestone-3.md", "src": "AC-8 (M3)", "valid_from": null, "valid_to": null}
+{"dst": "A1", "rel": "changed_by", "source": "data/contract/MSA-amendments.md", "src": "clause:7.2", "valid_from": null, "valid_to": null}
+{"dst": "A2", "rel": "changed_by", "source": "data/contract/MSA-amendments.md", "src": "clause:5.4", "valid_from": null, "valid_to": null}
+{"dst": "term:7.1-s1", "rel": "specifies_term", "source": "data/contract/MSA-amendments.md", "src": "clause:7.1", "valid_from": "2026-01-15", "valid_to": null}
+{"dst": "term:7.2-s2-original", "rel": "specifies_term", "source": "data/contract/MSA-amendments.md", "src": "clause:7.2", "valid_from": "2026-01-15", "valid_to": "2026-06-30"}
+{"dst": "term:7.2-s2-amended", "rel": "specifies_term", "source": "data/contract/MSA-amendments.md", "src": "clause:7.2", "valid_from": "2026-06-30", "valid_to": null}
+{"dst": "term:7.3-s3", "rel": "specifies_term", "source": "data/contract/MSA-amendments.md", "src": "clause:7.3", "valid_from": "2026-01-15", "valid_to": null}
+{"dst": "M1", "rel": "submitted_for", "source": "data/history/acceptance-log.md", "src": "M1-auth-spec.md", "valid_from": null, "valid_to": null}
+{"dst": "M1", "rel": "submitted_for", "source": "data/history/acceptance-log.md", "src": "M1-test-report.md", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "submitted_for", "source": "data/history/acceptance-log.md", "src": "M2-api-spec.md", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "submitted_for", "source": "data/history/acceptance-log.md", "src": "M2-test-report.md", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "submitted_for", "source": "data/history/acceptance-log.md", "src": "M3-api-spec.md", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "submitted_for", "source": "data/history/acceptance-log.md", "src": "M3-test-report.md", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "submitted_for", "source": "data/history/acceptance-log.md", "src": "M3-integration-guide.md", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "submitted_for", "source": "data/history/acceptance-log.md", "src": "M3-release-notes.md", "valid_from": null, "valid_to": null}
+{"dst": "M1", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-01", "valid_from": null, "valid_to": null}
+{"dst": "AC-1 (M1)", "rel": "verified_by", "source": "data/requirements-register.md", "src": "R-01", "valid_from": null, "valid_to": null}
+{"dst": "M1", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-02", "valid_from": null, "valid_to": null}
+{"dst": "AC-2 (M1)", "rel": "verified_by", "source": "data/requirements-register.md", "src": "R-02", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-03", "valid_from": null, "valid_to": null}
+{"dst": "AC-3 (M2)", "rel": "verified_by", "source": "data/requirements-register.md", "src": "R-03", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-04", "valid_from": null, "valid_to": null}
+{"dst": "AC-4 (M2)", "rel": "verified_by", "source": "data/requirements-register.md", "src": "R-04", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-05", "valid_from": null, "valid_to": null}
+{"dst": "AC-5 (M3)", "rel": "verified_by", "source": "data/requirements-register.md", "src": "R-05", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-06", "valid_from": null, "valid_to": null}
+{"dst": "AC-3 (M3)", "rel": "verified_by", "source": "data/requirements-register.md", "src": "R-06", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-07", "valid_from": null, "valid_to": null}
+{"dst": "AC-4 (M3)", "rel": "verified_by", "source": "data/requirements-register.md", "src": "R-07", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-08", "valid_from": null, "valid_to": null}
+{"dst": "AC-7 (M3)", "rel": "verified_by", "source": "data/requirements-register.md", "src": "R-08", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-09", "valid_from": null, "valid_to": null}
+{"dst": "AC-6 (M3)", "rel": "verified_by", "source": "data/requirements-register.md", "src": "R-09", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-10", "valid_from": null, "valid_to": null}
+{"dst": "AC-8 (M3)", "rel": "verified_by", "source": "data/requirements-register.md", "src": "R-10", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-11", "valid_from": null, "valid_to": null}
+{"dst": "M4", "rel": "required_at", "source": "data/requirements-register.md", "src": "R-12", "valid_from": null, "valid_to": null}
+{"dst": "M1", "rel": "raised_on", "source": "data/history/findings-M1.md", "src": "VQ-M1-001", "valid_from": null, "valid_to": null}
+{"dst": "AC-2 (M1)", "rel": "against_criterion", "source": "data/history/findings-M1.md", "src": "VQ-M1-001", "valid_from": null, "valid_to": null}
+{"dst": "clause:4.1", "rel": "cites_clause", "source": "data/history/findings-M1.md", "src": "VQ-M1-001", "valid_from": null, "valid_to": null}
+{"dst": "M1-auth-spec.md", "rel": "evidenced_by", "source": "data/history/findings-M1.md", "src": "VQ-M1-001", "valid_from": null, "valid_to": null}
+{"dst": "M1", "rel": "raised_on", "source": "data/history/findings-M1.md", "src": "VQ-M1-002", "valid_from": null, "valid_to": null}
+{"dst": "AC-4 (M1)", "rel": "against_criterion", "source": "data/history/findings-M1.md", "src": "VQ-M1-002", "valid_from": null, "valid_to": null}
+{"dst": "clause:4.1", "rel": "cites_clause", "source": "data/history/findings-M1.md", "src": "VQ-M1-002", "valid_from": null, "valid_to": null}
+{"dst": "clause:7.2", "rel": "cites_clause", "source": "data/history/findings-M1.md", "src": "VQ-M1-002", "valid_from": null, "valid_to": null}
+{"dst": "M1-test-report.md", "rel": "evidenced_by", "source": "data/history/findings-M1.md", "src": "VQ-M1-002", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "raised_on", "source": "data/history/findings-M2.md", "src": "VQ-M2-001", "valid_from": null, "valid_to": null}
+{"dst": "AC-6 (M3)", "rel": "against_criterion", "source": "data/history/findings-M2.md", "src": "VQ-M2-001", "valid_from": null, "valid_to": null}
+{"dst": "clause:6.1", "rel": "cites_clause", "source": "data/history/findings-M2.md", "src": "VQ-M2-001", "valid_from": null, "valid_to": null}
+{"dst": "clause:7.1", "rel": "cites_clause", "source": "data/history/findings-M2.md", "src": "VQ-M2-001", "valid_from": null, "valid_to": null}
+{"dst": "M2-test-report.md", "rel": "evidenced_by", "source": "data/history/findings-M2.md", "src": "VQ-M2-001", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "raised_on", "source": "data/history/findings-M2.md", "src": "VQ-M2-002", "valid_from": null, "valid_to": null}
+{"dst": "AC-5 (M2)", "rel": "against_criterion", "source": "data/history/findings-M2.md", "src": "VQ-M2-002", "valid_from": null, "valid_to": null}
+{"dst": "clause:4.1", "rel": "cites_clause", "source": "data/history/findings-M2.md", "src": "VQ-M2-002", "valid_from": null, "valid_to": null}
+{"dst": "clause:7.2", "rel": "cites_clause", "source": "data/history/findings-M2.md", "src": "VQ-M2-002", "valid_from": null, "valid_to": null}
+{"dst": "M2-test-report.md", "rel": "evidenced_by", "source": "data/history/findings-M2.md", "src": "VQ-M2-002", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "raised_on", "source": "data/history/findings-M2.md", "src": "VQ-M2-003", "valid_from": null, "valid_to": null}
+{"dst": "AC-4 (M3)", "rel": "against_criterion", "source": "data/history/findings-M2.md", "src": "VQ-M2-003", "valid_from": null, "valid_to": null}
+{"dst": "clause:5.1", "rel": "cites_clause", "source": "data/history/findings-M2.md", "src": "VQ-M2-003", "valid_from": null, "valid_to": null}
+{"dst": "clause:7.2", "rel": "cites_clause", "source": "data/history/findings-M2.md", "src": "VQ-M2-003", "valid_from": null, "valid_to": null}
+{"dst": "M2-api-spec.md", "rel": "evidenced_by", "source": "data/history/findings-M2.md", "src": "VQ-M2-003", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "raised_on", "source": "data/history/findings-M2.md", "src": "VQ-M2-004", "valid_from": null, "valid_to": null}
+{"dst": "AC-7 (M2)", "rel": "against_criterion", "source": "data/history/findings-M2.md", "src": "VQ-M2-004", "valid_from": null, "valid_to": null}
+{"dst": "clause:5.1", "rel": "cites_clause", "source": "data/history/findings-M2.md", "src": "VQ-M2-004", "valid_from": null, "valid_to": null}
+{"dst": "clause:7.3", "rel": "cites_clause", "source": "data/history/findings-M2.md", "src": "VQ-M2-004", "valid_from": null, "valid_to": null}
+{"dst": "M2-api-spec.md", "rel": "evidenced_by", "source": "data/history/findings-M2.md", "src": "VQ-M2-004", "valid_from": null, "valid_to": null}
+{"dst": "M2", "rel": "raised_on", "source": "data/history/findings-M2.md", "src": "VQ-M2-005", "valid_from": null, "valid_to": null}
+{"dst": "AC-8 (M2)", "rel": "against_criterion", "source": "data/history/findings-M2.md", "src": "VQ-M2-005", "valid_from": null, "valid_to": null}
+{"dst": "clause:5.1", "rel": "cites_clause", "source": "data/history/findings-M2.md", "src": "VQ-M2-005", "valid_from": null, "valid_to": null}
+{"dst": "clause:7.2", "rel": "cites_clause", "source": "data/history/findings-M2.md", "src": "VQ-M2-005", "valid_from": null, "valid_to": null}
+{"dst": "M2-api-spec.md", "rel": "evidenced_by", "source": "data/history/findings-M2.md", "src": "VQ-M2-005", "valid_from": null, "valid_to": null}
+{"dst": "M3", "rel": "carried_into", "source": "data/history/acceptance-log.md", "src": "VQ-M2-003", "valid_from": null, "valid_to": null}

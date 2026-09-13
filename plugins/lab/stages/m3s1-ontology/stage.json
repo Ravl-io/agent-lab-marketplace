@@ -1,0 +1,11 @@
+{
+  "id": "m3s1-ontology",
+  "stage": "12",
+  "title": "Design the ontology from the broken questions",
+  "label": "ontology template",
+  "install_tracer": true,
+  "shared_scaffolds": {
+    "ontology/ontology.yaml": "ontology/ontology.yaml"
+  },
+  "commit": "Module 3 stage 1: the ontology, derived from the three broken questions"
+}

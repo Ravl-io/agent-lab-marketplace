@@ -1,0 +1,37 @@
+{"id": "person:priya", "label": "Priya Raghunathan", "props": {}, "source": "data/sources/", "type": "Person"}
+{"id": "person:tomas", "label": "Tomas Lindqvist", "props": {}, "source": "data/sources/", "type": "Person"}
+{"id": "person:lena", "label": "Lena Okonkwo", "props": {}, "source": "data/sources/", "type": "Person"}
+{"id": "person:dana", "label": "Dana Whitfield", "props": {}, "source": "data/sources/", "type": "Person"}
+{"id": "person:marcus", "label": "Marcus Bell", "props": {}, "source": "data/sources/", "type": "Person"}
+{"id": "person:fen", "label": "Fen Alvarez", "props": {}, "source": "data/sources/", "type": "Person"}
+{"id": "person:unassigned", "label": "unassigned", "props": {}, "source": "data/sources/", "type": "Person"}
+{"id": "project:atlas", "label": "Atlas Migration", "props": {"entered_programme": null, "status": "complete"}, "source": "data/sources/charters/atlas-charter.md", "type": "Project"}
+{"id": "project:beacon", "label": "Beacon Rollout", "props": {"entered_programme": null, "status": "complete"}, "source": "data/sources/status-updates-2026-06.md", "type": "Project"}
+{"id": "project:cirrus", "label": "Cirrus API Integration", "props": {"entered_programme": null, "status": "at risk"}, "source": "data/sources/charters/cirrus-charter.md", "type": "Project"}
+{"id": "project:observability", "label": "Observability Programme", "props": {"entered_programme": null, "status": "not started"}, "source": "data/sources/status-updates-2026-06.md", "type": "Project"}
+{"id": "project:halo", "label": "Halo Reporting", "props": {"entered_programme": "2026-07-02", "status": "in progress"}, "source": "data/sources/charters/halo-charter.md", "type": "Project"}
+{"id": "ms:atlas-cutover", "label": "Atlas schema cutover", "props": {"delivered": "2026-08-11", "due": "2026-08-12", "moved_from": "2026-08-05", "moved_to": "2026-08-12", "reported_in": "2026-07", "slipped": true}, "source": "data/sources/status-updates-2026-07.md", "type": "Milestone"}
+{"id": "ms:beacon-10", "label": "Beacon 10% traffic", "props": {"delivered": "2026-06-24", "due": "2026-06-24", "moved_from": null, "moved_to": null, "reported_in": "2026-06", "slipped": false}, "source": "data/sources/status-updates-2026-06.md", "type": "Milestone"}
+{"id": "ms:beacon-30", "label": "Beacon 30% traffic", "props": {"delivered": "2026-07-26", "due": "2026-07-28", "moved_from": null, "moved_to": null, "reported_in": "2026-07", "slipped": false}, "source": "data/sources/status-updates-2026-07.md", "type": "Milestone"}
+{"id": "ms:beacon-100", "label": "Beacon 100% traffic", "props": {"delivered": "2026-08-22", "due": "2026-08-22", "moved_from": null, "moved_to": null, "reported_in": "2026-08", "slipped": false}, "source": "data/sources/status-updates-2026-08.md", "type": "Milestone"}
+{"id": "ms:cirrus-signoff", "label": "Cirrus design sign-off", "props": {"delivered": "2026-07-22", "due": "2026-07-22", "moved_from": null, "moved_to": null, "reported_in": "2026-07", "slipped": false}, "source": "data/sources/status-updates-2026-07.md", "type": "Milestone"}
+{"id": "ms:cirrus-live", "label": "Cirrus integration live", "props": {"delivered": null, "due": "2026-09-30", "moved_from": "2026-09-15", "moved_to": "2026-09-30", "reported_in": "2026-08", "slipped": true}, "source": "data/sources/status-updates-2026-08.md", "type": "Milestone"}
+{"id": "ms:observability-scoping", "label": "Observability scoping", "props": {"delivered": null, "due": "2026-09-30", "moved_from": "2026-06-30", "moved_to": "2026-09-30", "reported_in": "2026-07", "slipped": true}, "source": "data/sources/minutes/steering-2026-07-16.md", "type": "Milestone"}
+{"id": "ms:halo-discovery", "label": "Halo discovery", "props": {"delivered": "2026-07-29", "due": "2026-07-31", "moved_from": null, "moved_to": null, "reported_in": "2026-07", "slipped": false}, "source": "data/sources/status-updates-2026-07.md", "type": "Milestone"}
+{"id": "ms:halo-build", "label": "Halo build", "props": {"delivered": null, "due": "2026-09-12", "moved_from": null, "moved_to": null, "reported_in": "2026-08", "slipped": false}, "source": "data/sources/status-updates-2026-08.md", "type": "Milestone"}
+{"id": "charter:atlas-v1", "label": "Atlas charter version 1", "props": {"effective": "2026-02-10", "superseded_on": "2026-05-14"}, "source": "data/sources/charters/atlas-charter.md", "type": "CharterVersion"}
+{"id": "charter:atlas-v2", "label": "Atlas charter version 2", "props": {"effective": "2026-05-14", "superseded_on": null}, "source": "data/sources/charters/atlas-charter.md", "type": "CharterVersion"}
+{"id": "scope:ledger-schema", "label": "Ledger schema migration to the new model", "props": {}, "source": "data/sources/charters/atlas-charter.md", "type": "ScopeItem"}
+{"id": "scope:backfill", "label": "Backfill of all historical ledger records", "props": {}, "source": "data/sources/charters/atlas-charter.md", "type": "ScopeItem"}
+{"id": "scope:cutover", "label": "Cutover of the payments write path", "props": {}, "source": "data/sources/charters/atlas-charter.md", "type": "ScopeItem"}
+{"id": "scope:decommission", "label": "Decommissioning of the legacy schema after a 30-day hold", "props": {}, "source": "data/sources/charters/atlas-charter.md", "type": "ScopeItem"}
+{"id": "scope:reporting-views", "label": "Reporting views migration, including the monthly finance extracts", "props": {}, "source": "data/sources/charters/atlas-charter.md", "type": "ScopeItem"}
+{"id": "CR-11", "label": "Extend Cirrus API scope to include refunds", "props": {"decided": "2026-07-16", "outcome": "rejected", "raised": "2026-07-08"}, "source": "data/sources/registers/change-requests.md", "type": "ChangeRequest"}
+{"id": "CR-12", "label": "Add the monthly finance reporting capability as its own project", "props": {"decided": "2026-07-02", "outcome": "approved", "raised": "2026-06-25"}, "source": "data/sources/registers/change-requests.md", "type": "ChangeRequest"}
+{"id": "CR-13", "label": "Move Cirrus API go-live from 2026-09-15 to 2026-09-30", "props": {"decided": "2026-08-26", "outcome": "approved", "raised": "2026-08-19"}, "source": "data/sources/registers/change-requests.md", "type": "ChangeRequest"}
+{"id": "R-01", "label": "Rollback impossible once the Atlas backfill completes", "props": {"closed": "2026-08-11", "opened": "2026-06-03", "severity": "High"}, "source": "data/sources/registers/risk-register.md", "type": "Risk"}
+{"id": "R-02", "label": "Beacon security review has no committed date", "props": {"closed": "2026-07-18", "opened": "2026-06-10", "severity": "High"}, "source": "data/sources/registers/risk-register.md", "type": "Risk"}
+{"id": "R-03", "label": "Cirrus vendor sustains 120 req/min against a design assumption of 500", "props": {"closed": null, "opened": "2026-07-15", "severity": "Medium"}, "source": "data/sources/registers/risk-register.md", "type": "Risk"}
+{"id": "R-04", "label": "Observability Programme has no owner", "props": {"closed": null, "opened": "2026-06-17", "severity": "Medium"}, "source": "data/sources/registers/risk-register.md", "type": "Risk"}
+{"id": "R-05", "label": "Reporting DB replica lag", "props": {"closed": "2026-06-20", "opened": "2026-05-20", "severity": "Low"}, "source": "data/sources/registers/risk-register.md", "type": "Risk"}
+{"id": "R-06", "label": "Halo scope not agreed with finance", "props": {"closed": null, "opened": "2026-08-05", "severity": "Medium"}, "source": "data/sources/registers/risk-register.md", "type": "Risk"}

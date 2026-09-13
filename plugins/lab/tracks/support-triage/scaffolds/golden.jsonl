@@ -1,0 +1,42 @@
+# Golden retrieval set — support-triage
+# One query per line. Fields:
+#   id      G01..G15, and H01.. for ones you add yourself
+#   tier    easy       naive fixed-size chunking should find this
+#           hard       needs structural or parent-child chunking, or a metadata filter
+#           unreachable  retrieval cannot do this at all — Module 3 opens on these three
+#   q       the question, as somebody would actually type it
+#   expect  the source files that must appear in the retrieved set for this to count
+#   anchor  a phrase from the passage that actually answers it. This is what the
+#           scoreboard scores: retrieving the right file is easy on a corpus this
+#           size, retrieving the right passage cheaply is not. null means the answer
+#           is in no document at all.
+#   why     what this query is testing. For the facilitator and for you.
+#
+#   filters  optional. Passed to search_filtered() instead of search(). Scores 0 until your
+#            metadata is real and the filter is honoured — that is the point of it.
+#   forbid   optional. Sources that must NOT be retrieved. Used where the corpus holds a
+#            superseded document beside its replacement: the anchor is present either way,
+#            so only the absence of the retired file proves the filter worked.
+#
+#   tier `filtered` is reported separately and not counted in the headline, so adding one
+#   does not move the numbers the other strategies are compared on.
+#
+# Add three of your own at the end, from questions your team actually asks. Give them
+# ids H01, H02, H03 so the scoreboard can tell them apart from the shipped fifteen.
+
+{"id": "G01", "tier": "easy", "q": "What does the error code DOMAIN_NOT_REGISTERED mean?", "expect": ["data/knowledge/configuring-sso.md"], "anchor": "the platform falls back to password login", "why": "Distinctive vocabulary, answer inside one section. The baseline should get this."}
+{"id": "G02", "tier": "easy", "q": "What are the four classifications we can give an escalated ticket?", "expect": ["data/knowledge/triage-policy.md"], "anchor": "Need more information", "why": "A list under a heading that names the thing being asked for."}
+{"id": "G03", "tier": "easy", "q": "What does an escalation need to include before the vendor will accept it?", "expect": ["data/knowledge/escalation-policy.md"], "anchor": "Configuration ruled out", "why": "Numbered requirements in one place."}
+{"id": "G04", "tier": "easy", "q": "A customer on Growth wants bulk export. What can I offer them instead?", "expect": ["data/knowledge/bulk-export-guide.md"], "anchor": "capped at 500,000 rows per run", "why": "The workaround is stated plainly under its own heading."}
+{"id": "G05", "tier": "easy", "q": "How long does the vendor have to resolve a Severity 2 escalation?", "expect": ["data/knowledge/vendor-sla.md"], "anchor": "Major feature broken, workaround exists", "why": "A single table row with unambiguous terms."}
+{"id": "G06", "tier": "easy", "q": "Can I tell a customer that other accounts are affected by the same defect?", "expect": ["data/knowledge/customer-comms-policy.md"], "anchor": "confirming that other accounts are affected is a disclosure decision", "why": "Explicitly answered, and the answer is no without approval."}
+{"id": "G07", "tier": "easy", "q": "Which platform release fixed the saved-filters defect?", "expect": ["data/knowledge/release-notes-5.4.md"], "anchor": "Filter records are now written to durable storage", "why": "Version and defect reference in the same line."}
+{"id": "G08", "tier": "hard", "q": "If the audit log shows a denial with an error code, is that usually configuration or a defect?", "expect": ["data/knowledge/audit-log-reference.md"], "anchor": "is the signature of a product defect", "why": "The answer is under 'The signature that matters most', a heading that shares no words with the question. Fixed-size chunking tends to split it from the code table above it."}
+{"id": "G09", "tier": "hard", "q": "If an account owns example.com, does registering it cover example.org too?", "expect": ["data/knowledge/configuring-sso.md"], "anchor": "There is no wildcard", "why": "The wildcard denial is one sentence, two paragraphs away from the heading that would match the query. Parent-child chunking is what recovers the context."}
+{"id": "G10", "tier": "hard", "q": "What is the audit log retention for an account on the Growth plan?", "expect": ["data/knowledge/plan-entitlements.md"], "anchor": "90 days", "why": "The identical table row exists in the superseded matrix. Without a validity-date filter both come back and there is no way to tell which is current."}
+{"id": "G11", "tier": "hard", "q": "A symptom has come back on a version that already contains the fix. What do we do?", "expect": ["data/knowledge/vendor-sla.md", "data/knowledge/escalation-policy.md"], "anchor": "reappears after a fix has been released", "why": "Two documents each hold half of it: the SLA says treat it as new, the escalation policy says validate the fix first."}
+{"id": "G12", "tier": "hard", "q": "What does the platform do if someone calls an API endpoint their plan does not include?", "expect": ["data/knowledge/plan-entitlements.md"], "anchor": "refused and written to the audit log", "why": "Stated word for word in both matrices. A retrieval that cannot prefer the current one is guessing."}
+{"id": "G13", "tier": "unreachable", "q": "Which other accounts are exposed to KI-77?", "expect": ["data/knowledge/known-issues.md"], "anchor": "accounts in region `eu-west` only", "why": "KI-77's scope is in a document; which accounts are in that region on that version is in the database. No document names an account. MULTI-HOP \u2014 Module 3."}
+{"id": "G14", "tier": "unreachable", "q": "How many open tickets are waiting on a vendor case, and which ones?", "expect": [], "anchor": null, "why": "A complete set from case_history. No document states it, and top-k cannot express completeness. AGGREGATION \u2014 Module 3."}
+{"id": "G15", "tier": "unreachable", "q": "Was Kestrel Retail entitled to bulk export in April 2026?", "expect": ["data/knowledge/plan-entitlements.md", "data/knowledge/plan-entitlements-2026-01.md"], "anchor": "Bulk export moved from Growth to Enterprise", "why": "Both matrices are equally relevant and only their validity dates separate them. Yes in April, no from 2026-06-01. TEMPORAL \u2014 Module 3."}
+{"id": "G16", "tier": "filtered", "q": "Is a Growth account entitled to bulk export?", "expect": ["data/knowledge/plan-entitlements.md"], "forbid": ["data/knowledge/plan-entitlements-2026-01.md"], "filters": {"superseded": false}, "anchor": "Bulk export moved from Growth to Enterprise on 2026-06-01", "why": "Only answerable with a metadata filter. Unfiltered, the SUPERSEDED matrix ranks first (0.653 against 0.703) and says Growth had bulk export, which was true until 2026-06-01 and is wrong now. The anchor alone cannot catch this, because the current matrix is also retrieved \u2014 so this query forbids the retired file: retrieving both is contradictory evidence, not a partial success."}

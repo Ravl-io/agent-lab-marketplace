@@ -1,0 +1,6 @@
+{
+  "capability": "{{SKILL_NAME}}",
+  "published_to": "{{OUTPUT_DIR}}",
+  "requires_approval": true,
+  "approvers": ["TODO — the role that may approve this, not a person's name"]
+}

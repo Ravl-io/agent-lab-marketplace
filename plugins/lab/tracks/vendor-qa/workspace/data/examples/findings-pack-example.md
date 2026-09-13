@@ -2,6 +2,10 @@
 
 This is the format findings are issued in. One block per finding, in severity order.
 
+**This example is a real finding from Milestone 2, issued 2026-05-22.** Read it for the shape.
+Do not copy its resolution deadline: the Severity 2 term changed on 2026-06-30, so a finding
+on a later milestone has a different one.
+
 ---
 
 ## FINDING VQ-M2-003
@@ -18,7 +22,7 @@ limit for any endpoint, and does not say what happens when a limit is exceeded.
 **Required to close:** A per-endpoint rate limit table, and the response returned when the
 limit is exceeded, including any `Retry-After` behaviour.
 
-**Resolution due:** 3 business days from issue (MSA 7.2, as amended 2026-06-30).
+**Resolution due:** 2 business days from issue (MSA 7.2, as in force on 2026-05-22).
 
 ---
 

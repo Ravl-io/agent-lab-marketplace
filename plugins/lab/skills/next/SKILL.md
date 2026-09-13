@@ -30,46 +30,66 @@ Then route, in this order — the first one that matches wins:
 | `env.ready` is false | Send them to `/lab:doctor`. Do not teach on a broken environment. Stop. |
 | `progress.current_module` is null | **Open Module 1** — go to Step 2. |
 | A module is in progress | **Continue it** — go to Step 3. |
-| The current module is complete, and the next one is not authored | Say so plainly: the module is finished, and the next one opens in the following session. Offer its optional extension and `/lab:status`. Do not invent Module 2. |
+| The current module is complete, and the next one **is** authored | Open it — go to Step 2. Sessions are days apart, so check first whether they want to start now or stop here. |
+| The current module is complete, and it is Module 4 | The course is finished. Show the full scoreboard with `/lab:status` and suggest pointing the system at their own documents. |
 | All four modules complete | Congratulate them, briefly. Suggest pointing their system at their own real documents. |
 
 ## Step 2 — opening a module for the first time
 
-Only Module 1 exists so far. If `current_module` is null, open it:
+**Authored modules and their files:**
 
-1. **The working agreement, once.** Read
+| Module | File |
+|---|---|
+| `01` | `modules/01-harness-and-coding-agent.md` |
+| `02` | `modules/02-rag-and-retrieval.md` |
+| `03` | `modules/03-knowledge-graphs-and-ontologies.md` |
+| `04` | `modules/04-the-full-ai-system.md` |
+
+All four modules are authored.
+
+Opening any of them follows the same three beats:
+
+1. **The working agreement, once — Module 1 only.** Skip this entirely when opening a
+   later module; they have seen it. Read
    `${CLAUDE_PLUGIN_ROOT}/references/how-the-lab-runs.md` and present it compactly — the
    Frame → Build → Run → Name → Gate loop, the learning contract (*you type, I coach*), and
    checkpoints with `/lab:catchup`. Under 15 lines. This is the only time they see it; do not
    repeat it when opening later modules.
 
-2. **What this module is for.** Read
-   `${CLAUDE_PLUGIN_ROOT}/modules/01-harness-and-coding-agent.md` and present its goal and
-   its arc — the step table, compressed. They should know what they will have in two hours
+2. **What this module is for.** Read the module's file from the table above and present
+   its goal and its arc — the step table, compressed. They should know what they will have in two hours
    and roughly how they get there. Do not teach the concepts yet; this is a map, not a
    lesson.
 
-3. **Then run the module's first step** from that file. For Module 1 that is Step 0, which
-   applies the stage `m1s1-harness` — settings, the tracer hook, and one experiment. Follow
-   it as written.
+3. **Then run the module's first step** from that file. Module 1 opens on Step 0, which
+   applies the stage `m1s1-harness` — settings, the tracer hook, one experiment. Module 2
+   opens on its Step 0, which is the virtualenv and `chromadb`, and nothing else. Follow the
+   module file as written.
 
-Setup is **incremental**: each step applies the next stage with
+Setup is **incremental in every module**: each step applies the next stage with
 `workspace.py stage <stage-id>`, adding only what that step needs. Never run
-`workspace.py setup`, which installs a track's whole payload at once; that is for Module 2,
-when the full corpus is genuinely needed.
+`workspace.py setup` — it installs a track's whole payload at once and destroys the point of
+the sequence. The stage ladder is:
+
+| Module 1 | `m1s1-harness` · `m1s2-data` · `m1s3-corpus` · `m1s4-skill` · `m1s5-tool` · `m1s6-hook` · `m1s7-plugin` |
+|---|---|
+| **Module 2** | `m2s1-baseline` · `m2s2-vectors` · `m2s3-mcp` · `m2s4-agentic` |
+| **Module 3** | `m3s1-ontology` · `m3s2-extract` · `m3s3-kg-tool` · `m3s4-hybrid` |
+| **Module 4** | `m4s1-spec` · `m4s2-propose` · `m4s3-gate` · `m4s4-runbook` |
 
 ## Step 3 — continuing a module in progress
 
 Read the module file for `current_module`, find the step after the last cleared checkpoint in
 `progress.completed_checkpoints`, and run it.
 
-If the module file marks that step as not yet authored, **say so plainly** and hand back to
+All four modules are authored, so this should not happen — but if a module file ever marks a
+step as not yet authored, **say so plainly** and hand back to
 the facilitator. Do not invent an exercise — a fabricated step wastes the participant's time
 and breaks the sequence the rest of the module depends on.
 
 When the last step of a module is cleared, run the module's closing step (the debrief), then
-`state.py complete-module <id>`. After that, only Module 1 exists: tell them the next module
-opens next session rather than improvising it.
+`state.py complete-module <id>`. After Module 4 the course is finished: show them the full
+scoreboard and suggest pointing the system at their own documents.
 
 ## Step 4 — always finish by saying what is next
 

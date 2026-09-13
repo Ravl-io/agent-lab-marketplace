@@ -1,17 +1,46 @@
-# Agent Lab Marketplace
+# Agent Lab
 
-A Claude Code plugin marketplace distributing the hands-on lab for the Enterprise AI Fluency
-course: **four two-hour modules in which each participant builds one real plugin**, covering
-the Claude Code harness, RAG and retrieval, knowledge graphs and ontologies, and what it takes
-to turn any of it into a system a team would rely on.
+An 8-hour hands-on training — four sessions of two hours — in which each participant builds
+**one real Claude Code plugin**, progressively, and learns how agents work by building the
+thing rather than watching slides about it.
 
-| Plugin | What it is |
-|---|---|
-| `lab` | The tutor. Orients you, checks your machine, picks your track, then teaches the modules by having you build |
+It is a training in **AI fluency**: going from understanding how AI agents work to building a
+full AI system that accomplishes real, complex work.
+
+| Module | | |
+|---|---|---|
+| **1** | Harness and coding agent | What an agent is, what the harness is made of, how to extend it |
+| **2** | RAG and retrieval systems | Grounding the agent in your own documents, and measuring it |
+| **3** | Knowledge graphs and ontologies | The questions retrieval cannot answer, and the semantic layer that can |
+| **4** | The full AI system | Validating and improving it until it is production-ready |
+
+Participants are taught by a plugin, so every primitive they learn has a working reference
+they can open and read.
+
+## Publishing
+
+This sandbox and the published marketplace repo have **different layouts**, and one field
+differs because of it:
+
+| | Here | `Ravl-io/agent-lab-marketplace` |
+|---|---|---|
+| plugin tree | `lab/` | `plugins/lab/` |
+| `plugins[0].source` | `./lab` | `./plugins/lab` |
+
+So a sync is: `rsync -a --delete lab/ <repo>/plugins/lab/`, copy `PLAN.md`, `README.md` and
+`docs/CURRICULUM.md`, and then **bump `plugins[0].version` in the repo's own
+`.claude-plugin/marketplace.json` rather than copying this one over it.** Copying it verbatim
+sets `source` to `./lab`, which does not exist there, and every install fails.
+
+Bump the version in **both** manifests or installed plugins never pick the change up —
+`plugin install` reports "already installed" and says nothing else.
+
+- [PLAN.md](PLAN.md) — design, architecture, build phases, risks
+- [docs/CURRICULUM.md](docs/CURRICULUM.md) — the detailed module-by-module outline
 
 ## For participants
 
-Three commands. Your facilitator will confirm nothing else is needed.
+Everything you need is four steps. Your facilitator will confirm the marketplace name.
 
 **1. Make an empty folder and open VS Code in it.**
 
@@ -19,19 +48,24 @@ Three commands. Your facilitator will confirm nothing else is needed.
 mkdir ~/agent-lab && cd ~/agent-lab && code .
 ```
 
-The lab needs its own folder — it becomes a git repository holding your checkpoint commits.
-Do not open VS Code in your home directory or an existing project.
+The lab needs its own folder — it becomes a git repository with your checkpoint commits in
+it. Do not open VS Code in your home directory.
 
-**2. In the Claude Code panel, add the marketplace and install the tutor.**
+**2. Open the Claude Code panel and add the marketplace.**
 
 ```
-/plugin marketplace add Ravl-io/agent-lab-marketplace
+/plugin marketplace add chihebdk/agent-lab
+```
+
+**3. Install the plugin.**
+
+```
 /plugin install lab@agent-lab
 ```
 
 If the install summary says `Run /reload-plugins to activate`, run that.
 
-**3. Start.**
+**4. Start.**
 
 ```
 /lab:start
@@ -40,9 +74,6 @@ If the install summary says `Run /reload-plugins to activate`, run that.
 That orients you, shows the curriculum, lists what you need installed, checks your machine,
 and asks which track you are on. It is also the command you run at the beginning of every
 session to pick up where you left off.
-
-**Accept the trust prompt** when Claude Code shows it. Until you do, the project's permission
-settings are ignored and every tool call stops to ask.
 
 ### Commands
 
@@ -53,73 +84,71 @@ settings are ignored and every tool call stops to ask.
 | `/lab:status` | Where you are: track, module, checkpoints, workspace health |
 | `/lab:hint` | A nudge when you are stuck — not the answer |
 | `/lab:catchup` | Repairs your workspace if something breaks |
-| `/lab:checklist` | What you need installed, and how |
-| `/lab:doctor` | Verify your machine is ready |
+| `/lab:checklist` | What you need installed, and how to install it |
+| `/lab:doctor` | Verify your machine is ready (`--quick` for a fast resume check) |
 | `/lab:track` | See the tracks, choose one, or switch |
-| `/lab:handbook` | Open the handbook — the reference guide, shipped with the plugin so it works offline |
+| `/lab:handbook` | Open the handbook — the reference guide, shipped with the plugin |
 
-### The three tracks
+More commands unlock with the modules. `/lab:start` always tells you what is next.
 
-Same concepts and the same timeline; different corpus and task. Your facilitator may assign
-one, or you choose at `/lab:start`.
+## For the facilitator
 
-| Track | The job |
-|---|---|
-| `support-triage` | L2 support: decide whether a ticket is configuration, user error, or a real product defect — with evidence |
-| `vendor-qa` | Check a vendor's deliverables against the contract, and produce findings they cannot argue with |
-| `docgen` | Turn a month of messy sources into a cited report in house style |
-
-## Requirements
-
-**Module 1 needs three things:** Python 3.10+, Git 2.30+, and write access in the lab folder
-— plus VS Code with the Claude Code extension.
-
-Later modules need more: pip and venv and about 2 GB of disk from module 2, SQLite 3.35+ from
-module 3. `/lab:doctor` checks all of it but only *blocks* on what the module you are starting
-actually needs, so a missing module-2 dependency will not stop your first session.
-
-Run `/lab:checklist` for the list with install commands for your platform. macOS ships Python
-3.9 as `python3`; the lab finds a newer interpreter under its other names and uses that, so
-that is not a problem.
-
-## The handbook
-
-A single self-contained HTML file ships with the plugin at
-[`plugins/lab/reference/handbook.html`](plugins/lab/reference/handbook.html): the reference
-guide covering the modules, the commands, the concepts, and what to do when something breaks.
-Participants open it with `/lab:handbook`, or straight from disk. It works offline — the only
-thing it fetches is the web font.
-
-## For facilitators
-
-- [PLAN.md](PLAN.md) — design, architecture, build phases, risks
-- [docs/CURRICULUM.md](docs/CURRICULUM.md) — the module-by-module outline with run-of-show timings
-- [plugins/lab/facilitator/session-0-setup.md](plugins/lab/facilitator/session-0-setup.md) — the
-  pre-flight message to send 48 hours ahead, how to open the session, and what to do when a
-  machine will not cooperate
-- [plugins/lab/modules/](plugins/lab/modules/) — the teaching content the tutor follows
-
-Before any change to a track, a stage or a command, run the self-test:
+### Publish it
 
 ```bash
-python3 plugins/lab/scripts/selftest.py
+git init && git add -A && git commit -m "Agent Lab"
+gh repo create agent-lab --private --source=. --push
 ```
 
-It applies every stage for every track and checks the failures that only show up in front of
-a room: a stage payload leaking one track's task to every group, an unresolved placeholder, a
-file the module tells participants to open that does not exist on their track, or a command
-promised in the text but never implemented.
+Then send participants the two commands from step 2 and 3 above. If your repo is not
+`chihebdk/agent-lab`, update the `owner/repo` in the instructions you send — the marketplace
+name (`agent-lab`) comes from `.claude-plugin/marketplace.json` and is independent of the
+repo name.
 
-Test the plugin without installing it:
+A private repo works: participants need read access to it, which they get through their own
+GitHub authentication.
+
+### Test locally without publishing
 
 ```bash
-claude --plugin-dir ./plugins/lab
-claude plugin validate ./plugins/lab
-claude plugin validate .
+python3 lab/scripts/selftest.py    # static self-test: tracks, stages, substitution, commands
+claude --plugin-dir ./lab          # loads the plugin for one session, no install needed
+claude plugin validate ./lab       # validate the plugin manifest
+claude plugin validate .           # validate the marketplace manifest
 ```
 
-## Retired
+Run `selftest.py` after any change to a track, a stage or a command. It catches the failures
+that only show up in front of a room: a stage payload leaking one track's task to every
+group, an unresolved placeholder, a file the module tells participants to open that does not
+exist on their track, or a command promised in the text but never implemented.
 
-`agent-lab-module-1` — the earlier Crestview Wealth ops-reporting lab — has been removed.
-It is superseded by `lab`, which covers the same ground across three domain tracks with
-progress tracking and validation gates. The files remain in git history if anyone needs them.
+Run `/reload-plugins` after editing plugin files in a live session.
+
+### Session 0
+
+See [lab/facilitator/session-0-setup.md](lab/facilitator/session-0-setup.md) for the
+pre-flight message to send 48 hours ahead, the exact words for walking the room through
+install, and what to do when a machine will not cooperate.
+
+## Repository layout
+
+```
+.claude-plugin/marketplace.json   the marketplace catalogue
+lab/                              the tutor plugin
+├── .claude-plugin/plugin.json    plugin manifest — `name: lab` sets the /lab: namespace
+├── skills/
+│   ├── start/  checklist/  doctor/  track/    user-invoked (disable-model-invocation)
+│   └── tutor/                                 model-invoked: teaches, coaches, corrects
+├── scripts/
+│   ├── doctor.py                 owns the requirement definitions: checklist AND validation
+│   ├── state.py                  the only thing that writes .agent-lab/state.json
+│   └── session_banner.py         SessionStart hook — silent outside a lab folder
+├── hooks/hooks.json
+├── references/                   orientation, curriculum, misconceptions
+│   └── handbook.html             the course companion: one self-contained file
+├── tracks/{support-triage,vendor-qa,docgen}/track.json
+└── facilitator/
+PLAN.md  docs/                    design and curriculum
+```
+
+Participant state lives in **their** folder, at `.agent-lab/state.json` — never in the plugin.

@@ -1,0 +1,46 @@
+{
+  "id": "CASE-4471",
+  "capability": "triage",
+  "body": "proposals/CASE-4471.md",
+  "confidence": "high",
+  "risk": "low",
+  "actions": [
+    {
+      "type": "write",
+      "path": "triage/CASE-4471.md",
+      "from": "proposals/CASE-4471.md"
+    }
+  ],
+  "evidence": [
+    {
+      "via": "retrieval",
+      "source": "data/knowledge/configuring-sso.md",
+      "supports": "an unregistered login domain falls back to password login"
+    },
+    {
+      "via": "graph",
+      "source": "data/db/support.db :: sso_domains",
+      "supports": "acc-1042 has only brightmoorhealth.com registered"
+    },
+    {
+      "via": "graph",
+      "source": "data/db/support.db :: users",
+      "supports": "three affected users are on brightmoor-health.org"
+    },
+    {
+      "via": "graph",
+      "source": "data/db/support.db :: audit_log",
+      "supports": "nine DOMAIN_NOT_REGISTERED denials from those users"
+    },
+    {
+      "via": "retrieval",
+      "source": "data/knowledge/triage-policy.md",
+      "supports": "the platform behaving as documented is configuration, not a defect"
+    }
+  ],
+  "rollback": "Delete triage/CASE-4471.md. Nothing is sent to the customer and no account is modified by applying this proposal.",
+  "unresolved": [
+    "Whether the clinics side migrated to a second domain recently \u2014 the audit log only covers 30 days.",
+    "Whether other accounts have unregistered domains and have not reported it."
+  ]
+}

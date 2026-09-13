@@ -36,6 +36,15 @@ def track_skill_name(root: str) -> str | None:
         return None
 
 
+def find_packaged(root: str, name: str) -> str | None:
+    """Look for a skill that has already been moved into the participant's plugin."""
+    for entry in sorted(os.listdir(root)):
+        candidate = os.path.join(root, entry, "skills", name, "SKILL.md")
+        if os.path.exists(candidate):
+            return candidate
+    return None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=os.getcwd())
@@ -52,10 +61,20 @@ def main() -> int:
     notes: list[str] = []
 
     if not os.path.exists(path):
-        problems.append(f"no skill at .claude/skills/{name}/SKILL.md — the folder name and "
-                        f"the file name both matter, and the file must be SKILL.md")
-        report(name, path, problems, notes, args.as_json)
-        return 1
+        # From Module 2 on, a finished skill gets moved into the participant's plugin. A
+        # gate that only looks in .claude/skills reports a packaged skill as missing, which
+        # sends somebody hunting for a file they moved on purpose.
+        packaged = find_packaged(args.root, name)
+        if packaged:
+            path = packaged
+            notes.append(f"found at {os.path.relpath(path, args.root)} — this skill has "
+                         f"been packaged into the plugin, which is where it belongs once "
+                         f"the module is finished")
+        else:
+            problems.append(f"no skill at .claude/skills/{name}/SKILL.md — the folder name "
+                            f"and the file name both matter, and the file must be SKILL.md")
+            report(name, path, problems, notes, args.as_json)
+            return 1
 
     text = open(path, encoding="utf-8").read()
 

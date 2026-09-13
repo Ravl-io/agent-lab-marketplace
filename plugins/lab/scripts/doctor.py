@@ -167,6 +167,13 @@ REQUIREMENTS = [
         quick=False,
         install={"all": "we install it together at the start of Module 2"},
     ),
+    Requirement(
+        "pyyaml", "pyyaml installed",
+        "Module 3 reads the ontology from YAML. Installed together at the start of it.",
+        required=False,
+        quick=False,
+        install={"all": "we install it together at the start of Module 3"},
+    ),
 ]
 
 BY_ID = {r.id: r for r in REQUIREMENTS}
@@ -360,6 +367,19 @@ def check_sqlite_cli() -> tuple[str, str]:
     return (PASS, out.split()[0] if out else "available") if code == 0 else (WARN, "failed to run")
 
 
+def check_pyyaml() -> tuple[str, str]:
+    """Module 3's ontology is YAML, so the compiler cannot run without this.
+
+    Checked against the resolved interpreter, like every other dependency — pyyaml often
+    arrives as a transitive dependency of chromadb, and "it works on mine" is exactly the
+    kind of accident that breaks one participant's afternoon and nobody else's.
+    """
+    code, out = _run([_py(), "-c", "import yaml;print(yaml.__version__)"])
+    if code != 0:
+        return FAIL, "not installed yet"
+    return PASS, f"already installed ({out.strip()})"
+
+
 def check_chromadb() -> tuple[str, str]:
     code, out = _run([_py(), "-c", "import chromadb;print(chromadb.__version__)"])
     if code == 0:
@@ -387,6 +407,7 @@ def run_checks(root: str, quick: bool = False) -> list[dict]:
         "node": check_node,
         "sqlite_cli": check_sqlite_cli,
         "chromadb": check_chromadb,
+        "pyyaml": check_pyyaml,
     }
     results = []
     for req in REQUIREMENTS:

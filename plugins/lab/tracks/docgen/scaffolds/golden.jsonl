@@ -1,0 +1,32 @@
+# Golden retrieval set — docgen
+# One query per line. Fields:
+#   id      G01..G15, and H01.. for ones you add yourself
+#   tier    easy       naive fixed-size chunking should find this
+#           hard       needs structural or parent-child chunking, or a metadata filter
+#           unreachable  retrieval cannot do this at all — Module 3 opens on these three
+#   q       the question, as somebody would actually type it
+#   expect  the source files that must appear in the retrieved set for this to count
+#   anchor  a phrase from the passage that actually answers it. This is what the
+#           scoreboard scores: retrieving the right file is easy on a corpus this
+#           size, retrieving the right passage cheaply is not. null means the answer
+#           is in no document at all.
+#   why     what this query is testing. For the facilitator and for you.
+#
+# Add three of your own at the end, from questions your team actually asks. Give them
+# ids H01, H02, H03 so the scoreboard can tell them apart from the shipped fifteen.
+
+{"id": "G01", "tier": "easy", "q": "Who owns the Cirrus API Integration?", "expect": ["data/sources/status-updates-2026-08.md"], "anchor": "Lena Okonkwo", "why": "Stated as a labelled field under the project heading."}
+{"id": "G02", "tier": "easy", "q": "What status values are we allowed to use in the report?", "expect": ["data/house-style.md"], "anchor": "Not started, In progress, At risk, Complete, Cancelled", "why": "An explicit list of five."}
+{"id": "G03", "tier": "easy", "q": "What sections does the monthly report have to contain?", "expect": ["data/template/monthly-report-template.md"], "anchor": "Changes since last report", "why": "The template is the answer."}
+{"id": "G04", "tier": "easy", "q": "What was decided about CR-11?", "expect": ["data/sources/registers/change-requests.md"], "anchor": "Rejected", "why": "One row, with the outcome in it."}
+{"id": "G05", "tier": "easy", "q": "When did Beacon reach 100% of traffic?", "expect": ["data/sources/status-updates-2026-08.md"], "anchor": "delivered 2026-08-22", "why": "A delivered date on a milestone line."}
+{"id": "G06", "tier": "easy", "q": "How does house style want dates written?", "expect": ["data/house-style.md"], "anchor": "Dates are absolute", "why": "A numbered rule."}
+{"id": "G07", "tier": "easy", "q": "Who took ownership of the Observability Programme, and when?", "expect": ["data/sources/minutes/steering-2026-08-20.md"], "anchor": "Dana Whitfield owns the Observability Programme from 2026-08-26", "why": "A recorded decision with a date."}
+{"id": "G08", "tier": "hard", "q": "Why did the Atlas cutover move to 2026-08-12?", "expect": ["data/sources/status-updates-2026-07.md", "data/sources/standup-notes-2026-07.md"], "anchor": "backfill throughput on staging is about 60%", "why": "The status update has the movement; only the sync notes say why. The reason is the half the report needs and the half that similarity search misses."}
+{"id": "G09", "tier": "hard", "q": "How many risks were open at the end of July?", "expect": ["data/sources/registers/risk-register.md"], "anchor": "2026-07-31 | 3", "why": "A row in a second table at the foot of the register. Fixed-size chunking usually keeps the first table and drops this one."}
+{"id": "G10", "tier": "hard", "q": "What rate did the Cirrus design assume, and what does the vendor actually sustain?", "expect": ["data/sources/charters/cirrus-charter.md", "data/sources/standup-notes-2026-07.md"], "anchor": "500 requests per minute", "why": "500 in the charter, 120 in the notes. Two documents, and the gap between them is the point."}
+{"id": "G11", "tier": "hard", "q": "Which projects were in the programme in June 2026?", "expect": ["data/sources/status-updates-2026-06.md"], "anchor": "Observability Programme", "why": "Four, not five \u2014 Halo joined in July. The August file looks equally relevant and gives the wrong answer. This is what a period filter is for."}
+{"id": "G12", "tier": "hard", "q": "What is the current status of risk R-04, and who owns it now?", "expect": ["data/sources/registers/risk-register.md", "data/sources/minutes/steering-2026-08-20.md"], "anchor": "unassigned until 2026-08-26, then Dana Whitfield", "why": "The register shows the ownership change mid-cell; the minute is where it was decided."}
+{"id": "G13", "tier": "unreachable", "q": "Which projects were waiting on Atlas Migration to finish?", "expect": ["data/sources/charters/cirrus-charter.md", "data/sources/minutes/steering-2026-07-16.md"], "anchor": "Atlas Migration must complete before Cirrus can go live", "why": "Cirrus's dependency is in its charter, Halo's is in a July minute, and no status update mentions either. MULTI-HOP \u2014 Module 3."}
+{"id": "G14", "tier": "unreachable", "q": "How many milestones slipped across the programme, and who owns them?", "expect": ["data/sources/status-updates-2026-07.md", "data/sources/status-updates-2026-08.md"], "anchor": "was due 2026-08-05, now 2026-08-12", "why": "Three, spread across months, and the complete set is the answer. AGGREGATION \u2014 Module 3."}
+{"id": "G15", "tier": "unreachable", "q": "Was the reporting views migration in Atlas's scope in April 2026?", "expect": ["data/sources/charters/atlas-charter.md"], "anchor": "Reporting views migration", "why": "Yes under version 1, no under version 2 from 2026-05-14. Both versions are in one file and read as equally relevant. TEMPORAL \u2014 Module 3."}

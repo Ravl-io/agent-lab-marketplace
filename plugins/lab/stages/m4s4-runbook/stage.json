@@ -1,0 +1,11 @@
+{
+  "id": "m4s4-runbook",
+  "stage": "19",
+  "title": "The runbook",
+  "label": "runbook",
+  "install_tracer": true,
+  "shared_scaffolds": {
+    "RUNBOOK.md": "RUNBOOK.md"
+  },
+  "commit": "Module 4 stage 4: the runbook"
+}

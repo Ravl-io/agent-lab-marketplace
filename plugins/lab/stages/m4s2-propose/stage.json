@@ -1,0 +1,11 @@
+{
+  "id": "m4s2-propose",
+  "stage": "17",
+  "title": "The proposal pipeline",
+  "label": "proposal skill",
+  "install_tracer": true,
+  "shared_scaffolds": {
+    "skills/propose/SKILL.md": ".claude/skills/propose/SKILL.md"
+  },
+  "commit": "Module 4 stage 2: the proposal pipeline"
+}

@@ -1,0 +1,23 @@
+# Graph eval set — support-triage
+#
+# Eight questions retrieval cannot answer. The first three are the ones Module 2 left
+# deliberately broken; the rest push the same three shapes harder.
+#
+# Each entry names the traversal that should answer it, so this measures whether your GRAPH
+# holds the facts — not how the agent phrases things. Fields:
+#   id      GQ1..GQ8, and H01.. for ones you add
+#   shape   multi-hop | aggregation | temporal
+#   op      the traversal. kind is reach, nodes or coverage.
+#             reach     start + path (a relation list; prefix < to traverse backwards)
+#             nodes     type, optionally has_rel / missing_rel
+#             coverage  type + missing_rel
+#           any op takes an optional filter {prop, op, value} and an optional exclude {op}
+#   expect  the complete set of node ids. Complete: a missing id is a wrong answer.
+{"id": "GQ1", "shape": "multi-hop", "q": "Which other accounts are exposed to KI-77?", "op": {"kind": "reach", "start": "KI-77", "path": ["scoped_to_region", "<in_region"], "filter": {"prop": "platform_version", "op": "lt", "value": "5.4.1"}}, "expect": ["acc-6620"], "why": "Three hops and a version comparison. The region scope is in known-issues.md, the versions are in the database, and no single source holds both."}
+{"id": "GQ2", "shape": "aggregation", "q": "How many open tickets are waiting on a vendor case, and which ones?", "op": {"kind": "nodes", "type": "Ticket", "has_rel": "escalated_to", "filter": {"prop": "status", "op": "eq", "value": "open"}}, "expect": ["CASE-4201", "CASE-4390"], "why": "A complete set. Top-k returns the most similar tickets, never all of them."}
+{"id": "GQ3", "shape": "temporal", "q": "Was Kestrel Retail entitled to bulk export in April 2026?", "op": {"kind": "reach", "start": "acc-2287", "path": ["on_plan", "includes_feature"], "as_of": "2026-04-15", "filter": {"prop": "label", "op": "eq", "value": "bulk_export"}}, "expect": ["feature:bulk_export"], "why": "Yes in April, no from 2026-06-01. The same traversal with no date answers a different question."}
+{"id": "GQ4", "shape": "temporal", "q": "Is Kestrel Retail entitled to bulk export today?", "op": {"kind": "reach", "start": "acc-2287", "path": ["on_plan", "includes_feature"], "as_of": "2026-09-13", "filter": {"prop": "label", "op": "eq", "value": "bulk_export"}}, "expect": [], "why": "The same question as GQ3 with a different date and the opposite answer. An entitlement answer with no date attached is not an answer."}
+{"id": "GQ5", "shape": "multi-hop", "q": "Which accounts have raised a ticket about a feature that a currently-open vendor case affects?", "op": {"kind": "reach", "start": "VND-427", "path": ["<tracked_by", "affects_feature", "<about_feature", "raised_by"]}, "expect": ["acc-2287"], "why": "Four hops, two of them backwards. Reading the path aloud is how you check it: the case is tracked by a defect, which affects a feature, which a ticket is about, which was raised by an account."}
+{"id": "GQ6", "shape": "aggregation", "q": "Which tickets were never escalated to the vendor?", "op": {"kind": "coverage", "type": "Ticket", "missing_rel": "escalated_to"}, "expect": ["CASE-4233", "CASE-4256", "CASE-4288", "CASE-4301", "CASE-4344", "CASE-4412"], "why": "A question about absence. Similarity search has no way to return the things it did not find."}
+{"id": "GQ7", "shape": "aggregation", "q": "Which features have no known defect recorded against them?", "op": {"kind": "coverage", "type": "Feature", "missing_rel": "affects_feature", "direction": "in"}, "expect": ["feature:multi_sso_domain", "feature:sandbox_tenant", "feature:standard_reports", "feature:api_access"], "why": "Coverage in the other direction — the relation points AT a feature, so absence has to be checked on incoming edges. Getting the direction wrong here returns every feature and looks plausible."}
+{"id": "GQ8", "shape": "multi-hop", "q": "Which eu-west accounts are still on a version older than every released fix?", "op": {"kind": "reach", "start": "region:eu-west", "path": ["<in_region"], "filter": {"prop": "platform_version", "op": "lt", "value": "5.4.1"}}, "expect": ["acc-6620"], "why": "The same answer as GQ1 by a different route, which is a useful check: two traversals that should agree, and a graph where they disagree has an error in it."}

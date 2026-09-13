@@ -1,0 +1,48 @@
+{"id": "acc-1042", "label": "Brightmoor Health", "props": {"plan": "Enterprise", "platform_version": "5.4.1", "region": "eu-west", "seats": 480, "sso_enabled": true}, "source": "data/db/support.db", "type": "Account"}
+{"id": "acc-2287", "label": "Kestrel Retail Group", "props": {"plan": "Growth", "platform_version": "5.4.1", "region": "us-east", "seats": 95, "sso_enabled": true}, "source": "data/db/support.db", "type": "Account"}
+{"id": "acc-3310", "label": "Aldermoor Logistics", "props": {"plan": "Enterprise", "platform_version": "5.4.1", "region": "eu-west", "seats": 220, "sso_enabled": true}, "source": "data/db/support.db", "type": "Account"}
+{"id": "acc-4188", "label": "Thornbury Media", "props": {"plan": "Starter", "platform_version": "5.4.1", "region": "us-east", "seats": 12, "sso_enabled": false}, "source": "data/db/support.db", "type": "Account"}
+{"id": "acc-5501", "label": "Calderwood Freight", "props": {"plan": "Enterprise", "platform_version": "5.4.1", "region": "eu-west", "seats": 310, "sso_enabled": true}, "source": "data/db/support.db", "type": "Account"}
+{"id": "acc-6620", "label": "Marlowe Financial", "props": {"plan": "Enterprise", "platform_version": "5.4.0", "region": "eu-west", "seats": 640, "sso_enabled": true}, "source": "data/db/support.db", "type": "Account"}
+{"id": "acc-7734", "label": "Pinehurst Clinics", "props": {"plan": "Growth", "platform_version": "5.4.1", "region": "us-east", "seats": 58, "sso_enabled": true}, "source": "data/db/support.db", "type": "Account"}
+{"id": "acc-8890", "label": "Vance & Ruel", "props": {"plan": "Enterprise", "platform_version": "5.4.1", "region": "ap-south", "seats": 140, "sso_enabled": true}, "source": "data/db/support.db", "type": "Account"}
+{"id": "plan:Enterprise", "label": "Enterprise", "props": {}, "source": "data/knowledge/plan-entitlements.md", "type": "Plan"}
+{"id": "plan:Growth", "label": "Growth", "props": {}, "source": "data/knowledge/plan-entitlements.md", "type": "Plan"}
+{"id": "plan:Starter", "label": "Starter", "props": {}, "source": "data/knowledge/plan-entitlements.md", "type": "Plan"}
+{"id": "region:ap-south", "label": "ap-south", "props": {}, "source": "data/db/support.db", "type": "Region"}
+{"id": "region:eu-west", "label": "eu-west", "props": {}, "source": "data/db/support.db", "type": "Region"}
+{"id": "region:us-east", "label": "us-east", "props": {}, "source": "data/db/support.db", "type": "Region"}
+{"id": "version:5.3.4", "label": "5.3.4", "props": {"sort_key": "005.003.004"}, "source": "data/knowledge/release-notes-5.4.md", "type": "Version"}
+{"id": "version:5.4.0", "label": "5.4.0", "props": {"sort_key": "005.004.000"}, "source": "data/knowledge/release-notes-5.4.md", "type": "Version"}
+{"id": "version:5.4.1", "label": "5.4.1", "props": {"sort_key": "005.004.001"}, "source": "data/knowledge/release-notes-5.4.md", "type": "Version"}
+{"id": "version:5.4.2", "label": "5.4.2", "props": {"sort_key": "005.004.002"}, "source": "data/knowledge/release-notes-5.4.md", "type": "Version"}
+{"id": "version:5.4.3", "label": "5.4.3", "props": {"sort_key": "005.004.003"}, "source": "data/knowledge/release-notes-5.4.md", "type": "Version"}
+{"id": "feature:api_access", "label": "api_access", "props": {}, "source": "data/db/support.db", "type": "Feature"}
+{"id": "feature:audit_log_search", "label": "audit_log_search", "props": {}, "source": "data/knowledge/known-issues.md", "type": "Feature"}
+{"id": "feature:bulk_export", "label": "bulk_export", "props": {}, "source": "data/db/support.db", "type": "Feature"}
+{"id": "feature:multi_sso_domain", "label": "multi_sso_domain", "props": {}, "source": "data/db/support.db", "type": "Feature"}
+{"id": "feature:sandbox_tenant", "label": "sandbox_tenant", "props": {}, "source": "data/db/support.db", "type": "Feature"}
+{"id": "feature:saved_filters", "label": "saved_filters", "props": {}, "source": "data/db/support.db", "type": "Feature"}
+{"id": "feature:scheduled_reports", "label": "scheduled_reports", "props": {}, "source": "data/db/support.db", "type": "Feature"}
+{"id": "feature:sso", "label": "sso", "props": {}, "source": "data/db/support.db", "type": "Feature"}
+{"id": "feature:standard_reports", "label": "standard_reports", "props": {}, "source": "data/db/support.db", "type": "Feature"}
+{"id": "VND-388", "label": "SSO redirect loop on Safari 17", "props": {"opened_at": "2026-04-30", "resolved_at": "2026-05-20", "severity": "S2", "status": "closed"}, "source": "data/db/support.db", "type": "VendorCase"}
+{"id": "KI-62", "label": "SSO redirect loop on Safari 17", "props": {"fix_version": "5.3.4", "status": "closed"}, "source": "data/db/support.db", "type": "Defect"}
+{"id": "VND-402", "label": "Duplicate rows in order export", "props": {"opened_at": "2026-06-10", "resolved_at": "2026-07-02", "severity": "S2", "status": "closed"}, "source": "data/db/support.db", "type": "VendorCase"}
+{"id": "KI-70", "label": "Duplicate rows in order export", "props": {"fix_version": "5.4.0", "status": "closed"}, "source": "data/db/support.db", "type": "Defect"}
+{"id": "VND-411", "label": "Saved filters not persisted for eu-west tenants", "props": {"opened_at": "2026-07-21", "resolved_at": "2026-08-14", "severity": "S2", "status": "resolved"}, "source": "data/db/support.db", "type": "VendorCase"}
+{"id": "KI-77", "label": "Saved filters not persisted for eu-west tenants", "props": {"fix_version": "5.4.1", "status": "resolved"}, "source": "data/knowledge/known-issues.md", "type": "Defect"}
+{"id": "VND-427", "label": "Scheduled report emails delayed", "props": {"opened_at": "2026-08-19", "resolved_at": null, "severity": "S3", "status": "open"}, "source": "data/db/support.db", "type": "VendorCase"}
+{"id": "KI-81", "label": "Scheduled report emails delayed", "props": {"fix_version": null, "status": "open"}, "source": "data/knowledge/known-issues.md", "type": "Defect"}
+{"id": "VND-433", "label": "Audit log UI search truncates at 1000 rows", "props": {"opened_at": "2026-08-29", "resolved_at": null, "severity": "S3", "status": "open"}, "source": "data/db/support.db", "type": "VendorCase"}
+{"id": "KI-84", "label": "Audit log UI search truncates at 1000 rows", "props": {"fix_version": "5.4.3", "status": "open"}, "source": "data/knowledge/known-issues.md", "type": "Defect"}
+{"id": "CASE-4123", "label": "Saved filters disappear overnight", "props": {"classification": "product_defect", "closed_at": "2026-08-15", "opened_at": "2026-07-18", "status": "closed"}, "source": "data/db/support.db", "type": "Ticket"}
+{"id": "CASE-4180", "label": "Filters not saving", "props": {"classification": "product_defect", "closed_at": "2026-08-15", "opened_at": "2026-07-25", "status": "closed"}, "source": "data/db/support.db", "type": "Ticket"}
+{"id": "CASE-4201", "label": "Cannot schedule report over 200k rows", "props": {"classification": "product_defect", "closed_at": null, "opened_at": "2026-08-20", "status": "open"}, "source": "data/db/support.db", "type": "Ticket"}
+{"id": "CASE-4233", "label": "SSO not working for new staff", "props": {"classification": "configuration", "closed_at": "2026-08-02", "opened_at": "2026-08-02", "status": "closed"}, "source": "data/db/support.db", "type": "Ticket"}
+{"id": "CASE-4256", "label": "Export missing columns", "props": {"classification": "user_error", "closed_at": "2026-08-07", "opened_at": "2026-08-06", "status": "closed"}, "source": "data/db/support.db", "type": "Ticket"}
+{"id": "CASE-4288", "label": "Bulk export button greyed out", "props": {"classification": "user_error", "closed_at": "2026-08-12", "opened_at": "2026-08-11", "status": "closed"}, "source": "data/db/support.db", "type": "Ticket"}
+{"id": "CASE-4301", "label": "API returns 403 for all calls", "props": {"classification": "configuration", "closed_at": "2026-08-14", "opened_at": "2026-08-14", "status": "closed"}, "source": "data/db/support.db", "type": "Ticket"}
+{"id": "CASE-4344", "label": "Users prompted for password", "props": {"classification": "configuration", "closed_at": "2026-08-21", "opened_at": "2026-08-20", "status": "closed"}, "source": "data/db/support.db", "type": "Ticket"}
+{"id": "CASE-4390", "label": "Audit log search shows fewer rows than expected", "props": {"classification": "product_defect", "closed_at": null, "opened_at": "2026-08-28", "status": "open"}, "source": "data/db/support.db", "type": "Ticket"}
+{"id": "CASE-4412", "label": "Report numbers differ from spreadsheet", "props": {"classification": "user_error", "closed_at": "2026-09-01", "opened_at": "2026-08-30", "status": "closed"}, "source": "data/db/support.db", "type": "Ticket"}

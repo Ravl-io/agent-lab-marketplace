@@ -1,0 +1,143 @@
+# Ontology — L2 support triage
+#
+# Derived from the three questions retrieval could not answer, and from nothing else.
+# Every type and relation below exists because a competency question needs it. If you
+# cannot name the question a relation serves, it does not belong here yet.
+
+name: support-triage
+
+competency_questions:
+  - id: CQ1
+    q: Which other accounts are exposed to KI-77?
+    shape: multi-hop
+    needs: |
+      Defect -scoped_to_region-> Region <-in_region- Account, then compare the account's
+      runs_version against the defect's fixed_in. The region scope exists only in
+      known-issues.md; the versions exist only in the database. Neither source can answer
+      this alone, which is the whole argument for a graph here.
+  - id: CQ2
+    q: How many open tickets are waiting on a vendor case, and which ones?
+    shape: aggregation
+    needs: |
+      Every Ticket with an escalated_to edge and status=open. The answer is a complete set,
+      not the most relevant few — which is what top-k similarity structurally cannot give.
+  - id: CQ3
+    q: Was Kestrel Retail entitled to bulk export in April 2026?
+    shape: temporal
+    needs: |
+      Account -on_plan-> Plan -includes_feature-> Feature, evaluated at a date. The
+      includes_feature edge carries valid_from/valid_to; the same query with no date is a
+      different question with a different answer.
+
+# ---------------------------------------------------------------- types
+# key   the field that makes an instance identifiable. Two rows with the same key are the
+#       same thing, and that decision is entity resolution.
+# props facts about the node itself, never about its relationships.
+
+types:
+  Account:
+    key: account_id
+    label: name
+    props: [plan, region, platform_version, seats, sso_enabled]
+    source: "data/db/support.db :: accounts"
+  Plan:
+    key: plan_id
+    label: name
+    props: []
+    source: data/knowledge/plan-entitlements.md
+  Feature:
+    key: feature_id
+    label: name
+    props: []
+    source: "data/db/support.db :: entitlements"
+  Region:
+    key: region_id
+    label: name
+    props: []
+    source: "data/db/support.db :: accounts"
+  Version:
+    key: version_id
+    label: name
+    # sort_key exists because "is 5.4.0 before 5.4.1" has to be answerable, and string
+    # comparison stops working the moment there is a 5.4.10.
+    props: [sort_key, released_at]
+    source: data/knowledge/release-notes-5.4.md
+  Defect:
+    key: known_issue
+    label: title
+    props: [status, symptom, cause, note]
+    source: data/knowledge/known-issues.md
+  VendorCase:
+    key: vendor_case_id
+    label: title
+    props: [status, severity, opened_at, resolved_at]
+    source: "data/db/support.db :: vendor_cases"
+  Ticket:
+    key: case_id
+    label: subject
+    props: [status, classification, opened_at, closed_at]
+    source: "data/db/support.db :: case_history"
+
+# ---------------------------------------------------------------- relations
+# Direction matters and is not arbitrary: read it as a sentence. "Account on_plan Plan."
+# temporal: true means the edge carries valid_from/valid_to and must be queried as of a
+# date. Getting this wrong is not a modelling nicety — it is CQ3 answered incorrectly.
+
+relations:
+  - name: on_plan
+    from: Account
+    to: Plan
+    cardinality: many-to-one
+  - name: in_region
+    from: Account
+    to: Region
+    cardinality: many-to-one
+  - name: runs_version
+    from: Account
+    to: Version
+    cardinality: many-to-one
+  - name: includes_feature
+    from: Plan
+    to: Feature
+    cardinality: many-to-many
+    temporal: true
+    note: |
+      The one relation in this ontology whose truth changed. Growth included bulk_export
+      until 2026-06-01 and does not now. Both facts are true, of different dates.
+  - name: affects_feature
+    from: Defect
+    to: Feature
+    cardinality: many-to-many
+  - name: scoped_to_region
+    from: Defect
+    to: Region
+    cardinality: many-to-many
+    note: Absent from the database. Stated in prose in known-issues.md and nowhere else.
+  - name: fixed_in
+    from: Defect
+    to: Version
+    cardinality: many-to-one
+  - name: tracked_by
+    from: Defect
+    to: VendorCase
+    cardinality: one-to-one
+  - name: raised_by
+    from: Ticket
+    to: Account
+    cardinality: many-to-one
+  - name: escalated_to
+    from: Ticket
+    to: VendorCase
+    cardinality: many-to-one
+  - name: about_feature
+    from: Ticket
+    to: Feature
+    cardinality: many-to-many
+
+# ---------------------------------------------------------------- deliberately absent
+# Naming what you left out is part of the design. Each of these was considered and
+# rejected because no competency question needs it yet.
+not_modelled:
+  - User and audit_log events — nothing in CQ1-CQ3 traverses a user. Module 4 may need them.
+  - Ticket -> Defect directly. It goes through VendorCase, which is how the corpus records it.
+  - Free-text resolutions. Evidence for an answer, retrieved by vector search, not graph.

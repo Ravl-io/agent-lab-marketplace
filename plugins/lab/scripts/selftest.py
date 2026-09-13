@@ -460,6 +460,18 @@ def check_reference_plugins(verbose: bool) -> None:
             run("workspace.py", "stage", "m1s3-corpus")
             run("workspace.py", "stage", "m1s7-plugin")
             run("workspace.py", "catchup", "--with-reference")
+            # A catchup that restores the hook FILE but not its registration hands back a
+            # workspace that looks repaired and is not: an unregistered hook never runs.
+            with open(os.path.join(root, ".claude", "settings.json")) as fh:
+                registered = json.load(fh)
+            check("write_boundary" in json.dumps(registered),
+                  f"{tid}: catchup registers the reference hook, not just the file",
+                  verbose=verbose)
+            gate = run("check_hook.py", "--json")
+            payload = json.loads(gate.stdout or "{}")
+            check(payload.get("ok") is True,
+                  f"{tid}: the restored hook passes check_hook.py",
+                  "; ".join(payload.get("problems") or [])[:200], verbose=verbose)
             shutil.rmtree(os.path.join(root, name), ignore_errors=True)
             shutil.copytree(plug, os.path.join(root, name))
             result = run("check_plugin.py", "--json")
@@ -492,6 +504,717 @@ def check_tutor_facing_text(verbose: bool) -> None:
                                               open(full, encoding="utf-8").read())))
                 check(not found, f"{rel} has no unsubstituted placeholders",
                       ", ".join(found), verbose=verbose)
+
+
+def check_corpora(verbose: bool) -> None:
+    """Each track's corpus must be internally consistent, and say so in its own checker.
+
+    Hand-written corpora contradict themselves. Every track carries a fact sheet naming the
+    single owner of each fact and a checker that enforces the overlaps, and both run here so
+    a corpus edit cannot quietly break a golden answer.
+    """
+    print("corpora are self-consistent")
+    for tid in track_ids():
+        design = os.path.join(TRACKS, tid, "corpus-design")
+        facts = os.path.join(design, "FACTS.md")
+        checker = os.path.join(design, "check_consistency.py")
+        check(os.path.exists(facts), f"{tid}: has a corpus fact sheet", verbose=verbose)
+        check(os.path.exists(checker), f"{tid}: has a consistency checker", verbose=verbose)
+        if not os.path.exists(checker):
+            continue
+        result = subprocess.run([sys.executable, checker], capture_output=True, text=True)
+        failures = [l.strip() for l in result.stdout.splitlines() if l.strip().startswith("x ")]
+        check(result.returncode == 0, f"{tid}: corpus is self-consistent",
+              "; ".join(failures)[:220], verbose=verbose)
+
+
+def check_golden_sets(verbose: bool) -> None:
+    """The golden set is what Module 2 scores against; an unscoreable query is invisible."""
+    print("golden retrieval sets")
+    for tid in track_ids():
+        golden = os.path.join(TRACKS, tid, "scaffolds", "golden.jsonl")
+        check(os.path.exists(golden), f"{tid}: has a golden retrieval set", verbose=verbose)
+        if not os.path.exists(golden):
+            continue
+        result = subprocess.run(
+            [sys.executable, os.path.join(SCRIPTS, "check_golden.py"),
+             "--file", golden, "--corpus", os.path.join(TRACKS, tid, "workspace"), "--json"],
+            capture_output=True, text=True)
+        payload = json.loads(result.stdout or "{}")
+        check(payload.get("ok") is True, f"{tid}: golden set is scoreable",
+              "; ".join(payload.get("problems") or [])[:220], verbose=verbose)
+        tiers = payload.get("tiers") or {}
+        check(tiers.get("unreachable") == 3,
+              f"{tid}: three unreachable queries for Module 3",
+              str(tiers), verbose=verbose)
+        check(payload.get("queries", 0) >= 15,
+              f"{tid}: fifteen shipped queries", str(payload.get("queries")),
+              verbose=verbose)
+
+
+# What the lexical baseline answers on the shipped corpus, per track. These exact numbers are
+# quoted in lab/facilitator/module-2-measured.md, lab/reference/handbook.html and
+# docs/CURRICULUM.md, and Module 2 opens by running this retriever in front of the room. A
+# corpus edit that moves them has to move the documents too, so this is an equality check on
+# purpose rather than a floor.
+BASELINE_ANSWERED = {"support-triage": 11, "vendor-qa": 12, "docgen": 8}
+# tokens per answer, the figure the scoreboard prints and the handbook quotes
+BASELINE_COST = {"support-triage": 2303, "vendor-qa": 2013, "docgen": 2409}
+
+
+def check_baseline_floor(verbose: bool) -> None:
+    """Module 2 step 2.1 is a measurement taken live. It cannot be allowed to drift."""
+    print("Module 2 lexical baseline")
+    for tid in track_ids():
+        expected = BASELINE_ANSWERED.get(tid)
+        if expected is None:
+            check(False, f"{tid}: has a recorded baseline score", verbose=verbose)
+            continue
+        root = tempfile.mkdtemp(prefix=f"labbase-{tid}-")
+        try:
+            run = lambda script, *a: subprocess.run(
+                [sys.executable, os.path.join(SCRIPTS, script), "--root", root, *a],
+                capture_output=True, text=True)
+            run("state.py", "init")
+            run("state.py", "set-track", tid)
+            run("workspace.py", "stage", "m1s3-corpus")
+            staged = json.loads(run("workspace.py", "stage", "m2s1-baseline").stdout or "{}")
+            written = staged.get("written") or []
+            check("rag/baseline_retrieve.py" in written,
+                  f"{tid}: stage m2s1-baseline installs the baseline retriever",
+                  str(written), verbose=verbose)
+            check("evals/retrieval/golden.jsonl" in written,
+                  f"{tid}: stage m2s1-baseline installs the golden set",
+                  str(written), verbose=verbose)
+            result = subprocess.run(
+                [sys.executable, os.path.join(SCRIPTS, "eval_retrieval.py"),
+                 "--retriever", "rag/baseline_retrieve.py",
+                 "--label", "lexical baseline", "--json"],
+                capture_output=True, text=True, cwd=root)
+            payload = json.loads(result.stdout or "{}")
+            head = payload.get("headline") or {}
+            answered = head.get("answered")
+            check(answered == expected,
+                  f"{tid}: baseline answers {expected}/12 as documented",
+                  f"scored {answered}; if this is a real corpus change, update "
+                  f"BASELINE_ANSWERED, module-2-measured.md, handbook.html and CURRICULUM.md",
+                  verbose=verbose)
+            check((head.get("mean_tokens") or 0) > 1000,
+                  f"{tid}: baseline is expensive enough to make the point",
+                  str(head.get("mean_tokens")), verbose=verbose)
+            check(head.get("tokens_per_answer") == BASELINE_COST.get(tid),
+                  f"{tid}: baseline costs {BASELINE_COST.get(tid):,} tokens per answer",
+                  f"scored {head.get('tokens_per_answer')}", verbose=verbose)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
+def check_module2_artifacts(verbose: bool) -> None:
+    """Module 2's scaffolds must fail their gates and its answer keys must pass them.
+
+    Same discipline as the intent gate: a gate that passes an untouched scaffold teaches a
+    participant that the work was optional, and one that fails the reference solution makes
+    the facilitator's answer key useless.
+    """
+    print("Module 2 scaffolds, answer keys and gates")
+    stages = ("m1s3-corpus", "m2s1-baseline", "m2s2-vectors", "m2s3-mcp", "m2s4-agentic")
+    for tid in track_ids():
+        root = tempfile.mkdtemp(prefix=f"labm2-{tid}-")
+        try:
+            run = lambda script, *a: subprocess.run(
+                [sys.executable, os.path.join(SCRIPTS, script), "--root", root, *a],
+                capture_output=True, text=True)
+            run("state.py", "init")
+            run("state.py", "set-track", tid)
+            for stage_id in stages:
+                result = run("workspace.py", "stage", stage_id)
+                check(result.returncode == 0, f"{tid}: stage {stage_id} applies",
+                      result.stderr.strip()[:200], verbose=verbose)
+
+            for rel in ("rag/chunkers.py", "rag/ingest.py", "rag/retrieve.py",
+                        "rag/baseline_retrieve.py", "mcp/retrieval_server.py",
+                        ".mcp.json", ".claude/skills/retrieve-and-answer/SKILL.md",
+                        "evals/retrieval/golden.jsonl"):
+                check(os.path.exists(os.path.join(root, rel)),
+                      f"{tid}: Module 2 installs {rel}", verbose=verbose)
+
+            # the scaffolds must not pass
+            payload = json.loads(run("check_ingest.py", "--json").stdout or "{}")
+            check(payload.get("ok") is False,
+                  f"{tid}: the untouched rag scaffolds fail check_ingest.py",
+                  verbose=verbose)
+            payload = json.loads(run("check_retrieval_tool.py", "--json").stdout or "{}")
+            check(payload.get("ok") is False,
+                  f"{tid}: the untouched MCP scaffold fails check_retrieval_tool.py",
+                  verbose=verbose)
+            check(payload.get("tools") == [],
+                  f"{tid}: the MCP scaffold offers no tools until it is written",
+                  str(payload.get("tools")), verbose=verbose)
+            payload = json.loads(run("check_skill.py", "--json",
+                                     "--name", "retrieve-and-answer").stdout or "{}")
+            check(payload.get("ok") is False,
+                  f"{tid}: the untouched agentic skill fails check_skill.py",
+                  verbose=verbose)
+
+            # the answer keys must pass
+            for src, dest in (("reference/rag/chunkers.py", "rag/chunkers.py"),
+                              ("reference/rag/ingest.py", "rag/ingest.py"),
+                              ("reference/rag/retrieve.py", "rag/retrieve.py"),
+                              ("reference/mcp/retrieval_server.py",
+                               "mcp/retrieval_server.py")):
+                shutil.copy2(os.path.join(PLUGIN_ROOT, src), os.path.join(root, dest))
+            payload = json.loads(run("check_ingest.py", "--json").stdout or "{}")
+            check(payload.get("ok") is True,
+                  f"{tid}: the reference chunkers pass check_ingest.py",
+                  "; ".join(payload.get("problems") or [])[:220], verbose=verbose)
+            for strategy in ("naive", "structural", "parent_child"):
+                check((payload.get("chunks") or {}).get(strategy, 0) > 0,
+                      f"{tid}: reference {strategy} produces chunks",
+                      str(payload.get("chunks")), verbose=verbose)
+
+            # the MCP answer key: protocol level only. tools/call needs an ingested corpus
+            # and an embedding model, which does not belong in a selftest.
+            payload = json.loads(run("check_retrieval_tool.py", "--json").stdout or "{}")
+            offered = payload.get("tools") or []
+            for name in ("search_corpus", "search_corpus_filtered", "get_document"):
+                check(name in offered,
+                      f"{tid}: the reference MCP server offers {name}",
+                      str(offered), verbose=verbose)
+            design = [p for p in (payload.get("problems") or [])
+                      if "leaking" in p or "description is too thin" in p
+                      or "inputSchema" in p or "superseded" in p]
+            check(not design,
+                  f"{tid}: the reference MCP server has no tool-surface problems",
+                  "; ".join(design)[:220], verbose=verbose)
+
+            ref_skill = os.path.join(PLUGIN_ROOT, "reference", "skills",
+                                     "retrieve-and-answer", "SKILL.md")
+            meta_path = os.path.join(TRACKS, tid, "track.json")
+            with open(meta_path) as fh:
+                output_dir = (json.load(fh) or {}).get("output_dir", "")
+            with open(ref_skill) as fh:
+                body = fh.read().replace("{{OUTPUT_DIR}}", output_dir)
+            dest = os.path.join(root, ".claude", "skills", "retrieve-and-answer",
+                                "SKILL.md")
+            with open(dest, "w") as fh:
+                fh.write(body)
+            payload = json.loads(run("check_skill.py", "--json",
+                                     "--name", "retrieve-and-answer").stdout or "{}")
+            check(payload.get("ok") is True,
+                  f"{tid}: the reference agentic skill passes check_skill.py",
+                  "; ".join(payload.get("problems") or [])[:220], verbose=verbose)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
+def check_stage_ids_exist(verbose: bool) -> None:
+    """A module file naming a stage that does not exist strands the step at runtime."""
+    print("stage ids named in module files")
+    known = {d for d in os.listdir(os.path.join(PLUGIN_ROOT, "stages"))
+             if os.path.isdir(os.path.join(PLUGIN_ROOT, "stages", d))}
+    pattern = re.compile(r"\b(m\dfs?\d[a-z0-9-]*|m\ds\d[a-z0-9-]*)\b")
+    for area in ("modules", "skills", "facilitator", "references"):
+        base = os.path.join(PLUGIN_ROOT, area)
+        if not os.path.isdir(base):
+            continue
+        for dirpath, _dirs, names in os.walk(base):
+            for name in names:
+                if not name.endswith(".md"):
+                    continue
+                path = os.path.join(dirpath, name)
+                with open(path, encoding="utf-8") as fh:
+                    text = fh.read()
+                for match in sorted(set(pattern.findall(text))):
+                    check(match in known,
+                          f"{os.path.relpath(path, PLUGIN_ROOT)}: stage '{match}' exists",
+                          f"known: {', '.join(sorted(known))}", verbose=verbose)
+
+
+def check_documented_invocations(verbose: bool) -> None:
+    """Commands printed for participants have to be the commands that actually work.
+
+    `check_golden.py --corpus data` was written in the module file and reported three
+    perfectly good shipped queries as broken, because `expected` paths in the golden set are
+    project-relative. A wrong flag in a code block is indistinguishable from a broken lab.
+    """
+    print("documented command invocations")
+    bad = []
+    for area in ("modules", "references", "facilitator", "skills", "stages"):
+        base = os.path.join(PLUGIN_ROOT, area)
+        if not os.path.isdir(base):
+            continue
+        for dirpath, _dirs, names in os.walk(base):
+            for name in names:
+                if not name.endswith(".md"):
+                    continue
+                path = os.path.join(dirpath, name)
+                with open(path, encoding="utf-8") as fh:
+                    text = fh.read()
+                for line in text.splitlines():
+                    if "check_golden.py" in line and "--corpus" in line \
+                            and "--corpus ." not in line:
+                        bad.append(f"{os.path.relpath(path, PLUGIN_ROOT)}: {line.strip()}")
+                    if "eval_retrieval.py" in line and "--retriever" not in line \
+                            and "scripts/eval_retrieval.py" in line and "--" in line:
+                        bad.append(f"{os.path.relpath(path, PLUGIN_ROOT)}: "
+                                   f"eval_retrieval.py without --retriever: {line.strip()}")
+    check(not bad, "documented gate invocations use the right flags",
+          "; ".join(bad)[:300], verbose=verbose)
+
+
+def check_graph_questions(verbose: bool) -> None:
+    """Module 3's ontology template hands each participant their own three broken questions.
+
+    Runs for EVERY track, unlike the reference-graph checks — the first version of this
+    lived inside those and was skipped for the two tracks that have no graph builder yet,
+    so a mutated question passed the suite.
+    """
+    print("Module 3 graph questions match Module 2's unanswered tier")
+    for tid in track_ids():
+        with open(os.path.join(TRACKS, tid, "track.json")) as fh:
+            questions = (json.load(fh) or {}).get("graph_questions") or {}
+        check(set(questions) == {"multi_hop", "aggregation", "temporal"},
+              f"{tid}: track.json declares the three graph questions",
+              str(sorted(questions)), verbose=verbose)
+        unreachable = []
+        with open(os.path.join(TRACKS, tid, "scaffolds", "golden.jsonl")) as fh:
+            for line in fh:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    row = json.loads(line)
+                    if row.get("tier") == "unreachable":
+                        unreachable.append(row["q"])
+        for shape, text in sorted(questions.items()):
+            check(text in unreachable,
+                  f"{tid}: the {shape} question is one Module 2 leaves unanswered",
+                  f"{text!r} is not in the unreachable tier", verbose=verbose)
+
+
+def check_reference_graphs(verbose: bool) -> None:
+    """The verified graph must still describe the corpus it was built from.
+
+    It is an answer key participants compare their own extraction against, so a corpus edit
+    that leaves it stale does not break loudly — it just marks correct work as wrong.
+    """
+    print("reference graphs match their corpora")
+    for tid in track_ids():
+        builder = os.path.join(TRACKS, tid, "corpus-design", "build_reference_graph.py")
+        if not os.path.exists(builder):
+            continue                      # not every track has one yet
+        result = subprocess.run([sys.executable, builder, "--check"],
+                                capture_output=True, text=True)
+        check(result.returncode == 0,
+              f"{tid}: committed reference graph is current",
+              (result.stderr or result.stdout).strip()[:200], verbose=verbose)
+
+        graph_dir = os.path.join(TRACKS, tid, "reference", "graph")
+        onto_dir = os.path.join(TRACKS, tid, "reference", "ontology")
+        for rel in ("nodes.jsonl", "edges.jsonl"):
+            check(os.path.exists(os.path.join(graph_dir, rel)),
+                  f"{tid}: reference graph has {rel}", verbose=verbose)
+        ontologies = [f for f in os.listdir(onto_dir)
+                      if f.endswith((".yaml", ".yml"))] if os.path.isdir(onto_dir) else []
+        check(len(ontologies) == 1,
+              f"{tid}: exactly one reference ontology", str(ontologies), verbose=verbose)
+        if not ontologies:
+            continue
+        try:
+            import yaml                                       # noqa: PLC0415
+        except ImportError:
+            check(True, f"{tid}: ontology not parsed (no pyyaml here)", verbose=verbose)
+            continue
+        with open(os.path.join(onto_dir, ontologies[0])) as fh:
+            onto = yaml.safe_load(fh) or {}
+        types = onto.get("types") or {}
+        relations = onto.get("relations") or []
+        cqs = onto.get("competency_questions") or []
+        # The module tells participants 6-10 types and 8-12 relations. The answer key has
+        # to sit inside the range it asks for.
+        check(6 <= len(types) <= 10,
+              f"{tid}: ontology declares 6-10 types", str(len(types)), verbose=verbose)
+        check(8 <= len(relations) <= 12,
+              f"{tid}: ontology declares 8-12 relations", str(len(relations)),
+              verbose=verbose)
+        check(len(cqs) == 3,
+              f"{tid}: one competency question per unreachable query", str(len(cqs)),
+              verbose=verbose)
+        shapes = {c.get("shape") for c in cqs}
+        check(shapes == {"multi-hop", "aggregation", "temporal"},
+              f"{tid}: the three CQs cover the three failure shapes", str(shapes),
+              verbose=verbose)
+        # every relation the ontology declares must actually be used by the answer key
+        rels_used = set()
+        with open(os.path.join(graph_dir, "edges.jsonl")) as fh:
+            for line in fh:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    rels_used.add(json.loads(line).get("rel"))
+        declared = {r["name"] for r in relations}
+        check(declared == rels_used,
+              f"{tid}: every declared relation appears in the verified graph",
+              f"declared not used: {sorted(declared - rels_used)}; "
+              f"used not declared: {sorted(rels_used - declared)}", verbose=verbose)
+
+
+def check_graph_answers(verbose: bool) -> None:
+    """Every verified graph must answer its own eval set exactly, on every track.
+
+    This is the claim Module 3 rests on and the number the facilitator notes quote, so it is
+    pinned rather than trusted. Cheap to run: SQLite and a few hundred edges, no embeddings.
+    """
+    print("verified graphs answer their eval sets")
+    for tid in track_ids():
+        onto_dir = os.path.join(TRACKS, tid, "reference", "ontology")
+        graph_dir = os.path.join(TRACKS, tid, "reference", "graph")
+        queries = os.path.join(TRACKS, tid, "scaffolds", "graph-queries.jsonl")
+        if not (os.path.isdir(graph_dir) and os.path.exists(queries)):
+            continue
+        root = tempfile.mkdtemp(prefix=f"labkg-{tid}-")
+        try:
+            for sub in ("ontology", "graph", "kg", "evals/graph"):
+                os.makedirs(os.path.join(root, sub), exist_ok=True)
+            for name in os.listdir(onto_dir):
+                shutil.copy2(os.path.join(onto_dir, name),
+                             os.path.join(root, "ontology", name))
+            for name in ("nodes.jsonl", "edges.jsonl"):
+                shutil.copy2(os.path.join(graph_dir, name),
+                             os.path.join(root, "graph", name))
+            for name in ("compile.py", "kg.py"):
+                shutil.copy2(os.path.join(PLUGIN_ROOT, "reference", "kg", name),
+                             os.path.join(root, "kg", name))
+            shutil.copy2(queries, os.path.join(root, "evals", "graph", "queries.jsonl"))
+
+            result = subprocess.run(
+                [sys.executable, os.path.join(root, "kg", "compile.py"),
+                 "--root", root, "--json"], capture_output=True, text=True, cwd=root)
+            payload = json.loads(result.stdout or "{}")
+            check(payload.get("ok") is True,
+                  f"{tid}: the verified graph compiles against its own ontology",
+                  "; ".join((payload.get("errors") or []))[:220], verbose=verbose)
+            check(not payload.get("warnings"),
+                  f"{tid}: the verified graph compiles with no warnings",
+                  "; ".join((payload.get("warnings") or []))[:220], verbose=verbose)
+            if not payload.get("ok"):
+                continue
+
+            result = subprocess.run(
+                [sys.executable, os.path.join(SCRIPTS, "eval_graph.py"),
+                 "--root", root, "--json", "--no-record"],
+                capture_output=True, text=True)
+            scored = json.loads(result.stdout or "{}")
+            head = scored.get("headline") or {}
+            check(head.get("queries", 0) >= 8,
+                  f"{tid}: at least eight graph questions", str(head.get("queries")),
+                  verbose=verbose)
+            check(head.get("exact") == head.get("queries"),
+                  f"{tid}: the verified graph answers every question exactly",
+                  "; ".join(f"{r['id']} missing {r['missing']} extra {r['extra']}"
+                            for r in scored.get("queries", []) if not r["exact"])[:250],
+                  verbose=verbose)
+            check(head.get("precision") == 1.0 and head.get("recall") == 1.0,
+                  f"{tid}: precision and recall are both 1.0",
+                  f"precision {head.get('precision')}, recall {head.get('recall')}",
+                  verbose=verbose)
+            shapes = (scored.get("by_shape") or {})
+            check(set(shapes) == {"multi-hop", "aggregation", "temporal"},
+                  f"{tid}: the eval set covers all three question shapes",
+                  str(sorted(shapes)), verbose=verbose)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
+def check_module3_artifacts(verbose: bool) -> None:
+    """Module 3's scaffolds must fail their gates; its answer keys must pass them."""
+    print("Module 3 scaffolds, answer keys and gates")
+    stages = ("m1s3-corpus", "m2s1-baseline", "m2s2-vectors", "m2s3-mcp",
+              "m3s1-ontology", "m3s2-extract", "m3s3-kg-tool", "m3s4-hybrid")
+    for tid in track_ids():
+        root = tempfile.mkdtemp(prefix=f"labm3-{tid}-")
+        try:
+            run = lambda script, *a: subprocess.run(
+                [sys.executable, os.path.join(SCRIPTS, script), "--root", root, *a],
+                capture_output=True, text=True)
+            run("state.py", "init")
+            run("state.py", "set-track", tid)
+            for stage_id in stages:
+                result = run("workspace.py", "stage", stage_id)
+                check(result.returncode == 0, f"{tid}: stage {stage_id} applies",
+                      result.stderr.strip()[:200], verbose=verbose)
+
+            for rel in ("ontology/ontology.yaml", "kg/compile.py", "kg/kg.py",
+                        "mcp/kg_server.py", "evals/graph/queries.jsonl",
+                        ".claude/skills/extract-graph/SKILL.md",
+                        ".claude/skills/answer-with-graph/SKILL.md"):
+                check(os.path.exists(os.path.join(root, rel)),
+                      f"{tid}: Module 3 installs {rel}", verbose=verbose)
+
+            # the participant's own three questions reach the template
+            with open(os.path.join(root, "ontology", "ontology.yaml")) as fh:
+                template = fh.read()
+            with open(os.path.join(TRACKS, tid, "track.json")) as fh:
+                questions = (json.load(fh) or {}).get("graph_questions") or {}
+            for shape, text in sorted(questions.items()):
+                check(text in template,
+                      f"{tid}: the ontology template carries the {shape} question",
+                      verbose=verbose)
+
+            # scaffolds must not pass
+            payload = json.loads(run("check_ontology.py", "--json").stdout or "{}")
+            check(payload.get("ok") is False,
+                  f"{tid}: the untouched ontology template fails check_ontology.py",
+                  verbose=verbose)
+            payload = json.loads(run("check_graph.py", "--json").stdout or "{}")
+            check(payload.get("ok") is False,
+                  f"{tid}: a workspace with no graph fails check_graph.py",
+                  verbose=verbose)
+            payload = json.loads(run("check_kg_tool.py", "--json").stdout or "{}")
+            check(payload.get("ok") is False,
+                  f"{tid}: the untouched graph server fails check_kg_tool.py",
+                  verbose=verbose)
+            check(payload.get("tools") == [],
+                  f"{tid}: the graph server offers no tools until it is written",
+                  str(payload.get("tools")), verbose=verbose)
+
+            # answer keys must pass
+            onto_dir = os.path.join(TRACKS, tid, "reference", "ontology")
+            for name in os.listdir(onto_dir):
+                shutil.copy2(os.path.join(onto_dir, name),
+                             os.path.join(root, "ontology", name))
+            os.remove(os.path.join(root, "ontology", "ontology.yaml"))
+            payload = json.loads(run("check_ontology.py", "--json").stdout or "{}")
+            check(payload.get("ok") is True,
+                  f"{tid}: the reference ontology passes check_ontology.py",
+                  "; ".join(payload.get("problems") or [])[:220], verbose=verbose)
+
+            graph_dir = os.path.join(TRACKS, tid, "reference", "graph")
+            os.makedirs(os.path.join(root, "graph"), exist_ok=True)
+            for name in ("nodes.jsonl", "edges.jsonl"):
+                shutil.copy2(os.path.join(graph_dir, name),
+                             os.path.join(root, "graph", name))
+            payload = json.loads(run("check_graph.py", "--json").stdout or "{}")
+            check(payload.get("ok") is True,
+                  f"{tid}: the verified graph passes check_graph.py",
+                  "; ".join(payload.get("problems") or [])[:250], verbose=verbose)
+
+            shutil.copy2(os.path.join(PLUGIN_ROOT, "reference", "mcp", "kg_server.py"),
+                         os.path.join(root, "mcp", "kg_server.py"))
+            with open(os.path.join(root, ".mcp.json"), "w") as fh:
+                json.dump({"mcpServers": {
+                    "corpus-retrieval": {"command": "python3",
+                                         "args": ["mcp/retrieval_server.py"]},
+                    "knowledge-graph": {"command": "python3",
+                                        "args": ["mcp/kg_server.py"]}}}, fh)
+            payload = json.loads(run("check_kg_tool.py", "--json").stdout or "{}")
+            check(payload.get("ok") is True,
+                  f"{tid}: the reference graph server passes check_kg_tool.py",
+                  "; ".join(payload.get("problems") or [])[:220], verbose=verbose)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
+def check_catchup_restores_module3(verbose: bool) -> None:
+    """Module 3 tells a facilitator who is out of time to hand over the verified graph with
+    `/lab:catchup --with-reference`. That instruction has to actually produce a graph that
+    scores, or the fallback the module promises does not exist.
+    """
+    print("catchup restores a working Module 3")
+    stages = ("m1s3-corpus", "m2s1-baseline", "m2s2-vectors", "m2s3-mcp", "m2s4-agentic",
+              "m3s1-ontology", "m3s2-extract", "m3s3-kg-tool", "m3s4-hybrid")
+    for tid in track_ids():
+        root = tempfile.mkdtemp(prefix=f"labcu-{tid}-")
+        try:
+            run = lambda script, *a: subprocess.run(
+                [sys.executable, os.path.join(SCRIPTS, script), "--root", root, *a],
+                capture_output=True, text=True)
+            run("state.py", "init")
+            run("state.py", "set-track", tid)
+            for stage_id in stages:
+                run("workspace.py", "stage", stage_id)
+            result = run("workspace.py", "catchup", "--with-reference")
+            payload = json.loads(result.stdout or "{}")
+            restored = payload.get("reference_later") or []
+            for expected in ("graph/nodes.jsonl", "graph/edges.jsonl",
+                             "mcp/kg_server.py",
+                             ".claude/skills/answer-with-graph/SKILL.md",
+                             ".claude/skills/extract-graph/SKILL.md"):
+                check(expected in restored,
+                      f"{tid}: catchup restores {expected}", str(restored)[:200],
+                      verbose=verbose)
+            check(any(r.startswith("ontology/") for r in restored),
+                  f"{tid}: catchup restores the reference ontology", str(restored)[:200],
+                  verbose=verbose)
+            # the unfinished template must go, or the compiler may pick it instead
+            check(not os.path.exists(os.path.join(root, "ontology", "ontology.yaml")),
+                  f"{tid}: catchup removes the unfinished ontology template",
+                  verbose=verbose)
+
+            payload = json.loads(run("check_graph.py", "--json").stdout or "{}")
+            check(payload.get("ok") is True,
+                  f"{tid}: the restored graph passes check_graph.py straight away",
+                  "; ".join(payload.get("problems") or [])[:250], verbose=verbose)
+            score = payload.get("score") or {}
+            check(score.get("exact") == score.get("queries") and score.get("queries"),
+                  f"{tid}: the restored graph answers every question",
+                  str(score), verbose=verbose)
+            for name in ("retrieve-and-answer", "answer-with-graph", "extract-graph"):
+                gate = json.loads(run("check_skill.py", "--json",
+                                      "--name", name).stdout or "{}")
+                check(gate.get("ok") is True,
+                      f"{tid}: the restored {name} skill passes check_skill.py",
+                      "; ".join(gate.get("problems") or [])[:200], verbose=verbose)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
+def check_module4_artifacts(verbose: bool) -> None:
+    """Module 4's gate is a security control, so it is tested as one: it must refuse.
+
+    The scaffold must fail closed (deny until implemented), the reference must allow only an
+    approved, unmodified, unused approval, and the apply tool must refuse independently of
+    the hook.
+    """
+    print("Module 4 scaffolds, the gate, and the full suite")
+    stages = ("m1s3-corpus", "m4s1-spec", "m4s2-propose", "m4s3-gate", "m4s4-runbook")
+    hook_event = json.dumps({"tool_name": "Bash",
+                             "tool_input": {"command": "python3 tools/apply.py CASE-X"}})
+    for tid in track_ids():
+        root = tempfile.mkdtemp(prefix=f"labm4-{tid}-")
+        try:
+            run = lambda script, *a: subprocess.run(
+                [sys.executable, os.path.join(SCRIPTS, script), "--root", root, *a],
+                capture_output=True, text=True)
+            run("state.py", "init")
+            run("state.py", "set-track", tid)
+            for stage_id in stages:
+                result = run("workspace.py", "stage", stage_id)
+                check(result.returncode == 0, f"{tid}: stage {stage_id} applies",
+                      result.stderr.strip()[:200], verbose=verbose)
+            for rel in ("spec/capability.md", "spec/capability.json", "RUNBOOK.md",
+                        "proposals/README.md", "gate/approve.py", "tools/apply.py",
+                        ".claude/hooks/approval_gate.py",
+                        ".claude/skills/propose/SKILL.md"):
+                check(os.path.exists(os.path.join(root, rel)),
+                      f"{tid}: Module 4 installs {rel}", verbose=verbose)
+
+            # the scaffolds must not pass
+            payload = json.loads(run("check_spec.py", "--json").stdout or "{}")
+            check(payload.get("ok") is False,
+                  f"{tid}: the untouched spec fails check_spec.py", verbose=verbose)
+            payload = json.loads(run("check_skill.py", "--json",
+                                     "--name", "propose").stdout or "{}")
+            check(payload.get("ok") is False,
+                  f"{tid}: the untouched propose skill fails check_skill.py",
+                  verbose=verbose)
+
+            # the gate scaffold must FAIL CLOSED — a security control that defaults to
+            # allowing is worse than none, because it reads as protection
+            hook = subprocess.run(
+                [sys.executable, os.path.join(root, ".claude", "hooks",
+                                              "approval_gate.py")],
+                input=hook_event, capture_output=True, text=True,
+                env={**os.environ, "CLAUDE_PROJECT_DIR": root})
+            check("deny" in (hook.stdout or ""),
+                  f"{tid}: the gate scaffold denies until it is implemented",
+                  (hook.stdout or hook.stderr)[:160], verbose=verbose)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    # --- the reference gate, exercised as a control on one track
+    root = tempfile.mkdtemp(prefix="labm4gate-")
+    try:
+        for sub in ("proposals", "approvals", "spec", "gate", "tools",
+                    ".claude/hooks", "triage"):
+            os.makedirs(os.path.join(root, sub), exist_ok=True)
+        shutil.copy2(os.path.join(PLUGIN_ROOT, "reference", "gate", "approval_gate.py"),
+                     os.path.join(root, ".claude", "hooks", "approval_gate.py"))
+        shutil.copy2(os.path.join(PLUGIN_ROOT, "reference", "gate", "approve.py"),
+                     os.path.join(root, "gate", "approve.py"))
+        shutil.copy2(os.path.join(PLUGIN_ROOT, "reference", "tools", "apply.py"),
+                     os.path.join(root, "tools", "apply.py"))
+        with open(os.path.join(root, "spec", "capability.json"), "w") as fh:
+            json.dump({"capability": "triage", "published_to": "triage"}, fh)
+        body = os.path.join(root, "proposals", "P1.md")
+        with open(body, "w") as fh:
+            fh.write("# Proposal P1\n\nEvidence in data/knowledge/x.md.\n")
+        with open(os.path.join(root, "proposals", "P1.json"), "w") as fh:
+            json.dump({"id": "P1", "body": "proposals/P1.md", "confidence": "high",
+                       "risk": "low", "rollback": "delete it", "unresolved": [],
+                       "evidence": [{"via": "graph", "source": "data"}],
+                       "actions": [{"type": "write", "path": "triage/P1.md",
+                                    "from": "proposals/P1.md"}]}, fh)
+
+        def gate() -> str:
+            proc = subprocess.run(
+                [sys.executable, os.path.join(root, ".claude", "hooks",
+                                              "approval_gate.py")],
+                input=json.dumps({"tool_name": "Bash",
+                                  "tool_input": {"command": "python3 tools/apply.py P1"}}),
+                capture_output=True, text=True,
+                env={**os.environ, "CLAUDE_PROJECT_DIR": root})
+            return proc.stdout or ""
+
+        def approve() -> None:
+            subprocess.run([sys.executable, os.path.join(root, "gate", "approve.py"),
+                            "P1", "--root", root, "--by", "tester"],
+                           capture_output=True, text=True)
+
+        def apply_it():
+            return subprocess.run([sys.executable, os.path.join(root, "tools", "apply.py"),
+                                   "P1", "--root", root], capture_output=True, text=True)
+
+        check("deny" in gate(), "reference gate: refuses an unapproved apply",
+              verbose=verbose)
+        hand = subprocess.run(
+            [sys.executable, os.path.join(root, ".claude", "hooks", "approval_gate.py")],
+            input=json.dumps({"tool_name": "Write",
+                              "tool_input": {"file_path": "triage/P1.md"}}),
+            capture_output=True, text=True,
+            env={**os.environ, "CLAUDE_PROJECT_DIR": root})
+        check("deny" in (hand.stdout or ""),
+              "reference gate: refuses a hand-written published file", verbose=verbose)
+        proposing = subprocess.run(
+            [sys.executable, os.path.join(root, ".claude", "hooks", "approval_gate.py")],
+            input=json.dumps({"tool_name": "Write",
+                              "tool_input": {"file_path": "proposals/P1.md"}}),
+            capture_output=True, text=True,
+            env={**os.environ, "CLAUDE_PROJECT_DIR": root})
+        check("deny" not in (proposing.stdout or ""),
+              "reference gate: allows writing a proposal — proposing has no effect",
+              verbose=verbose)
+
+        approve()
+        check("deny" not in gate(), "reference gate: allows an approved apply",
+              verbose=verbose)
+        result = apply_it()
+        check(result.returncode == 0, "reference gate: the approved apply succeeds",
+              result.stderr[:160], verbose=verbose)
+        check(os.path.exists(os.path.join(root, "triage", "P1.md")),
+              "reference gate: the artifact is published", verbose=verbose)
+        check("deny" in gate(), "reference gate: refuses a replayed approval",
+              verbose=verbose)
+        check(apply_it().returncode == 1,
+              "reference gate: the tool refuses a replay independently of the hook",
+              verbose=verbose)
+
+        approve()
+        with open(body, "a") as fh:
+            fh.write("\nEdited after approval.\n")
+        check("deny" in gate(), "reference gate: refuses after the proposal is edited",
+              verbose=verbose)
+        check(apply_it().returncode == 1,
+              "reference gate: the tool refuses an edited proposal on its own",
+              verbose=verbose)
+
+        audit = os.path.join(root, "audit.jsonl")
+        check(os.path.exists(audit), "reference gate: writes an audit trail",
+              verbose=verbose)
+        if os.path.exists(audit):
+            events = [json.loads(l)["event"] for l in open(audit) if l.strip()]
+            check("applied" in events and "apply_refused" in events,
+                  "reference gate: the audit trail records applies and refusals",
+                  str(events), verbose=verbose)
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def check_promised_commands(verbose: bool) -> None:
@@ -643,8 +1366,20 @@ def main() -> int:
     check_reference_tools(args.verbose)
     check_reference_hooks(args.verbose)
     check_reference_plugins(args.verbose)
+    check_corpora(args.verbose)
+    check_golden_sets(args.verbose)
+    check_baseline_floor(args.verbose)
+    check_module2_artifacts(args.verbose)
+    check_graph_questions(args.verbose)
+    check_reference_graphs(args.verbose)
+    check_graph_answers(args.verbose)
+    check_module3_artifacts(args.verbose)
+    check_catchup_restores_module3(args.verbose)
+    check_module4_artifacts(args.verbose)
+    check_stage_ids_exist(args.verbose)
     check_tutor_facing_text(args.verbose)
     check_promised_commands(args.verbose)
+    check_documented_invocations(args.verbose)
     check_workspace_lifecycle(args.verbose)
     check_version_is_publishable(args.verbose)
     check_scripts_run(args.verbose)

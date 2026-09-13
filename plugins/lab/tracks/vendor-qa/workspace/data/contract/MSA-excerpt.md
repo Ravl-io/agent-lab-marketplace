@@ -1,7 +1,9 @@
 # Master Services Agreement — relevant clauses
 
 Between Northwind Ltd ("Client") and Halbrook Systems ("Supplier").
-Effective 2026-01-15. **Amended 2026-06-30 — see amendment note in clause 7.3.**
+Effective 2026-01-15. **Amended twice — see `contract/MSA-amendments.md` for the dates and
+what each amendment changed.** A milestone is judged against the clauses in force at its own
+submission date.
 
 ## 4. Deliverable acceptance
 
@@ -23,6 +25,10 @@ execution. Evidence without a build identifier is not evidence.
 
 **5.3** Documentation is delivered in English, in a text-based format under version control.
 
+**5.4** *Inserted by Amendment 2, effective 2026-08-15.* An API deliverable must include a
+machine-readable API definition — an OpenAPI 3.1 document in YAML or JSON — in addition to any
+prose specification. A specification document alone does not satisfy clause 5.1.
+
 ## 6. Security
 
 **6.1** No production personal data may appear in test evidence, screenshots or logs.
@@ -34,7 +40,9 @@ by the Supplier within 24 hours of notice.
 
 **7.1** Severity 1 defects: acknowledged within 1 hour, resolved within 8 hours.
 
-**7.2** Severity 2 defects: acknowledged within 4 hours, resolved within 3 business days.
+**7.2** Severity 2 defects: acknowledged within 4 hours, resolved within **3 business days**.
+*Amended by Amendment 1, effective 2026-06-30; the original term was 2 business days, which
+still applies to milestones submitted before that date.*
 
-**7.3** *Amended 2026-06-30:* Severity 2 resolution was extended from 2 to 3 business days.
-Findings issued before 2026-06-30 are judged against the original 2-business-day term.
+**7.3** Severity 3 defects: acknowledged within 1 business day, resolved within 5 business
+days.

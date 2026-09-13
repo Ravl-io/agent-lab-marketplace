@@ -1,0 +1,88 @@
+# Your ontology.
+#
+# Rename this file to something meaningful before you finish — it is the schema of your
+# organisation's knowledge, not a lab exercise artifact.
+#
+# ONE RULE, and everything else follows from it: **derive this from the questions you have
+# to answer, never from the data you happen to have.** Modelling the data gives you a
+# database schema with extra steps. Modelling the questions gives you the smallest graph
+# that answers them, which is the only kind anybody maintains.
+#
+# Aim for 6-10 types and 8-12 relations. If you are past that, you are modelling the data.
+
+name: TODO — a short name for this domain
+
+# ---------------------------------------------------------------- competency questions
+# These are the three questions your retrieval could not answer, carried over from the last
+# module. They are the specification. When you are deciding whether a type belongs, the
+# test is: which of these three needs it?
+
+competency_questions:
+  - id: CQ1
+    q: "{{CQ_MULTI_HOP}}"
+    shape: multi-hop
+    needs: |
+      TODO — write the traversal in words before you write any YAML. Something like:
+      "start at X, follow relation A to Y, then relation B backwards to Z, then compare
+      a property of Z against a property of X."
+
+      Do this first and properly. It is how you discover which relations you need, and
+      which direction each one has to point. Skipping it is how people end up with a
+      tidy graph that cannot answer the question it was built for.
+  - id: CQ2
+    q: "{{CQ_AGGREGATION}}"
+    shape: aggregation
+    needs: |
+      TODO — this one is about a COMPLETE set, or about absence. Ask yourself what would
+      have to be true for the answer to be trustworthy: which type are you counting, and
+      what makes a member of that type count?
+  - id: CQ3
+    q: "{{CQ_TEMPORAL}}"
+    shape: temporal
+    needs: |
+      TODO — which single fact in this question changes over time? That fact becomes a
+      relation with `temporal: true`, and the answer is only correct as of a date.
+
+# ---------------------------------------------------------------- types
+# key    what makes two mentions the same thing. This is entity resolution, and it is a
+#        decision, not a lookup: "Brightmoor Health" and "Brightmoor Health Ltd" are the
+#        same customer or they are not, and you have to say which.
+# props  facts about the thing itself. Never facts about its relationships — those are edges.
+# source where instances come from. Write it down; provenance is what makes an answer usable.
+
+types:
+  # TODO — replace these two with your own.
+  #
+  # ExampleType:
+  #   key: example_id
+  #   label: name
+  #   props: [status, opened_at]
+  #   source: data/some/file.md
+
+# ---------------------------------------------------------------- relations
+# Read every relation aloud as a sentence: "Account on_plan Plan." If it does not read as
+# one, the direction is probably wrong — and a backwards edge does not error, it just
+# answers questions incorrectly.
+#
+# cardinality  many-to-one, one-to-one, many-to-many. The compiler uses it to catch two
+#              values where there should be one.
+# temporal     true if this relation's truth changes over time. Then every edge carries
+#              valid_from / valid_to, and a closed edge is kept, never overwritten. An
+#              overwritten fact is a question you can no longer answer.
+
+relations:
+  # TODO — replace with your own.
+  #
+  # - name: on_plan
+  #   from: Account
+  #   to: Plan
+  #   cardinality: many-to-one
+
+# ---------------------------------------------------------------- deliberately absent
+# What you considered and left out, with the reason. This section is worth more than it
+# looks: it is the difference between an ontology somebody can extend and one they have to
+# reverse-engineer. When the next question arrives, this is what tells them whether the
+# answer is "add a relation" or "we decided against that, here is why".
+
+not_modelled:
+  # - TODO — something real you chose not to model, and why.

@@ -21,8 +21,7 @@ is the harness made of, and which primitive do I reach for?*
 | **6** | 20m | **The plugin** — package it, validate it, install it, watch it run | `M1.C6-plugin` |
 | **7** | 9m | **Debrief** — choosing a primitive, the anti-patterns, what carries forward | module complete |
 
-**Authoring status:** the whole module is authored. Modules 2 to 4 are not. Do not improvise them as though they were — if a participant finishes
-Step 1 before the rest exists, say so plainly and hand back to the facilitator.
+**Authoring status:** all four modules are authored.
 
 **Every track runs this module.** Anything track-specific — the task, the file names, the
 skill name, the output format — comes from `${CLAUDE_PLUGIN_ROOT}/tracks/<track>/track.json`.

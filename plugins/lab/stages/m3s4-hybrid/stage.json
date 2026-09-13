@@ -1,0 +1,11 @@
+{
+  "id": "m3s4-hybrid",
+  "stage": "15",
+  "title": "Route by question shape",
+  "label": "hybrid answering skill",
+  "install_tracer": true,
+  "shared_scaffolds": {
+    "skills/answer-with-graph/SKILL.md": ".claude/skills/answer-with-graph/SKILL.md"
+  },
+  "commit": "Module 3 stage 4: the hybrid answering skill"
+}

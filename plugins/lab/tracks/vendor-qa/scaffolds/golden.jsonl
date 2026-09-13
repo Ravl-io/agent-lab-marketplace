@@ -1,0 +1,32 @@
+# Golden retrieval set — vendor-qa
+# One query per line. Fields:
+#   id      G01..G15, and H01.. for ones you add yourself
+#   tier    easy       naive fixed-size chunking should find this
+#           hard       needs structural or parent-child chunking, or a metadata filter
+#           unreachable  retrieval cannot do this at all — Module 3 opens on these three
+#   q       the question, as somebody would actually type it
+#   expect  the source files that must appear in the retrieved set for this to count
+#   anchor  a phrase from the passage that actually answers it. This is what the
+#           scoreboard scores: retrieving the right file is easy on a corpus this
+#           size, retrieving the right passage cheaply is not. null means the answer
+#           is in no document at all.
+#   why     what this query is testing. For the facilitator and for you.
+#
+# Add three of your own at the end, from questions your team actually asks. Give them
+# ids H01, H02, H03 so the scoreboard can tell them apart from the shipped fifteen.
+
+{"id": "G01", "tier": "easy", "q": "What must test evidence state for us to accept it as evidence?", "expect": ["data/contract/MSA-excerpt.md"], "anchor": "the environment, the build identifier, and the date of execution", "why": "Clause 5.2, one sentence, distinctive wording."}
+{"id": "G02", "tier": "easy", "q": "What severity is a credential appearing in a deliverable?", "expect": ["data/contract/MSA-excerpt.md"], "anchor": "rotated by the Supplier within 24 hours", "why": "Clause 6.2 states it outright."}
+{"id": "G03", "tier": "easy", "q": "What are the acceptance criteria for Milestone 3?", "expect": ["data/contract/SOW-milestone-3.md"], "anchor": "Idempotency documented for all write endpoints", "why": "A table under a heading that matches the question."}
+{"id": "G04", "tier": "easy", "q": "Which Milestone 2 finding did Halbrook dispute, and on what grounds?", "expect": ["data/history/vendor-response-M2.md"], "anchor": "We do not accept this finding", "why": "Their own words, under the finding reference."}
+{"id": "G05", "tier": "easy", "q": "What happens if a deliverable is rejected twice for the same finding?", "expect": ["data/contract/MSA-excerpt.md"], "anchor": "escalates to the steering group", "why": "Clause 4.3. One sentence."}
+{"id": "G06", "tier": "easy", "q": "What does a finding have to cite so the supplier cannot argue it away?", "expect": ["data/examples/findings-pack-example.md"], "anchor": "names the acceptance criterion", "why": "The notes at the foot of the worked example say it explicitly."}
+{"id": "G07", "tier": "easy", "q": "What did Amendment 2 change?", "expect": ["data/contract/MSA-amendments.md"], "anchor": "machine-readable API definition", "why": "Its own dated section."}
+{"id": "G08", "tier": "hard", "q": "What is the Severity 2 resolution term for Milestone 3?", "expect": ["data/contract/MSA-amendments.md", "data/contract/SOW-milestone-3.md"], "anchor": "resolved within 3 business days", "why": "The MSA states three business days, the amendment log says from when, and the SOW says which version M3 is judged against. Answering from the MSA alone is right by luck."}
+{"id": "G09", "tier": "hard", "q": "Which requirements does acceptance criterion AC-4 verify?", "expect": ["data/requirements-register.md"], "anchor": "Rate limiting with documented behaviour", "why": "A mapping held in table rows. Fixed-size chunking splits the table and loses the header, so the rows arrive without meaning."}
+{"id": "G10", "tier": "hard", "q": "Was Milestone 2 accepted unconditionally?", "expect": ["data/history/acceptance-log.md", "data/contract/SOW-milestone-2.md"], "anchor": "Accepted with conditions", "why": "The log says 'accepted with conditions'; what the condition was is in the SOW."}
+{"id": "G11", "tier": "hard", "q": "How many findings were issued on Milestone 2, and how many are still open?", "expect": ["data/history/findings-M2.md", "data/history/acceptance-log.md"], "anchor": "Four closed", "why": "The count is in the log, the statuses are in the pack, and they have to agree."}
+{"id": "G12", "tier": "hard", "q": "Does Milestone 3 have to include a machine-readable API definition?", "expect": ["data/contract/MSA-amendments.md", "data/contract/MSA-excerpt.md"], "anchor": "does not satisfy clause 5.1", "why": "Yes, by clause 5.4 from 2026-08-15. The M3 SOW does not mention it, so a retrieval that lands on the SOW answers no. This is the one that catches people."}
+{"id": "G13", "tier": "unreachable", "q": "Which requirements are verified by a criterion that Milestone 2 failed?", "expect": ["data/requirements-register.md", "data/history/findings-M2.md"], "anchor": "AC-4", "why": "The register maps requirement to criterion; the findings say which criteria failed. Neither document holds both halves. MULTI-HOP \u2014 Module 3."}
+{"id": "G14", "tier": "unreachable", "q": "How many requirements has nobody verified across the whole engagement?", "expect": ["data/requirements-register.md"], "anchor": "no verifying criterion", "why": "A complete set, including R-11 which has no verifying criterion at all. Top-k returns the most similar rows, never the whole register. AGGREGATION \u2014 Module 3."}
+{"id": "G15", "tier": "unreachable", "q": "What was the resolution deadline for VQ-M2-003, and would it be the same today?", "expect": ["data/history/findings-M2.md", "data/contract/MSA-amendments.md"], "anchor": "2 business days from issue", "why": "Two business days then, three now, because of Amendment 1. TEMPORAL \u2014 Module 3."}

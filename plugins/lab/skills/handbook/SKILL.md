@@ -45,7 +45,7 @@ The parts they are most likely to want:
 - **Commands** — every command, the seven experiments, and how to read a trace
 - **When it breaks** — the trust dialog, a skill that will not fire, a hook that is not registered
 
-Modules 2 to 4 are outlines in there and marked as such; the handbook does not pretend they
+All four modules are written up in there; the handbook does not pretend they
 are written yet.
 
 ## Notes

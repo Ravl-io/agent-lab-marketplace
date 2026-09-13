@@ -45,9 +45,11 @@ decomposition, retrieve-critique-retrieve, self-grading, and knowing when to sto
 **retrieval evals**: golden sets, recall@k, MRR, and why retrieval quality and answer quality
 are two different measurements.
 
-**The device that runs through this module:** one scoreboard. The same 15 golden queries get
-re-scored after every change you make — naive chunking, then structural, then metadata
-filters, then agentic. You watch the number move. Evals stop being an abstraction.
+**The device that runs through this module:** one scoreboard. The same golden queries get
+re-scored after every change you make, and the run starts before you have built anything —
+with a sixty-line retriever that has no dependencies, no vector store and no embedding model.
+It answers almost every question. Finding out what is wrong with it, in numbers, is how the
+module begins; everything after that is measured against it.
 
 **You build:** ChromaDB ingestion with real chunking, a metadata schema, retrieval exposed as
 an MCP tool, and an agentic RAG skill that cites its sources. Plugin **v0.2**.

@@ -1,0 +1,11 @@
+{
+  "id": "m3s3-kg-tool",
+  "stage": "14",
+  "title": "Expose the graph as a tool",
+  "label": "MCP graph server",
+  "install_tracer": true,
+  "shared_scaffolds": {
+    "mcp/kg_server.py": "mcp/kg_server.py"
+  },
+  "commit": "Module 3 stage 3: the graph exposed over MCP"
+}

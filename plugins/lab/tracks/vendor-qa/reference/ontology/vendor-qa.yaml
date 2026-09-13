@@ -1,0 +1,157 @@
+# Ontology — vendor deliverable QA
+#
+# Derived from the three questions retrieval could not answer. Every type and relation is
+# here because a competency question traverses it.
+
+name: vendor-qa
+
+competency_questions:
+  - id: CQ1
+    q: Which requirements are verified by a criterion that Milestone 2 failed?
+    shape: multi-hop
+    needs: |
+      Finding -against_criterion-> Criterion <-verified_by- Requirement. Three hops, and the
+      two halves are deliberately in different documents: the findings packs never name a
+      requirement, and the register never names a finding. Neither document can answer this
+      on its own, and no chunk contains both halves.
+  - id: CQ2
+    q: How many requirements has nobody verified across the whole engagement?
+    shape: aggregation
+    needs: |
+      Every Requirement with no verified_by edge at all. A question about absence: retrieval
+      can only return what it found, so it structurally cannot report what is missing.
+      R-11 is the one that matters — it became contractual on 2026-08-15 and the M3 criteria
+      drafted five days later never covered it.
+  - id: CQ3
+    q: What was the resolution deadline for VQ-M2-003, and would it be the same today?
+    shape: temporal
+    needs: |
+      Finding -cites_clause-> Clause -specifies_term-> Term, evaluated at two dates. Clause
+      7.2 said two business days until Amendment 1 on 2026-06-30 and says three now. The
+      finding was issued 2026-05-22, so its term is two — and quoting today's term for a
+      2026-05 finding is the exact mistake this question exists to catch.
+
+# ---------------------------------------------------------------- entity resolution
+# The decision that matters most in this domain, written down because it is a decision and
+# not a lookup.
+#
+# A Criterion is identified by **(milestone, id)**, never by id alone. "AC-4" is not one
+# thing: Milestone 1, 2 and 3 each have their own AC-4 and they say different things. The
+# corpus writes references both ways, and they resolve like this:
+#
+#   "AC-4 (M2)"   qualified — means Milestone 2's AC-4, as written
+#   "AC-4"        unqualified — means the statement of work under review, Milestone 3
+#
+# Get this wrong and CQ1 answers confidently with the wrong requirements. Merging all three
+# AC-4s into one node is the single most damaging thing you can do to this graph, and
+# nothing about the result will look broken.
+
+types:
+  Requirement:
+    key: req_id
+    label: requirement
+    props: [status, verified_on]
+    source: data/requirements-register.md
+  Criterion:
+    key: criterion_id          # "AC-4 (M3)" — qualified, always
+    label: text
+    props: [ac_id, milestone]
+    source: "data/contract/SOW-milestone-*.md"
+  Milestone:
+    key: milestone_id
+    label: name
+    props: [submitted, decision, decided_on]
+    source: data/history/acceptance-log.md
+  Finding:
+    key: finding_id
+    label: summary
+    props: [severity, status, issued_on, closed_on, disputed]
+    source: "data/history/findings-*.md"
+  Clause:
+    key: clause_id
+    label: text
+    props: []
+    source: data/contract/MSA-excerpt.md
+  Term:
+    key: term_id
+    label: value
+    props: [severity]
+    source: data/contract/MSA-amendments.md
+  Deliverable:
+    key: path
+    label: name
+    props: []
+    source: data/deliverables/
+  Amendment:
+    key: amendment_id
+    label: summary
+    props: [effective]
+    source: data/contract/MSA-amendments.md
+
+relations:
+  - name: verified_by
+    from: Requirement
+    to: Criterion
+    cardinality: many-to-many
+    note: The register's mapping. Absent for R-11 and R-12, which is the CQ2 answer.
+  - name: required_at
+    from: Requirement
+    to: Milestone
+    cardinality: many-to-one
+  - name: belongs_to
+    from: Criterion
+    to: Milestone
+    cardinality: many-to-one
+  - name: against_criterion
+    from: Finding
+    to: Criterion
+    cardinality: many-to-one
+  - name: raised_on
+    from: Finding
+    to: Milestone
+    cardinality: many-to-one
+  - name: cites_clause
+    from: Finding
+    to: Clause
+    cardinality: many-to-many
+    note: |
+      A finding cites the clause it breaches AND the clause that sets its resolution term.
+      Both matter, and keeping them as one relation is what makes CQ3 reachable.
+  - name: evidenced_by
+    from: Finding
+    to: Deliverable
+    cardinality: many-to-many
+  - name: submitted_for
+    from: Deliverable
+    to: Milestone
+    cardinality: many-to-one
+  - name: specifies_term
+    from: Clause
+    to: Term
+    cardinality: many-to-many
+    temporal: true
+    note: |
+      The one relation whose truth changed. Clause 7.2's Severity 2 term was two business
+      days from 2026-01-15 and three from 2026-06-30. Both edges are kept: the closed one
+      is the only way to answer what the deadline WAS.
+  - name: changed_by
+    from: Clause
+    to: Amendment
+    cardinality: many-to-many
+  - name: carried_into
+    from: Finding
+    to: Milestone
+    cardinality: many-to-one
+    note: VQ-M2-003 only. It is the fact behind the MSA 4.3 escalation question.
+
+not_modelled:
+  - |
+    People (who issued a finding, who accepted a milestone). Nothing in CQ1-CQ3 traverses a
+    person. It is the first thing to add if "who signed this off" ever becomes a question.
+  - |
+    Requirement -> Finding directly. It would collapse CQ1 into one hop and destroy the
+    point: in the real paperwork that edge does not exist, and the register and the findings
+    packs are maintained by different people.
+  - |
+    Deliverable contents. The evidence for a finding is retrieved by vector search from the
+    deliverable text; the graph records only which deliverable it came from.

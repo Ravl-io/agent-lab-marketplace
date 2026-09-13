@@ -137,10 +137,51 @@ def render(state: dict) -> str:
     lines += ["", f"Checkpoints cleared: {len(checkpoints)}"
                   + (f"  (last: {checkpoints[-1]})" if checkpoints else "")]
 
-    if state.get("eval_history"):
-        lines += ["", "SCOREBOARD"]
-        for row in state["eval_history"][-6:]:
-            lines.append(f"  {row.get('label','?'):<28} {row.get('score','?')}")
+    history = state.get("eval_history") or []
+    if history:
+        lines += ["", "SCOREBOARD",
+                  f"  {'':<26} {'answered':>8} {'tokens':>8} {'per answer':>11} {'change':>8}"]
+        previous = None
+        for row in history[-8:]:
+            answered = row.get("answered")
+            tokens = row.get("mean_tokens")
+            # the arc is the point, so show movement rather than only absolutes
+            if previous is None or answered is None or previous[0] is None:
+                delta = ""
+            else:
+                diff = answered - previous[0]
+                delta = f"{diff:+d}" if diff else "—"
+            shown_tokens = f"{tokens:,}" if isinstance(tokens, int) else "?"
+            per_answer = row.get("tokens_per_answer")
+            # older rows predate this column; an em dash is honest, a zero would not be
+            shown_per = f"{per_answer:,}" if isinstance(per_answer, int) else "—"
+            label = str(row.get("label", "?"))[:26]
+            lines.append(f"  {label:<26} {str(row.get('score', '?')).split()[0]:>8} "
+                         f"{shown_tokens:>8} {shown_per:>11} {delta:>8}")
+            previous = (answered, tokens)
+        first, last = history[0], history[-1]
+        if first is not last and first.get("answered") is not None \
+                and last.get("answered") is not None:
+            lines.append(f"  {'since the baseline':<26} "
+                         f"{last['answered'] - first['answered']:+d} answered, "
+                         f"{(last.get('mean_tokens') or 0) - (first.get('mean_tokens') or 0):+,} tokens")
+
+    # Module 3's graph scores are a separate board on purpose: they are scored as SETS, with
+    # precision and recall reported apart, and averaging them into the retrieval headline
+    # would hide the one thing that matters — whether an answer was complete.
+    graph = state.get("graph_history") or []
+    if graph:
+        lines += ["", "GRAPH",
+                  f"  {'':<26} {'exact':>8} {'precision':>10} {'recall':>8}"]
+        for row in graph[-8:]:
+            label = str(row.get("label", "?"))[:26]
+            exact = f"{row.get('exact', '?')}/{row.get('queries', '?')}"
+            lines.append(f"  {label:<26} {exact:>8} "
+                         f"{row.get('precision', '?'):>10} {row.get('recall', '?'):>8}")
+        last = graph[-1]
+        if last.get("precision") == 1.0 and (last.get("recall") or 0) < 1.0:
+            lines.append("  recall below precision: the graph is right about what it holds "
+                         "and missing facts — an extraction gap, not a modelling error")
 
     if state.get("issues"):
         lines += ["", "OPEN ISSUES"]

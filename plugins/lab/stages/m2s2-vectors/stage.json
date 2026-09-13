@@ -1,0 +1,13 @@
+{
+  "id": "m2s2-vectors",
+  "stage": "9",
+  "title": "Chunk it, embed it, search it",
+  "label": "the RAG pipeline",
+  "install_tracer": true,
+  "shared_scaffolds": {
+    "rag/chunkers.py": "rag/chunkers.py",
+    "rag/ingest.py": "rag/ingest.py",
+    "rag/retrieve.py": "rag/retrieve.py"
+  },
+  "commit": "Module 2 stage 2: the chunk-embed-search pipeline"
+}

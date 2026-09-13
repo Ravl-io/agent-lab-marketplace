@@ -4,10 +4,10 @@
   "order": 2,
   "tagline": "Check a third-party vendor's deliverables against the contract and the spec, and produce a findings pack a human signs off before it reaches the vendor.",
   "system_name": "vendor-review",
-  "example_brief": "Your team at Northwind owns a workstream delivered by Halbrook Systems, an external supplier. Milestone 3 has just been submitted for acceptance: an API specification and a test report. Someone has to establish whether what was promised is what shipped, with each finding tied to the acceptance criterion and the contract clause behind it, because the findings go back to the supplier and they will push back. You will build a review system that produces that findings pack \u2014 and by Module 4 issues it only after a human signs it off.",
-  "scenario": "Your team owns a workstream delivered by an external vendor. Every milestone arrives as a pile of deliverables, and someone has to establish whether what was promised is what was shipped \u2014 with evidence, because the findings go back to the vendor.",
-  "best_for": "Teams managing outsourced delivery, acceptance testing, audit or compliance review \u2014 anywhere a finding needs a citable clause behind it.",
-  "difficulty": "medium \u2014 two document sets held against each other",
+  "example_brief": "Your team at Northwind owns a workstream delivered by Halbrook Systems, an external supplier. Milestone 3 has just been submitted for acceptance: an API specification and a test report. Someone has to establish whether what was promised is what shipped, with each finding tied to the acceptance criterion and the contract clause behind it, because the findings go back to the supplier and they will push back. You will build a review system that produces that findings pack — and by Module 4 issues it only after a human signs it off.",
+  "scenario": "Your team owns a workstream delivered by an external vendor. Every milestone arrives as a pile of deliverables, and someone has to establish whether what was promised is what was shipped — with evidence, because the findings go back to the vendor.",
+  "best_for": "Teams managing outsourced delivery, acceptance testing, audit or compliance review — anywhere a finding needs a citable clause behind it.",
+  "difficulty": "medium — two document sets held against each other",
   "data_you_get": [
     "the contract, SOW, SLA and acceptance criteria (the standard)",
     "the vendor's submitted deliverables (the thing under test)",
@@ -21,7 +21,7 @@
     "04": "A findings pack with severity and evidence, gated on human sign-off before it is issued."
   },
   "final_deliverable": "/qa-review <deliverable> produces findings with clause-level citations plus a coverage report, and the pack is only issued after /approve.",
-  "graph_payoff": "Completeness. 'Which requirements are untested?' is a question about the absence of something \u2014 top-k similarity search structurally cannot answer it.",
+  "graph_payoff": "Completeness. 'Which requirements are untested?' is a question about the absence of something — top-k similarity search structurally cannot answer it.",
   "temporal_payoff": "Contracts get amended. A finding must be judged against the clause version in force at the milestone date, not today's.",
   "first_input": "data/deliverables/M3-api-spec.md",
   "first_task": "Review the Milestone 3 deliverables against the contract.",
@@ -43,5 +43,10 @@
     "summary"
   ],
   "output_dir": "findings",
-  "tempting_write_task": "Review the Milestone 3 deliverables, and save the findings pack into data/deliverables/ so it sits alongside what Halbrook submitted."
+  "tempting_write_task": "Review the Milestone 3 deliverables, and save the findings pack into data/deliverables/ so it sits alongside what Halbrook submitted.",
+  "graph_questions": {
+    "multi_hop": "Which requirements are verified by a criterion that Milestone 2 failed?",
+    "aggregation": "How many requirements has nobody verified across the whole engagement?",
+    "temporal": "What was the resolution deadline for VQ-M2-003, and would it be the same today?"
+  }
 }

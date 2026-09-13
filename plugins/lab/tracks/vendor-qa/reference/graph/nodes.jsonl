@@ -1,0 +1,63 @@
+{"id": "M1", "label": "Authentication", "props": {"decided_on": "2026-03-27", "decision": "accepted", "submitted": "2026-03-06"}, "source": "data/history/acceptance-log.md", "type": "Milestone"}
+{"id": "M2", "label": "Authorise and capture", "props": {"decided_on": "2026-06-02", "decision": "accepted with conditions", "submitted": "2026-05-08"}, "source": "data/history/acceptance-log.md", "type": "Milestone"}
+{"id": "M3", "label": "Refunds, idempotency, rate limits", "props": {"decided_on": null, "decision": "under review", "submitted": "2026-09-01"}, "source": "data/history/acceptance-log.md", "type": "Milestone"}
+{"id": "M4", "label": "Webhooks", "props": {"decided_on": null, "decision": "not yet due", "submitted": null}, "source": "data/history/acceptance-log.md", "type": "Milestone"}
+{"id": "AC-1 (M1)", "label": "Client credential flow documented, with token issuance", "props": {"ac_id": "AC-1", "milestone": "M1"}, "source": "data/contract/SOW-milestone-1.md", "type": "Criterion"}
+{"id": "AC-2 (M1)", "label": "Token lifetime and refresh behaviour documented", "props": {"ac_id": "AC-2", "milestone": "M1"}, "source": "data/contract/SOW-milestone-1.md", "type": "Criterion"}
+{"id": "AC-3 (M1)", "label": "Error responses for authentication failure enumerated", "props": {"ac_id": "AC-3", "milestone": "M1"}, "source": "data/contract/SOW-milestone-1.md", "type": "Criterion"}
+{"id": "AC-4 (M1)", "label": "Test evidence for each authentication path, with environment and build id", "props": {"ac_id": "AC-4", "milestone": "M1"}, "source": "data/contract/SOW-milestone-1.md", "type": "Criterion"}
+{"id": "AC-3 (M2)", "label": "Authorise endpoint documented, including all error responses", "props": {"ac_id": "AC-3", "milestone": "M2"}, "source": "data/contract/SOW-milestone-2.md", "type": "Criterion"}
+{"id": "AC-4 (M2)", "label": "Capture endpoint documented, including partial capture", "props": {"ac_id": "AC-4", "milestone": "M2"}, "source": "data/contract/SOW-milestone-2.md", "type": "Criterion"}
+{"id": "AC-5 (M2)", "label": "Test evidence for authorise and capture, with environment and build id", "props": {"ac_id": "AC-5", "milestone": "M2"}, "source": "data/contract/SOW-milestone-2.md", "type": "Criterion"}
+{"id": "AC-6 (M2)", "label": "No production personal data in any artifact", "props": {"ac_id": "AC-6", "milestone": "M2"}, "source": "data/contract/SOW-milestone-2.md", "type": "Criterion"}
+{"id": "AC-7 (M2)", "label": "Error catalogue for the payment path", "props": {"ac_id": "AC-7", "milestone": "M2"}, "source": "data/contract/SOW-milestone-2.md", "type": "Criterion"}
+{"id": "AC-8 (M2)", "label": "Backwards compatibility statement against M1", "props": {"ac_id": "AC-8", "milestone": "M2"}, "source": "data/contract/SOW-milestone-2.md", "type": "Criterion"}
+{"id": "AC-1 (M3)", "label": "OpenAPI 3.1 spec covering all endpoints, including every error response", "props": {"ac_id": "AC-1", "milestone": "M3"}, "source": "data/contract/SOW-milestone-3.md", "type": "Criterion"}
+{"id": "AC-2 (M3)", "label": "Authentication documented, including token lifetime and refresh behaviour", "props": {"ac_id": "AC-2", "milestone": "M3"}, "source": "data/contract/SOW-milestone-3.md", "type": "Criterion"}
+{"id": "AC-3 (M3)", "label": "Idempotency documented for all write endpoints", "props": {"ac_id": "AC-3", "milestone": "M3"}, "source": "data/contract/SOW-milestone-3.md", "type": "Criterion"}
+{"id": "AC-4 (M3)", "label": "Rate limits stated per endpoint, with the behaviour on exceeding them", "props": {"ac_id": "AC-4", "milestone": "M3"}, "source": "data/contract/SOW-milestone-3.md", "type": "Criterion"}
+{"id": "AC-5 (M3)", "label": "Test evidence for every endpoint, stating environment, build id and date", "props": {"ac_id": "AC-5", "milestone": "M3"}, "source": "data/contract/SOW-milestone-3.md", "type": "Criterion"}
+{"id": "AC-6 (M3)", "label": "No production personal data anywhere in the deliverable", "props": {"ac_id": "AC-6", "milestone": "M3"}, "source": "data/contract/SOW-milestone-3.md", "type": "Criterion"}
+{"id": "AC-7 (M3)", "label": "Error catalogue mapping every error code to a remediation", "props": {"ac_id": "AC-7", "milestone": "M3"}, "source": "data/contract/SOW-milestone-3.md", "type": "Criterion"}
+{"id": "AC-8 (M3)", "label": "Backwards compatibility statement against Milestone 2", "props": {"ac_id": "AC-8", "milestone": "M3"}, "source": "data/contract/SOW-milestone-3.md", "type": "Criterion"}
+{"id": "clause:4.1", "label": "Deliverables must include test evidence", "props": {}, "source": "data/contract/MSA-excerpt.md", "type": "Clause"}
+{"id": "clause:4.3", "label": "A deliverable rejected twice for the same finding escalates to the steering group", "props": {}, "source": "data/contract/MSA-excerpt.md", "type": "Clause"}
+{"id": "clause:5.1", "label": "The specification must cover all endpoints", "props": {}, "source": "data/contract/MSA-excerpt.md", "type": "Clause"}
+{"id": "clause:5.4", "label": "An API deliverable must include a machine-readable definition", "props": {}, "source": "data/contract/MSA-excerpt.md", "type": "Clause"}
+{"id": "clause:6.1", "label": "No production personal data in any artifact", "props": {}, "source": "data/contract/MSA-excerpt.md", "type": "Clause"}
+{"id": "clause:7.1", "label": "Severity 1 resolution term", "props": {}, "source": "data/contract/MSA-excerpt.md", "type": "Clause"}
+{"id": "clause:7.2", "label": "Severity 2 resolution term", "props": {}, "source": "data/contract/MSA-excerpt.md", "type": "Clause"}
+{"id": "clause:7.3", "label": "Severity 3 resolution term", "props": {}, "source": "data/contract/MSA-excerpt.md", "type": "Clause"}
+{"id": "A1", "label": "Clause 7.2 replaced \u2014 Severity 2 resolution 2 days becomes 3", "props": {"effective": "2026-06-30"}, "source": "data/contract/MSA-amendments.md", "type": "Amendment"}
+{"id": "A2", "label": "Clause 5.4 inserted \u2014 machine-readable API definition required", "props": {"effective": "2026-08-15"}, "source": "data/contract/MSA-amendments.md", "type": "Amendment"}
+{"id": "term:7.1-s1", "label": "8 hours", "props": {"severity": 1}, "source": "data/contract/MSA-amendments.md", "type": "Term"}
+{"id": "term:7.2-s2-original", "label": "2 business days", "props": {"severity": 2}, "source": "data/contract/MSA-amendments.md", "type": "Term"}
+{"id": "term:7.2-s2-amended", "label": "3 business days", "props": {"severity": 2}, "source": "data/contract/MSA-amendments.md", "type": "Term"}
+{"id": "term:7.3-s3", "label": "5 business days", "props": {"severity": 3}, "source": "data/contract/MSA-amendments.md", "type": "Term"}
+{"id": "M1-auth-spec.md", "label": "M1-auth-spec.md", "props": {}, "source": "data/deliverables/M1-auth-spec.md", "type": "Deliverable"}
+{"id": "M1-test-report.md", "label": "M1-test-report.md", "props": {}, "source": "data/deliverables/M1-test-report.md", "type": "Deliverable"}
+{"id": "M2-api-spec.md", "label": "M2-api-spec.md", "props": {}, "source": "data/deliverables/M2-api-spec.md", "type": "Deliverable"}
+{"id": "M2-test-report.md", "label": "M2-test-report.md", "props": {}, "source": "data/deliverables/M2-test-report.md", "type": "Deliverable"}
+{"id": "M3-api-spec.md", "label": "M3-api-spec.md", "props": {}, "source": "data/deliverables/M3-api-spec.md", "type": "Deliverable"}
+{"id": "M3-test-report.md", "label": "M3-test-report.md", "props": {}, "source": "data/deliverables/M3-test-report.md", "type": "Deliverable"}
+{"id": "M3-integration-guide.md", "label": "M3-integration-guide.md", "props": {}, "source": "data/deliverables/M3-integration-guide.md", "type": "Deliverable"}
+{"id": "M3-release-notes.md", "label": "M3-release-notes.md", "props": {}, "source": "data/deliverables/M3-release-notes.md", "type": "Deliverable"}
+{"id": "R-01", "label": "Authenticate a client and issue a token", "props": {"status": "verified"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "R-02", "label": "Refresh a token without re-authenticating", "props": {"status": "verified"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "R-03", "label": "Authorise a payment", "props": {"status": "verified"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "R-04", "label": "Capture an authorised payment, including partial capture", "props": {"status": "verified"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "R-05", "label": "Refund a captured payment", "props": {"status": "pending"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "R-06", "label": "Idempotent retries on all write endpoints", "props": {"status": "pending"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "R-07", "label": "Rate limiting with documented behaviour", "props": {"status": "pending"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "R-08", "label": "Error codes mapped to remediation", "props": {"status": "pending"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "R-09", "label": "No production personal data in artifacts", "props": {"status": "pending"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "R-10", "label": "Backwards compatible with M2 clients", "props": {"status": "pending"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "R-11", "label": "Machine-readable API definition", "props": {"status": "no verifying criterion"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "R-12", "label": "Webhook delivery guarantees documented", "props": {"status": "not yet due"}, "source": "data/requirements-register.md", "type": "Requirement"}
+{"id": "VQ-M1-001", "label": "VQ-M1-001 against AC-2 (M1)", "props": {"closed_on": "2026-03-25", "disputed": false, "issued_on": "2026-03-18", "severity": 3, "status": "closed"}, "source": "data/history/findings-M1.md", "type": "Finding"}
+{"id": "VQ-M1-002", "label": "VQ-M1-002 against AC-4 (M1)", "props": {"closed_on": "2026-03-26", "disputed": false, "issued_on": "2026-03-18", "severity": 2, "status": "closed"}, "source": "data/history/findings-M1.md", "type": "Finding"}
+{"id": "VQ-M2-001", "label": "VQ-M2-001 against AC-6", "props": {"closed_on": "2026-05-25", "disputed": false, "issued_on": "2026-05-22", "severity": 1, "status": "closed"}, "source": "data/history/findings-M2.md", "type": "Finding"}
+{"id": "VQ-M2-002", "label": "VQ-M2-002 against AC-5 (M2)", "props": {"closed_on": "2026-05-29", "disputed": false, "issued_on": "2026-05-22", "severity": 2, "status": "closed"}, "source": "data/history/findings-M2.md", "type": "Finding"}
+{"id": "VQ-M2-003", "label": "VQ-M2-003 against AC-4", "props": {"closed_on": null, "disputed": true, "issued_on": "2026-05-22", "severity": 2, "status": "open"}, "source": "data/history/findings-M2.md", "type": "Finding"}
+{"id": "VQ-M2-004", "label": "VQ-M2-004 against AC-7 (M2)", "props": {"closed_on": "2026-06-01", "disputed": false, "issued_on": "2026-05-22", "severity": 3, "status": "closed"}, "source": "data/history/findings-M2.md", "type": "Finding"}
+{"id": "VQ-M2-005", "label": "VQ-M2-005 against AC-8 (M2)", "props": {"closed_on": "2026-05-30", "disputed": false, "issued_on": "2026-05-22", "severity": 2, "status": "closed"}, "source": "data/history/findings-M2.md", "type": "Finding"}

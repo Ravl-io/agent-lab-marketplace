@@ -343,9 +343,9 @@
       <div class="group">
         <p>Modules</p>
         <a href="#m1" data-pane="m1"><i>01</i>Harness &amp; coding agent</a>
-        <span class="off" aria-disabled="true"><i>02</i>RAG &amp; retrieval<em>Later</em></span>
-        <span class="off" aria-disabled="true"><i>03</i>Graphs &amp; ontologies<em>Later</em></span>
-        <span class="off" aria-disabled="true"><i>04</i>The full AI system<em>Later</em></span>
+        <a href="#m2" data-pane="m2"><i>02</i>RAG &amp; retrieval</a>
+        <a href="#m3" data-pane="m3"><i>03</i>Graphs &amp; ontologies</a>
+        <a href="#m4" data-pane="m4"><i>04</i>The full AI system</a>
       </div>
       <div class="group">
         <p>Reference</p>
@@ -916,21 +916,59 @@
     <!-- ============ MODULE 2 ============ -->
     <section class="pane" id="pane-m2">
       <p class="eyebrow">Module 02 · two hours</p>
-      <h1>RAG and retrieval systems<span class="pill wip">In development</span></h1>
+      <h1>RAG and retrieval systems<span class="pill live">Ready</span></h1>
       <p class="standfirst">The agent knows nothing about your documents. How do you ground it —
       and how do you know you made it better rather than just different?</p>
-      <div class="warn">
-        <span class="kicker">Not yet authored</span>
-        <p>This module's outline is settled and its corpus work is underway, but the lab steps
-        aren't written. The tutor will tell you so rather than improvise. What follows is the
-        plan, not a promise of detail.</p>
-      </div>
+
+
+      <h2>The ladder</h2>
+      <div class="scroll"><table>
+        <tr><th>Step</th><th>What you do</th><th>What you end up knowing</th></tr>
+        <tr><td class="num">0</td><td>A virtualenv, and <code>chromadb</code> in it</td><td>Why the lab never installs everything up front</td></tr>
+        <tr><td class="num">1</td><td>Run a retriever with <em>no dependencies</em>. Read the golden set, add three questions of your own</td><td>What "good retrieval" costs before you have built any</td></tr>
+        <tr><td class="num">2</td><td>Naive fixed-window chunking into the vector store. Re-measure</td><td>Where a fixed window cuts, and what that loses</td></tr>
+        <tr><td class="num">3</td><td>Structural, then parent-child. Re-measure each</td><td>That there is no best chunker — only your corpus</td></tr>
+        <tr><td class="num">4</td><td>A metadata schema, then filtered retrieval</td><td>That some questions are filters, not similarity</td></tr>
+        <tr><td class="num">5</td><td>Wrap retrieval as an MCP server the agent calls</td><td>What MCP actually is: JSON-RPC over stdio</td></tr>
+        <tr><td class="num">6</td><td>An agentic skill: decompose, retrieve, <em>assess</em>, retrieve again, cite</td><td>Why one-shot retrieval half-answers a two-part question</td></tr>
+        <tr><td class="num">7</td><td>Three questions that stay broken</td><td>The ceiling of retrieval itself</td></tr>
+      </table></div>
 
       <h2>The device that carries the module</h2>
       <p>One scoreboard. The same fifteen golden queries get re-scored after every change you
       make — naive chunking, then structural, then metadata filters, then agentic retrieval. You
       watch the number move. That's what stops evals being an abstraction, and it's the direct
       answer to the <em>13, 13, 16</em> problem from module 1.</p>
+
+      <h2>How it opens: the cheapest thing that works</h2>
+      <p>Before you install a vector store, you run a retriever that has none. Sixty lines of
+      word counting, no dependencies, no embedding model. On the support-triage corpus it
+      answers <strong>eleven of twelve</strong> golden queries.</p>
+      <p>So why build anything else? That question is the module, and it isn't rhetorical —
+      the honest answer is in the second column, not the first:</p>
+      <div class="scroll"><table>
+        <tr><th>Retriever</th><th>Answered</th><th>Tokens per answer</th></tr>
+        <tr><td>Lexical baseline — no dependencies</td><td class="num">11/12</td><td class="num">2,303</td></tr>
+        <tr><td>Structural chunking + embeddings</td><td class="num">10/12</td><td class="num">702</td></tr>
+      </table></div>
+      <p>Read that carefully, because it is not what RAG is usually sold as. The chunked,
+      embedded, vector-searched version answered <em>one fewer question</em>. What it bought
+      was the price: roughly a third of the context for roughly the same answers. On eighteen
+      documents that's a curiosity. On eighteen thousand it's the difference between a system
+      you can run and one you can't afford to.</p>
+      <p>Everything after step 2.1 is measured against that floor. If a change can't beat
+      sixty lines of word counting, it hasn't earned its dependencies.</p>
+
+      <h2>The thing to take away, even if you forget the rest</h2>
+      <p>Chunking did not make retrieval more <em>accurate</em>. Across all three tracks the
+      dependency-free baseline answered more golden questions than every chunked strategy on
+      two of them. What chunking bought was the bill — about a third of the tokens for about
+      the same answers.</p>
+      <p>And there is no best chunker. Structural wins on one track, parent-child on another,
+      and naive loses almost everywhere. Which one wins depends on the shape of your
+      documents, which is why you were handed a scoreboard instead of a recommendation. That
+      habit — change one thing, re-score, believe the number over the blog post — is the part
+      of this module that transfers to work on Monday.</p>
 
       <h2>What's covered</h2>
       <ul>
@@ -958,12 +996,34 @@
     <!-- ============ MODULE 3 ============ -->
     <section class="pane" id="pane-m3">
       <p class="eyebrow">Module 03 · two hours</p>
-      <h1>Knowledge graphs and ontologies<span class="pill wip">In development</span></h1>
+      <h1>Knowledge graphs and ontologies<span class="pill live">Ready</span></h1>
       <p class="standfirst">Why did those three questions fail, and what do you build instead?</p>
-      <div class="warn">
-        <span class="kicker">Not yet authored</span>
-        <p>Outline settled; lab steps not written. The tutor will say so rather than improvise.</p>
-      </div>
+
+      <h2>The ladder</h2>
+      <div class="scroll"><table>
+        <tr><th>Step</th><th>What you do</th><th>What you end up knowing</th></tr>
+        <tr><td class="num">0</td><td><code>pyyaml</code>, and nothing else</td><td>That a knowledge graph is a few hundred rows in SQLite</td></tr>
+        <tr><td class="num">1</td><td>Re-run the three broken questions and watch the scoreboard say two of them <em>passed</em></td><td>That a metric is only valid for the question shapes it was built for</td></tr>
+        <tr><td class="num">2</td><td>Turn the three questions into competency questions, then an ontology</td><td>How to derive a schema from questions instead of from data</td></tr>
+        <tr><td class="num">3</td><td>Extract nodes and edges with provenance and dates; compile and diff against a verified graph</td><td>Entity resolution, and why a closed fact is never overwritten</td></tr>
+        <tr><td class="num">4</td><td>Answer the three questions by hand</td><td>What a complete answer looks like, before an agent gets involved</td></tr>
+        <tr><td class="num">5</td><td>Expose the graph as an MCP tool — question shapes, never SQL</td><td>Why an empty result must say which kind of empty it is</td></tr>
+        <tr><td class="num">6</td><td>A skill that routes: graph for the set, retrieval for the sentence</td><td>Which of your two systems is right for which half of a question</td></tr>
+        <tr><td class="num">7</td><td>Governance, and when <em>not</em> to build a graph</td><td>The judgement call, which is the part that transfers</td></tr>
+      </table></div>
+
+      <h2>How it opens: the metric that lies</h2>
+      <p>Module 2 left three questions deliberately broken. Re-run them and the retrieval
+      scoreboard reports <strong>two of the three as answered</strong> — on the support-triage
+      corpus with the lexical baseline.</p>
+      <p>Neither is a real answer. "Which other accounts are exposed to KI-77?" scores a hit
+      because its answering phrase — <em>"accounts in region eu-west only"</em> — sits in a
+      document any retriever returns. The actual answer needs each account's platform version,
+      which appears in no document at all.</p>
+      <p>So retrieval does not fail loudly here. It fails while a metric says it succeeded.
+      That is the most transferable idea in the module, and the reason this one is scored
+      differently: "which ones", "how many" and "as of when" have answers you can be
+      <em>incomplete</em> about, and incompleteness is invisible to a phrase check.</p>
 
       <h2>Three failure classes of pure vector search</h2>
       <p>These are structural, not accidental — no amount of better chunking fixes them.</p>
@@ -988,21 +1048,51 @@
       that routes each question to the graph, the vector store, or both. Plugin
       <strong>v0.3</strong>.</p>
       <p>The moment to watch for is answering, by hand, the three questions module 2 left
-      broken. Also covered: <strong>when not to build a graph</strong> — maintenance cost against
-      question shape.</p>
+      broken. An hour earlier they were unanswerable; now they are one command each.</p>
+
+      <h2>What the graph actually scores</h2>
+      <p>Measured on all three tracks with the reference ontologies: the verified graph answers
+      <strong>eight of eight</strong> graph questions exactly — precision and recall both 1.0,
+      across multi-hop, aggregation and temporal.</p>
+      <p>That number is necessary and it is not the lesson. A graph built to answer eight
+      questions answering them is close to tautological. The lesson is the one above: what the
+      <em>retrieval</em> harness claims about the same questions.</p>
+
+      <h2>And when not to build one</h2>
+      <p>Worth reading before you start, not after. Don't build a graph when your questions are
+      all "what does the document say" — that's retrieval, and it's cheaper. Don't build one
+      when your data already lives in one relational database and stays there — write SQL. A
+      graph earns its place when facts from prose have to sit beside rows from a table, or when
+      the facts are scattered across documents no single query can join.</p>
+      <p>And don't build one nobody will maintain. A graph that silently stops being
+      re-extracted is the worst artifact in this course: confident, complete-looking, and
+      quietly describing last quarter.</p>
     </section>
 
     <!-- ============ MODULE 4 ============ -->
     <section class="pane" id="pane-m4">
       <p class="eyebrow">Module 04 · two hours</p>
-      <h1>The full AI system<span class="pill wip">In development</span></h1>
+      <h1>The full AI system<span class="pill live">Ready</span></h1>
       <p class="standfirst">You have something that works on your machine. What stands between
       that and something your team would actually rely on — and what is the human's job in
       running it?</p>
-      <div class="warn">
-        <span class="kicker">Not yet authored</span>
-        <p>Outline settled; lab steps not written. The tutor will say so rather than improvise.</p>
-      </div>
+
+      <h2>The ladder</h2>
+      <div class="scroll"><table>
+        <tr><th>Step</th><th>What you do</th><th>What you end up knowing</th></tr>
+        <tr><td class="num">1</td><td>Write the spec: acceptance criteria as scenarios, what is out of scope, who approves</td><td>What a spec gives you that a very good prompt does not</td></tr>
+        <tr><td class="num">2</td><td>A proposal pipeline: the agent does the whole job and applies none of it</td><td>Why deciding and doing are different operations</td></tr>
+        <tr><td class="num">3</td><td>The approval gate: a hook that refuses, and an approval that means one thing</td><td>The difference between an approval and a permission</td></tr>
+        <tr><td class="num">4</td><td>The full suite — retrieval, graph, proposals, integrity — then the audit log</td><td>That a system can score well and still be unsafe</td></tr>
+        <tr><td class="num">5</td><td>Capstone: your system end to end, graded against a key you have not seen</td><td>Whether it holds on a case nobody tuned it for</td></tr>
+        <tr><td class="num">6</td><td>The runbook, v1.0, and what to do on Monday</td><td>What your job is now</td></tr>
+      </table></div>
+
+      <h2>No setup step</h2>
+      <p>Nothing new to install. The gate is a hook, the spec is markdown, and the suite is the
+      two harnesses you already have plus one new check. That is the last piece of evidence for
+      the claim this course has been making since module 1: it is all made of small, ordinary
+      parts.</p>
 
       <h2>The autonomy ladder</h2>
       <p>The thing you take back to your team.</p>
@@ -1033,9 +1123,31 @@
       that refuses to apply without human approval. Then the full eval suite. Plugin
       <strong>v1.0</strong>.</p>
 
+      <h2>What the gate actually does</h2>
+      <p>Nine behaviours, all measured. Three of them are the ones people leave out when they
+      build one of these in a hurry:</p>
+      <div class="scroll"><table>
+        <tr><th>Property</th><th>What it means in practice</th></tr>
+        <tr><td>An approval covers <strong>one artifact</strong></td><td>The approval records a hash of the proposal <em>and</em> the prose you read. Edit either afterwards and applying is refused — even a typo</td></tr>
+        <tr><td>An approval is <strong>single-use</strong></td><td>Applying consumes it. A replayable approval is a standing permission with extra steps</td></tr>
+        <tr><td>The check lives in <strong>two layers</strong></td><td>The hook guards the agent's route; the apply tool re-checks for a script, a CI job, or your own terminal</td></tr>
+      </table></div>
+      <p>And one thing it deliberately does not do: it will not stop <code>Bash</code> reaching
+      the published directory with <code>cp</code>, <code>mv</code> or a redirect. That is the
+      same incompleteness as module 1's write boundary, and the same answer — you cannot
+      enumerate the ways to write a file. The controls that contain it are layered: which tools
+      exist at all, which may run unprompted, what a permitted tool may touch, and who approves
+      the consequential action. <strong>Any one of them alone is theatre.</strong></p>
+
       <h2>How it ends</h2>
-      <p>Each group demonstrates on a case it has never seen, and the three tracks are compared.
-      Three unrelated domains, one architecture.</p>
+      <p>Each group demonstrates on a case it has never seen, and the three tracks are compared
+      side by side. Three unrelated domains, three different corpora, one architecture — skill,
+      tool, hook, retrieval, graph, proposal, gate.</p>
+      <p>Then the four jobs that are still yours: <strong>intent</strong> (what is worth
+      building), <strong>boundaries</strong> (what it must never do), <strong>evals</strong>
+      (what counts as right), and <strong>approval</strong> (owning the consequential action).
+      Every one is a judgement, and none of them is the part anybody was worried about being
+      automated.</p>
     </section>
 
     <!-- ============ CONCEPTS ============ -->
@@ -1269,14 +1381,16 @@
 
       <h2>What isn't done</h2>
       <ul>
-        <li><strong>No timed dry run.</strong> 112 minutes is arithmetic, not evidence</li>
+        <li><strong>No timed dry run.</strong> 112, 110, 110 and 112 minutes for the four
+        modules are arithmetic, not evidence</li>
         <li><strong>No run-of-show</strong> with minute markers and cut lines</li>
         <li><strong>No participant has done this.</strong> Every gate has only judged reference
         implementations, never a real first attempt — which is exactly where they'll turn out
         too strict or too lenient</li>
-        <li><strong>Modules 2 to 4 are outlines.</strong> The <code>docgen</code> and
-        <code>vendor-qa</code> corpora are also too small for module 2's fifteen golden queries,
-        and expanding them is a prerequisite rather than part of it</li>
+
+        <li><strong>Module 2's numbers were measured on the shipped corpora</strong> with the
+        reference solutions. Your own scoreboard is the one that counts, and the chunked rows
+        move a percent or two between ingests</li>
       </ul>
       <footer>Repository: <code>Ravl-io/agent-lab-marketplace</code>. Design and build notes in
       <code>PLAN.md</code>; the module-by-module outline in <code>docs/CURRICULUM.md</code>;
@@ -1291,8 +1405,8 @@
     var links = Array.prototype.slice.call(document.querySelectorAll("#nav a"));
     var panes = Array.prototype.slice.call(document.querySelectorAll(".pane"));
 
-    // Only panes with a live nav entry are reachable. Modules 2 to 4 keep their content in
-    // the page but are switched off until they are authored, so #m2 must not open one.
+    // Every pane now has a live nav entry. The guard stays: a hash that names no pane must
+    // not blank the page.
     var reachable = links.map(function (a) { return a.dataset.pane; });
 
     function show(id, push) {

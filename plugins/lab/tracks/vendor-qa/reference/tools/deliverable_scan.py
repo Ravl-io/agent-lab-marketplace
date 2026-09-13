@@ -121,7 +121,7 @@ def selftest() -> int:
             failures.append(label)
 
     d = scan_dir("data/deliverables")
-    expect("both deliverables scanned", d["summary"]["files_scanned"] == 2)
+    expect("all four deliverables scanned", d["summary"]["files_scanned"] == 4)
     expect("the client secret is found", any(s["kind"] == "client_secret"
                                             for s in d["secrets"]))
     expect("production personal data is found",
@@ -132,6 +132,8 @@ def selftest() -> int:
            bool(PII_ALLOWLIST.search("someone@example.com"))
            and not PII_ALLOWLIST.search("m.villanueva@example-merchant.co.uk"))
     expect("endpoints were collected", len(d["endpoints"]) >= 4)
+    expect("no machine-readable API definition was submitted",
+           not any(f["file"].endswith((".yaml", ".yml", ".json")) for f in d["files"]))
     expect("rate limits are not quantified in the deliverable",
            d["summary"]["rate_limits_quantified"] is False)
     expect("same input, same output", scan_dir("data/deliverables") == d)

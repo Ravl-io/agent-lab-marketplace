@@ -68,19 +68,30 @@ re-scored after every change. Evals become visceral instead of academic.
 
 | # | Time | Activity | Concept named |
 |---|---|---|---|
-| 2.1 | 12m | Ingest your track's corpus into **ChromaDB** with naive fixed-size chunking. Query it. Watch it fail on ~5 of 15 | Embeddings intuition; why retrieval at all (staleness, cost, citations); context window ≠ knowledge |
-| 2.2 | 10m | Open `evals/retrieval/golden.yaml` (shipped, 15 queries; add 3 of your own). Run `/lab:eval retrieval` → **baseline score** | Golden sets. recall@k, MRR/nDCG, precision. Retrieval eval ≠ answer eval |
-| 2.3 | 18m | **Chunking lab**: implement heading-aware/structural + parent-child (small-to-big) chunking. Re-run. Record the delta | Fixed vs recursive vs structural vs semantic vs contextual chunking; chunk/retrieve asymmetry |
-| — | — | **C1** — chunking delta recorded on the scoreboard | |
-| 2.4 | 15m | **Metadata lab**: define a metadata schema (source, section path, doc type, validity dates, entities, version), re-ingest, add filtered retrieval. Re-run. One query is *only* solvable with a filter (e.g. "the **current** SLA") | Authored vs derived metadata; filters as first-class retrieval; provenance; temporal validity |
+| 2.0 | 6m | Create a virtualenv and install `chromadb` into it — the setup step arrives when the module needs it. **M2.C0-setup** | Dependency isolation; why the lab does not install everything up front |
+| 2.1 | 14m | **The floor first.** Run `rag/baseline_retrieve.py` — sixty lines, no dependencies, no vector store. It answers 11 of 12. Read `evals/retrieval/golden.jsonl`, add 3 queries of your own, then look at the token column | Golden sets; answered vs retrieved; context cost as a first-class metric. *Why retrieval at all* becomes a real question because the cheap thing already works. **M2.C1-baseline** |
+| 2.2 | 12m | Ingest the corpus into **ChromaDB** with naive fixed-window chunking. Re-run the scoreboard. Cost collapses — and so do the answers | Embeddings intuition and their limits; the first honest delta |
+| 2.3 | 18m | **Chunking lab**: implement structural (heading-aware) and parent-child (small-to-big). Re-run after each. Record the deltas | Fixed vs recursive vs structural vs semantic vs contextual chunking; chunk/retrieve asymmetry; chunking as a cost decision, not an accuracy one |
+| — | — | **M2.C2-chunking** — all three strategies measured, deltas on the scoreboard | |
+| 2.4 | 15m | **Metadata lab**: define a metadata schema (source, section path, doc type, validity dates, entities, version), re-ingest, add filtered retrieval. On `support-triage` one golden query (tier `filtered`, scored separately) is *only* solvable with a filter and goes 0/1 → 1/1; the other two tracks demonstrate it by hand, because their corpora hold both versions in one file or nothing superseded at all. **M2.C3-metadata** | Authored vs derived metadata; filters as first-class retrieval; provenance; temporal validity |
 | 2.5 | 15m | Wrap retrieval as an **MCP tool**: `search`, `search_filtered`, `get_document` | Tool surface design: expose intent-level operations, never the raw vector DB |
-| — | — | **C2** — retrieval tool callable by the agent | |
-| 2.6 | 20m | Build the **agentic RAG skill**: decompose → retrieve → assess sufficiency → re-retrieve → answer with citations. Compare against single-shot on the golden set + 3 hard multi-part questions | Agentic RAG: query decomposition, multi-query, retrieve-critique-retrieve, self-grading, stop conditions. Hybrid search + reranking (concept + optional exercise) |
-| — | — | **C3** — agentic RAG beats single-shot, measurably | |
+| — | — | **M2.C4-tool** — retrieval tool callable by the agent over MCP | |
+| 2.6 | 20m | Build the **agentic RAG skill**: decompose → retrieve → assess sufficiency → re-retrieve → answer with citations. Compare against single-shot on the golden set | Agentic RAG: query decomposition, multi-query, retrieve-critique-retrieve, self-grading, stop conditions. Hybrid search + reranking (concept + optional exercise) |
+| — | — | **M2.C5-agentic** — agentic retrieval answers more of a multi-part question | |
 | 2.7 | 10m | Debrief on the scoreboard — then run **3 questions that are still broken** ("which vendors are affected by X", "how many incidents traced to Y", "what changed since the last version"). Leave them broken. That's Module 3's cold open | Retrieval's ceiling: relational, aggregate and temporal questions |
 
-**Artifacts:** `rag/` (ingest + chunkers), `evals/retrieval/`, MCP retrieval server,
-`skills/retrieve-and-answer/`. Plugin **v0.2**.
+**The measured result this module is built on:** chunking does not make retrieval more
+accurate — the dependency-free baseline beats every chunked strategy on two of three tracks.
+It makes retrieval *affordable*, at roughly a third of the tokens. See
+`lab/facilitator/module-2-measured.md`.
+
+**Artifacts:** `rag/` (chunkers, ingest, retrieve, and the dependency-free baseline),
+`evals/retrieval/golden.jsonl`, `mcp/retrieval_server.py` + `.mcp.json`,
+`.claude/skills/retrieve-and-answer/`. Plugin **v0.2**.
+
+**Stages:** `m2s1-baseline` · `m2s2-vectors` · `m2s3-mcp` · `m2s4-agentic`.
+**Gates:** `check_golden.py`, `check_ingest.py`, `check_retrieval_tool.py`,
+`check_skill.py --name retrieve-and-answer`.
 
 ---
 
@@ -98,17 +109,28 @@ re-scored after every change. Evals become visceral instead of academic.
 |---|---|---|---|
 | 3.1 | 12m | Take the 3 broken questions. Write them as **competency questions**. Derive a minimal ontology from them: 6-10 types, 8-12 relations → `ontology/<track>.yaml` | Taxonomy vs ontology vs knowledge graph vs semantic layer. **Design the ontology from the questions you must answer** — not from the data |
 | 3.2 | 18m | Extract a graph from the corpus with an LLM-assisted extraction skill → `graph/nodes.jsonl` + `edges.jsonl` **with provenance and validity dates** → compile to `kg.db` (SQLite). Compare your extraction to the verified one | Entity resolution, identity, cardinality; extraction QA; provenance; `valid_from`/`valid_to` and supersession (never silent overwrite) |
-| — | — | **C1** — ontology + graph built, spot-checked | |
+| — | — | **M3.C1-ontology** and **M3.C2-graph** — ontology gated, graph compiled and scored | |
 | 3.3 | 12m | Query it by hand (SQL/CLI) and answer the 3 broken questions | Traversal, paths, impact, coverage/gaps |
 | 3.4 | 18m | Wrap it as an **MCP tool**: `kg_search`, `kg_entity`, `kg_neighbors`, `kg_path`, `kg_impact`, `kg_coverage`, `kg_as_of` | Intent-level graph operations; why not "here's a SQL tool, good luck" |
-| — | — | **C2** — kg tool callable by the agent | |
+| — | — | **M3.C3-tool** — graph tool callable by the agent over MCP | |
 | 3.5 | 20m | Build the **hybrid answering skill**: route by question shape — graph for structure and scope, vector for evidence and quotes, both for most real questions. Answers carry citations + an as-of date. Run the combined eval (15 original + 8 graph-only) | GraphRAG patterns: graph-as-router, retrieval expansion, graph-as-answerer, vector-entry → graph-traverse → vector-evidence |
-| — | — | **C3** — combined eval passes; scoreboard jumps on the graph-only set | |
+| — | — | **M3.C4-hybrid** — the hybrid skill routes by question shape | |
 | 3.6 | 10m | Ontology governance: who owns it, how it evolves, drift, `kg_coverage` / open questions as a gap report | The semantic layer as the shared contract between humans and agents |
 | 3.7 | 10m | Debrief: **when not to build a graph** — build/maintenance cost vs question shape | |
 
-**Artifacts:** `ontology/`, `graph/`, `kg.db`, MCP kg server, `skills/answer-with-graph/`,
-expanded evals. Plugin **v0.3** — the full plugin: tool + vector store + ontology graph.
+**Artifacts:** `ontology/*.yaml`, `graph/nodes.jsonl` + `edges.jsonl`, `kg.db`,
+`kg/compile.py` + `kg/kg.py` (given), `mcp/kg_server.py`,
+`.claude/skills/{extract-graph,answer-with-graph}/`, `evals/graph/queries.jsonl`.
+Plugin **v0.3** — the full plugin: tool + vector store + ontology graph.
+
+**Stages:** `m3s1-ontology` · `m3s2-extract` · `m3s3-kg-tool` · `m3s4-hybrid`.
+**Gates:** `check_ontology.py`, `check_graph.py`, `check_kg_tool.py`,
+`check_skill.py --name answer-with-graph`.
+
+**Measured:** the verified graph answers 8/8 graph questions on every track, precision and
+recall 1.0. And the retrieval harness reports two of the three "unreachable" queries as
+answered — a false positive that is the module's cold open. See
+`lab/facilitator/module-3-measured.md`.
 
 ---
 
@@ -131,15 +153,24 @@ this way — and what is the human's job?
 |---|---|---|---|
 | 4.1 | 15m | Write `spec/` for your track's final capability: acceptance criteria (Gherkin), out-of-scope, policies, approval requirements | Spec-driven development: intent → spec → acceptance criteria → plan → tasks → implement → eval → approve. Why specs beat prompts (durable, reviewable, reusable, testable) |
 | 4.2 | 25m | Build the **proposal pipeline**: the agent produces `proposal.md` + `proposal.json` — actions/diff, evidence with citations from RAG **and** KG, confidence, risk, rollback plan. **Nothing is applied** | Separating decision from execution. Evidence as a first-class output |
-| — | — | **C1** — a proposal generated on a real case, fully cited | |
+| — | — | **M4.C2-proposal** — a proposal on a real case, fully cited, nothing applied | |
 | 4.3 | 20m | Build the **approval gate**: a `PreToolUse` hook that denies `apply` without an approval token + an `/approve` command a human runs. Then apply. (docgen → publish report; vendor-qa → sign off findings; incident → apply remediation) | The gate as the trust mechanism. Least-privilege tools, permissions, audit trail |
-| — | — | **C2** — apply is blocked without approval, works with it | |
+| — | — | **M4.C3-gate** — apply refused without approval, refused after an edit, refused twice | |
 | 4.4 | 15m | Run the full suite `/lab:eval all`: retrieval + graph + task-level + policy compliance. Check the audit log | Evals as the new tests. Observability, cost, latency |
 | 4.5 | 25m | **Capstone**: each group demos on a **held-out case they've never seen**. Graded against the rubric. Then compare the three tracks side by side | Transferability: three unrelated domains, one architecture |
 | 4.6 | 15m | Closing debrief: the AI SDLC operating model; where review shifts (to specs and evals); the human's role — intent, taste, boundaries, eval authorship, approval, accountability; maturity roadmap; what to do Monday | |
 
-**Artifacts:** `spec/`, proposal pipeline, approval hook + `/approve`, full eval suite,
-`RUNBOOK.md`. Plugin **v1.0**.
+**Artifacts:** `spec/capability.{md,json}`, `.claude/skills/propose/`,
+`.claude/hooks/approval_gate.py`, `gate/approve.py` + `tools/apply.py` (given),
+`proposals/`, `approvals/`, `audit.jsonl`, `RUNBOOK.md`. Plugin **v1.0**.
+
+**Stages:** `m4s1-spec` · `m4s2-propose` · `m4s3-gate` · `m4s4-runbook`.
+**Gates:** `check_spec.py`, `check_proposal.py`, `eval_all.py`, `check_plugin.py`.
+
+**Measured:** nine gate behaviours verified, including that an approval covers one artifact
+(edit it and apply is refused), is single-use, and is re-checked by the apply tool
+independently of the hook. See `lab/facilitator/module-4-measured.md`; the capstone answer
+keys are in `lab/facilitator/module-4-capstone.md`.
 
 ---
 

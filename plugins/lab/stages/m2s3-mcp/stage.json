@@ -1,0 +1,12 @@
+{
+  "id": "m2s3-mcp",
+  "stage": "10",
+  "title": "Retrieval as a tool the agent can call",
+  "label": "MCP retrieval server",
+  "install_tracer": true,
+  "shared_scaffolds": {
+    "mcp/retrieval_server.py": "mcp/retrieval_server.py",
+    "mcp/mcp.json": ".mcp.json"
+  },
+  "commit": "Module 2 stage 3: retrieval exposed over MCP"
+}

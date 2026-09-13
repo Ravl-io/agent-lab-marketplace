@@ -1,0 +1,11 @@
+{
+  "id": "m2s4-agentic",
+  "stage": "11",
+  "title": "The agentic retrieval skill",
+  "label": "agentic RAG skill",
+  "install_tracer": true,
+  "shared_scaffolds": {
+    "skills/retrieve-and-answer/SKILL.md": ".claude/skills/retrieve-and-answer/SKILL.md"
+  },
+  "commit": "Module 2 stage 4: the agentic retrieval skill"
+}

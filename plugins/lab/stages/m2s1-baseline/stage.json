@@ -1,0 +1,10 @@
+{
+  "id": "m2s1-baseline",
+  "stage": "8",
+  "title": "A retriever with no dependencies",
+  "label": "lexical baseline",
+  "install_tracer": true,
+  "plugin_files": { "reference/rag/baseline_retrieve.py": "rag/baseline_retrieve.py" },
+  "scaffolds": { "golden.jsonl": "evals/retrieval/golden.jsonl" },
+  "commit": "Module 2 stage 1: the lexical baseline and the golden set"
+}

@@ -1,0 +1,15 @@
+{
+  "id": "m4s3-gate",
+  "stage": "18",
+  "title": "The approval gate",
+  "label": "approval gate",
+  "install_tracer": true,
+  "shared_scaffolds": {
+    "gate/approval_gate.py": ".claude/hooks/approval_gate.py"
+  },
+  "plugin_files": {
+    "reference/gate/approve.py": "gate/approve.py",
+    "reference/tools/apply.py": "tools/apply.py"
+  },
+  "commit": "Module 4 stage 3: the approval gate"
+}

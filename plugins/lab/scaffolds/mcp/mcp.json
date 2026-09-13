@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "corpus-retrieval": {
+      "command": "${CLAUDE_PROJECT_DIR}/.venv/bin/python3",
+      "args": ["${CLAUDE_PROJECT_DIR}/mcp/retrieval_server.py"],
+      "env": {}
+    }
+  }
+}

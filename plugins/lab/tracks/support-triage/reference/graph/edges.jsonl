@@ -1,0 +1,91 @@
+{"dst": "plan:Enterprise", "rel": "on_plan", "source": "data/db/support.db", "src": "acc-1042", "valid_from": null, "valid_to": null}
+{"dst": "region:eu-west", "rel": "in_region", "source": "data/db/support.db", "src": "acc-1042", "valid_from": null, "valid_to": null}
+{"dst": "version:5.4.1", "rel": "runs_version", "source": "data/db/support.db", "src": "acc-1042", "valid_from": null, "valid_to": null}
+{"dst": "plan:Growth", "rel": "on_plan", "source": "data/db/support.db", "src": "acc-2287", "valid_from": null, "valid_to": null}
+{"dst": "region:us-east", "rel": "in_region", "source": "data/db/support.db", "src": "acc-2287", "valid_from": null, "valid_to": null}
+{"dst": "version:5.4.1", "rel": "runs_version", "source": "data/db/support.db", "src": "acc-2287", "valid_from": null, "valid_to": null}
+{"dst": "plan:Enterprise", "rel": "on_plan", "source": "data/db/support.db", "src": "acc-3310", "valid_from": null, "valid_to": null}
+{"dst": "region:eu-west", "rel": "in_region", "source": "data/db/support.db", "src": "acc-3310", "valid_from": null, "valid_to": null}
+{"dst": "version:5.4.1", "rel": "runs_version", "source": "data/db/support.db", "src": "acc-3310", "valid_from": null, "valid_to": null}
+{"dst": "plan:Starter", "rel": "on_plan", "source": "data/db/support.db", "src": "acc-4188", "valid_from": null, "valid_to": null}
+{"dst": "region:us-east", "rel": "in_region", "source": "data/db/support.db", "src": "acc-4188", "valid_from": null, "valid_to": null}
+{"dst": "version:5.4.1", "rel": "runs_version", "source": "data/db/support.db", "src": "acc-4188", "valid_from": null, "valid_to": null}
+{"dst": "plan:Enterprise", "rel": "on_plan", "source": "data/db/support.db", "src": "acc-5501", "valid_from": null, "valid_to": null}
+{"dst": "region:eu-west", "rel": "in_region", "source": "data/db/support.db", "src": "acc-5501", "valid_from": null, "valid_to": null}
+{"dst": "version:5.4.1", "rel": "runs_version", "source": "data/db/support.db", "src": "acc-5501", "valid_from": null, "valid_to": null}
+{"dst": "plan:Enterprise", "rel": "on_plan", "source": "data/db/support.db", "src": "acc-6620", "valid_from": null, "valid_to": null}
+{"dst": "region:eu-west", "rel": "in_region", "source": "data/db/support.db", "src": "acc-6620", "valid_from": null, "valid_to": null}
+{"dst": "version:5.4.0", "rel": "runs_version", "source": "data/db/support.db", "src": "acc-6620", "valid_from": null, "valid_to": null}
+{"dst": "plan:Growth", "rel": "on_plan", "source": "data/db/support.db", "src": "acc-7734", "valid_from": null, "valid_to": null}
+{"dst": "region:us-east", "rel": "in_region", "source": "data/db/support.db", "src": "acc-7734", "valid_from": null, "valid_to": null}
+{"dst": "version:5.4.1", "rel": "runs_version", "source": "data/db/support.db", "src": "acc-7734", "valid_from": null, "valid_to": null}
+{"dst": "plan:Enterprise", "rel": "on_plan", "source": "data/db/support.db", "src": "acc-8890", "valid_from": null, "valid_to": null}
+{"dst": "region:ap-south", "rel": "in_region", "source": "data/db/support.db", "src": "acc-8890", "valid_from": null, "valid_to": null}
+{"dst": "version:5.4.1", "rel": "runs_version", "source": "data/db/support.db", "src": "acc-8890", "valid_from": null, "valid_to": null}
+{"dst": "feature:api_access", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Enterprise", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:bulk_export", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Enterprise", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:multi_sso_domain", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Enterprise", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:sandbox_tenant", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Enterprise", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:saved_filters", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Enterprise", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:scheduled_reports", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Enterprise", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:sso", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Enterprise", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:standard_reports", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Enterprise", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:api_access", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Growth", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:bulk_export", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Growth", "valid_from": "2024-01-01", "valid_to": "2026-06-01"}
+{"dst": "feature:saved_filters", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Growth", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:scheduled_reports", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Growth", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:sso", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Growth", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:standard_reports", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Growth", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:saved_filters", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Starter", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "feature:standard_reports", "rel": "includes_feature", "source": "data/db/support.db", "src": "plan:Starter", "valid_from": "2024-01-01", "valid_to": null}
+{"dst": "VND-388", "rel": "tracked_by", "source": "data/db/support.db", "src": "KI-62", "valid_from": null, "valid_to": null}
+{"dst": "version:5.3.4", "rel": "fixed_in", "source": "data/db/support.db", "src": "KI-62", "valid_from": null, "valid_to": null}
+{"dst": "feature:sso", "rel": "affects_feature", "source": "data/db/support.db", "src": "KI-62", "valid_from": null, "valid_to": null}
+{"dst": "region:ap-south", "rel": "scoped_to_region", "source": "data/db/support.db", "src": "KI-62", "valid_from": null, "valid_to": null}
+{"dst": "region:eu-west", "rel": "scoped_to_region", "source": "data/db/support.db", "src": "KI-62", "valid_from": null, "valid_to": null}
+{"dst": "region:us-east", "rel": "scoped_to_region", "source": "data/db/support.db", "src": "KI-62", "valid_from": null, "valid_to": null}
+{"dst": "VND-402", "rel": "tracked_by", "source": "data/db/support.db", "src": "KI-70", "valid_from": null, "valid_to": null}
+{"dst": "version:5.4.0", "rel": "fixed_in", "source": "data/db/support.db", "src": "KI-70", "valid_from": null, "valid_to": null}
+{"dst": "feature:bulk_export", "rel": "affects_feature", "source": "data/db/support.db", "src": "KI-70", "valid_from": null, "valid_to": null}
+{"dst": "region:ap-south", "rel": "scoped_to_region", "source": "data/db/support.db", "src": "KI-70", "valid_from": null, "valid_to": null}
+{"dst": "region:eu-west", "rel": "scoped_to_region", "source": "data/db/support.db", "src": "KI-70", "valid_from": null, "valid_to": null}
+{"dst": "region:us-east", "rel": "scoped_to_region", "source": "data/db/support.db", "src": "KI-70", "valid_from": null, "valid_to": null}
+{"dst": "VND-411", "rel": "tracked_by", "source": "data/db/support.db", "src": "KI-77", "valid_from": null, "valid_to": null}
+{"dst": "version:5.4.1", "rel": "fixed_in", "source": "data/knowledge/known-issues.md", "src": "KI-77", "valid_from": null, "valid_to": null}
+{"dst": "feature:saved_filters", "rel": "affects_feature", "source": "data/knowledge/known-issues.md", "src": "KI-77", "valid_from": null, "valid_to": null}
+{"dst": "region:eu-west", "rel": "scoped_to_region", "source": "data/knowledge/known-issues.md", "src": "KI-77", "valid_from": null, "valid_to": null}
+{"dst": "VND-427", "rel": "tracked_by", "source": "data/db/support.db", "src": "KI-81", "valid_from": null, "valid_to": null}
+{"dst": "feature:scheduled_reports", "rel": "affects_feature", "source": "data/knowledge/known-issues.md", "src": "KI-81", "valid_from": null, "valid_to": null}
+{"dst": "region:ap-south", "rel": "scoped_to_region", "source": "data/knowledge/known-issues.md", "src": "KI-81", "valid_from": null, "valid_to": null}
+{"dst": "region:eu-west", "rel": "scoped_to_region", "source": "data/knowledge/known-issues.md", "src": "KI-81", "valid_from": null, "valid_to": null}
+{"dst": "region:us-east", "rel": "scoped_to_region", "source": "data/knowledge/known-issues.md", "src": "KI-81", "valid_from": null, "valid_to": null}
+{"dst": "VND-433", "rel": "tracked_by", "source": "data/db/support.db", "src": "KI-84", "valid_from": null, "valid_to": null}
+{"dst": "version:5.4.3", "rel": "fixed_in", "source": "data/knowledge/known-issues.md", "src": "KI-84", "valid_from": null, "valid_to": null}
+{"dst": "feature:audit_log_search", "rel": "affects_feature", "source": "data/knowledge/known-issues.md", "src": "KI-84", "valid_from": null, "valid_to": null}
+{"dst": "region:ap-south", "rel": "scoped_to_region", "source": "data/knowledge/known-issues.md", "src": "KI-84", "valid_from": null, "valid_to": null}
+{"dst": "region:eu-west", "rel": "scoped_to_region", "source": "data/knowledge/known-issues.md", "src": "KI-84", "valid_from": null, "valid_to": null}
+{"dst": "region:us-east", "rel": "scoped_to_region", "source": "data/knowledge/known-issues.md", "src": "KI-84", "valid_from": null, "valid_to": null}
+{"dst": "acc-3310", "rel": "raised_by", "source": "data/db/support.db", "src": "CASE-4123", "valid_from": null, "valid_to": null}
+{"dst": "VND-411", "rel": "escalated_to", "source": "data/db/support.db", "src": "CASE-4123", "valid_from": null, "valid_to": null}
+{"dst": "feature:saved_filters", "rel": "about_feature", "source": "data/db/support.db :: case_history.subject", "src": "CASE-4123", "valid_from": null, "valid_to": null}
+{"dst": "acc-5501", "rel": "raised_by", "source": "data/db/support.db", "src": "CASE-4180", "valid_from": null, "valid_to": null}
+{"dst": "VND-411", "rel": "escalated_to", "source": "data/db/support.db", "src": "CASE-4180", "valid_from": null, "valid_to": null}
+{"dst": "feature:saved_filters", "rel": "about_feature", "source": "data/db/support.db :: case_history.subject", "src": "CASE-4180", "valid_from": null, "valid_to": null}
+{"dst": "acc-2287", "rel": "raised_by", "source": "data/db/support.db", "src": "CASE-4201", "valid_from": null, "valid_to": null}
+{"dst": "VND-427", "rel": "escalated_to", "source": "data/db/support.db", "src": "CASE-4201", "valid_from": null, "valid_to": null}
+{"dst": "feature:scheduled_reports", "rel": "about_feature", "source": "data/db/support.db :: case_history.subject", "src": "CASE-4201", "valid_from": null, "valid_to": null}
+{"dst": "acc-7734", "rel": "raised_by", "source": "data/db/support.db", "src": "CASE-4233", "valid_from": null, "valid_to": null}
+{"dst": "feature:sso", "rel": "about_feature", "source": "data/db/support.db :: case_history.subject", "src": "CASE-4233", "valid_from": null, "valid_to": null}
+{"dst": "acc-6620", "rel": "raised_by", "source": "data/db/support.db", "src": "CASE-4256", "valid_from": null, "valid_to": null}
+{"dst": "feature:standard_reports", "rel": "about_feature", "source": "data/db/support.db :: case_history.subject", "src": "CASE-4256", "valid_from": null, "valid_to": null}
+{"dst": "acc-2287", "rel": "raised_by", "source": "data/db/support.db", "src": "CASE-4288", "valid_from": null, "valid_to": null}
+{"dst": "feature:bulk_export", "rel": "about_feature", "source": "data/db/support.db :: case_history.subject", "src": "CASE-4288", "valid_from": null, "valid_to": null}
+{"dst": "acc-8890", "rel": "raised_by", "source": "data/db/support.db", "src": "CASE-4301", "valid_from": null, "valid_to": null}
+{"dst": "feature:api_access", "rel": "about_feature", "source": "data/db/support.db :: case_history.subject", "src": "CASE-4301", "valid_from": null, "valid_to": null}
+{"dst": "acc-1042", "rel": "raised_by", "source": "data/db/support.db", "src": "CASE-4344", "valid_from": null, "valid_to": null}
+{"dst": "feature:sso", "rel": "about_feature", "source": "data/db/support.db :: case_history.subject", "src": "CASE-4344", "valid_from": null, "valid_to": null}
+{"dst": "acc-6620", "rel": "raised_by", "source": "data/db/support.db", "src": "CASE-4390", "valid_from": null, "valid_to": null}
+{"dst": "VND-433", "rel": "escalated_to", "source": "data/db/support.db", "src": "CASE-4390", "valid_from": null, "valid_to": null}
+{"dst": "feature:audit_log_search", "rel": "about_feature", "source": "data/db/support.db :: case_history.subject", "src": "CASE-4390", "valid_from": null, "valid_to": null}
+{"dst": "acc-7734", "rel": "raised_by", "source": "data/db/support.db", "src": "CASE-4412", "valid_from": null, "valid_to": null}
+{"dst": "feature:standard_reports", "rel": "about_feature", "source": "data/db/support.db :: case_history.subject", "src": "CASE-4412", "valid_from": null, "valid_to": null}

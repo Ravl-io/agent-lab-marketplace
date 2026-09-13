@@ -1,6 +1,10 @@
 # Statement of Work — Milestone 3: Payments Integration API
 
-Submitted for acceptance 2026-09-01. Judged against the MSA as amended 2026-06-30.
+Acceptance criteria drafted 2026-08-20. Submitted for acceptance 2026-09-01.
+
+**Judged against the MSA as amended 2026-08-15.** Both amendments in force at that date
+apply; see `contract/MSA-amendments.md` for what they changed. The criteria below were
+drafted on 2026-08-20 and have not been reviewed against the amendments since.
 
 ## Scope
 

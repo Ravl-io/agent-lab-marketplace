@@ -1,0 +1,146 @@
+# Ontology — programme reporting
+#
+# Derived from the three questions retrieval could not answer. Nothing here exists because
+# the data happened to have it.
+
+name: docgen
+
+competency_questions:
+  - id: CQ1
+    q: Which projects were waiting on Atlas Migration to finish?
+    shape: multi-hop
+    needs: |
+      Project <-depends_on- Project. One hop, but the two dependencies are stated in
+      different document kinds and neither appears in any status update: Cirrus's is in its
+      own charter, Halo's only in the steering minute of 2026-07-16. A similarity search on
+      "Atlas" returns status updates, which name neither dependant.
+  - id: CQ2
+    q: How many milestones slipped across the programme, and who owns them?
+    shape: aggregation
+    needs: |
+      Every Milestone with slipped = true, then a hop to its project's owner. Exactly three,
+      reported in three different monthly files, so the complete set exists in no single
+      document. The second half of the question — who owns them — is a hop, which is why
+      the eval carries a `then` path.
+  - id: CQ3
+    q: Was the reporting views migration in Atlas's scope in April 2026?
+    shape: temporal
+    needs: |
+      Project -has_version-> CharterVersion -in_scope-> ScopeItem, evaluated at a date. Both
+      charter versions live in ONE file, so no chunking strategy separates them and no
+      per-file flag can mark one retired. Version 1 ran 2026-02-10 to 2026-05-14 and
+      included reporting views; version 2 does not. The answer is yes in April and no now.
+
+# ---------------------------------------------------------------- entity resolution
+# Two decisions worth writing down:
+#
+# 1. A CharterVersion is a node in its own right, not a property of the project. The file
+#    holds two versions and both are true, of different dates — so version is the thing
+#    that carries validity, and scope hangs off the version rather than off the project.
+# 2. "unassigned" is a Person node, not a missing edge. An owner that is genuinely nobody is
+#    a fact the programme reports on; modelling it as an absent edge makes it indistinguishable
+#    from an owner we simply failed to extract.
+
+types:
+  Project:
+    key: project_id
+    label: name
+    props: [status, entered_programme]
+    source: data/sources/charters/
+  Milestone:
+    key: milestone_id
+    label: name
+    props: [due, delivered, slipped, moved_from, moved_to, reported_in]
+    source: data/sources/status-updates-*.md
+  Person:
+    key: person_id
+    label: name
+    props: []
+    source: data/sources/
+  CharterVersion:
+    key: version_id
+    label: name
+    props: [effective, superseded_on]
+    source: data/sources/charters/
+  ScopeItem:
+    key: scope_id
+    label: text
+    props: []
+    source: data/sources/charters/
+  ChangeRequest:
+    key: cr_id
+    label: request
+    props: [raised, decided, outcome]
+    source: data/sources/registers/change-requests.md
+  Risk:
+    key: risk_id
+    label: risk
+    props: [severity, opened, closed]
+    source: data/sources/registers/risk-register.md
+
+relations:
+  - name: owned_by
+    from: Project
+    to: Person
+    cardinality: many-to-one
+  - name: depends_on
+    from: Project
+    to: Project
+    cardinality: many-to-many
+    note: |
+      The CQ1 relation, and the one no status update states. Direction reads as a sentence:
+      "Cirrus depends_on Atlas". Answering "what was waiting on Atlas" therefore traverses
+      it backwards.
+  - name: has_milestone
+    from: Project
+    to: Milestone
+    cardinality: many-to-many
+  - name: has_version
+    from: Project
+    to: CharterVersion
+    cardinality: many-to-many
+    temporal: true
+    note: |
+      The one temporal relation. Version 1 was in force 2026-02-10 to 2026-05-14; version 2
+      from 2026-05-14. The closed edge is kept — it is the only way to answer what scope WAS.
+  - name: in_scope
+    from: CharterVersion
+    to: ScopeItem
+    cardinality: many-to-many
+  - name: affects
+    from: ChangeRequest
+    to: Project
+    cardinality: many-to-many
+  - name: establishes
+    from: ChangeRequest
+    to: Project
+    cardinality: one-to-one
+    note: CR-12 only. Halo Reporting did not exist before 2026-07-02.
+  - name: moved
+    from: ChangeRequest
+    to: Milestone
+    cardinality: many-to-many
+  - name: raised_by
+    from: ChangeRequest
+    to: Person
+    cardinality: many-to-one
+  - name: risk_against
+    from: Risk
+    to: Project
+    cardinality: many-to-one
+  - name: risk_owned_by
+    from: Risk
+    to: Person
+    cardinality: many-to-one
+
+not_modelled:
+  - |
+    Documents themselves. The graph records facts and where they came from; which paragraph
+    of which minute is the retriever's job, and Module 2 already does it well.
+  - |
+    Metrics and figures. They belong in the monthly report, are derived rather than related,
+    and no competency question traverses them.
+  - |
+    Milestone -> Person directly. Ownership goes through the project, which is how the
+    programme actually works — and it means one change of project owner does not leave
+    stale owners on every milestone.

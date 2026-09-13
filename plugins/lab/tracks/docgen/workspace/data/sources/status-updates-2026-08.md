@@ -23,3 +23,9 @@
 - **Owner:** unassigned
 - **Status at month end:** Not started
 - **Risk open:** No owner after three weeks. Escalated to Dana Whitfield 2026-08-26
+
+## Halo Reporting
+- **Owner:** Marcus Bell
+- **Status at month end:** In progress
+- **Milestone:** Build complete — due 2026-09-12
+- **Risk open:** Scope not agreed with finance. Mitigation: session booked with Fen Alvarez
