@@ -137,11 +137,50 @@ their `tracks/<id>/track.json`:
    that module is finished. This is where they see it grows rather than restarts.
 3. One line: they build it, they keep it, it runs on their machine.
 
-Then hand over in **two lines**: their environment is validated and their track is recorded,
-and **`/lab:next` opens Module 1** when the facilitator says go.
+Then go to Step 6b.
 
-Do **not** start teaching Module 1, and do not set up the workspace — that is Module 1's
-first step, and it belongs to `/lab:next`.
+Do **not** start teaching, and do not set up the workspace — that is the module's own first
+step, and it belongs to `/lab:next`.
+
+## Step 6b — which module are they starting at
+
+Ask, in one line, and offer the four:
+
+> **Which module are you starting with?** 1 · 2 · 3 · 4 — most people start at 1.
+
+**If they say 1** (or anything that means "the beginning"), hand over in two lines: their
+environment is validated and their track is recorded, and **`/lab:next` opens Module 1** when
+the facilitator says go. Nothing else to do.
+
+**If they say 2, 3 or 4**, they need the earlier modules' work in place first. One command
+does it:
+
+```
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.py" prepare --module 0N
+```
+
+That applies every earlier stage, restores those modules' reference solutions, advances the
+progress state, and **builds what the skipped modules would have built** — the virtualenv and
+`chromadb` for Module 3 or 4, the ingested vector store, the compiled graph. It stops short of
+the target module's own first step, because that step is a lesson rather than plumbing.
+
+Tell them honestly what it is doing before you run it, because it is not instant:
+
+| Starting at | What `prepare` does | Roughly |
+|---|---|---|
+| 2 | applies Module 1's stages and answer keys. Installs nothing — Module 2's own step 0 is the virtualenv, and that is the lesson | seconds |
+| 3 | the above, plus Module 2's work: a virtualenv, `chromadb`, and the corpus ingested with structural chunking | a few minutes, and a 90 MB model download the first time |
+| 4 | the above, plus `pyyaml` and the graph compiled from the reference solution | a few minutes |
+
+Read the `built` list it prints back to them — it is the honest record of what they did not do
+themselves. Then say plainly: **they are starting with somebody else's answers for the earlier
+modules**, which is fine for a single session but is why the course is worth doing in order.
+
+If any line in that output says `FAILED`, stop and show it. Do not carry on into a module
+whose prerequisites are missing — that is how somebody spends twenty minutes debugging a
+retriever that has no corpus.
+
+Then hand over in two lines: what is in place, and that **`/lab:next` opens Module 0N**.
 
 ## Step 7 — the resume ritual (returning participant)
 

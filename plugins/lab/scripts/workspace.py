@@ -187,6 +187,95 @@ MODULE_STAGES = {
 }
 
 
+def _venv_python(root: str) -> str:
+    """The lab's own interpreter, which is where chromadb lives once Module 2 installs it."""
+    candidate = os.path.join(root, ".venv", "bin", "python3")
+    if os.path.exists(candidate):
+        return candidate
+    windows = os.path.join(root, ".venv", "Scripts", "python.exe")
+    return windows if os.path.exists(windows) else ""
+
+
+def _ensure_venv(root: str, packages: list[str], built: list[str]) -> str:
+    """Create .venv if it is missing and install what the earlier modules would have."""
+    interpreter = _venv_python(root)
+    if not interpreter:
+        subprocess.run([sys.executable, "-m", "venv", os.path.join(root, ".venv")],
+                       capture_output=True, text=True)
+        interpreter = _venv_python(root)
+        if interpreter:
+            built.append(".venv/  (Module 2's step 0 would have created this)")
+    if not interpreter:
+        return ""
+    missing = []
+    for package in packages:
+        probe = subprocess.run([interpreter, "-c", f"import {package}"],
+                               capture_output=True, text=True)
+        if probe.returncode != 0:
+            missing.append(package)
+    if missing:
+        names = {"yaml": "pyyaml"}
+        wheels = [names.get(m, m) for m in missing]
+        # stderr: stdout has to stay parseable when --json is passed
+        print(f"  installing {', '.join(wheels)} into .venv — this takes a few minutes "
+              f"the first time", file=sys.stderr, flush=True)
+        result = subprocess.run([interpreter, "-m", "pip", "install", "--quiet", *wheels],
+                                capture_output=True, text=True)
+        if result.returncode == 0:
+            built.append(f"{', '.join(wheels)} in .venv")
+        else:
+            built.append(f"FAILED to install {', '.join(wheels)}: "
+                         f"{result.stderr.strip()[:120]}")
+    return interpreter
+
+
+def _remaining_for(root: str, target: str) -> list[str]:
+    """What is still missing, as commands somebody could run by hand."""
+    todo = []
+    if target >= "03" and not os.path.exists(os.path.join(root, "rag", "config.json")):
+        todo.append("python3 rag/ingest.py structural")
+    if target >= "04" and not os.path.exists(os.path.join(root, "kg.db")):
+        todo.append("python3 kg/compile.py")
+    return todo
+
+
+def _supply_earlier_artifacts(root: str, target: str) -> tuple[list[str], list[str]]:
+    """Build what the skipped modules would have produced. Returns (built, still_needed)."""
+    built: list[str] = []
+    needed_packages = []
+    if target >= "03":
+        needed_packages.append("chromadb")       # Module 2's step 0
+    if target >= "04":
+        needed_packages.append("yaml")           # Module 3's step 0
+    interpreter = _ensure_venv(root, needed_packages, built) if needed_packages else ""
+
+    if target >= "03" and not os.path.exists(os.path.join(root, "rag", "config.json")):
+        if interpreter:
+            print("  ingesting the corpus — the first run downloads a 90 MB embedding "
+                  "model", file=sys.stderr, flush=True)
+            result = subprocess.run([interpreter, os.path.join(root, "rag", "ingest.py"),
+                                     "structural"], capture_output=True, text=True,
+                                    cwd=root, env={**os.environ,
+                                                   "CLAUDE_PROJECT_DIR": root})
+            if result.returncode == 0:
+                built.append("chroma/ and rag/config.json  (structural chunking, "
+                             "Module 2's best strategy on most tracks)")
+            else:
+                built.append(f"FAILED to ingest: {result.stderr.strip()[:160]}")
+
+    if target >= "04" and not os.path.exists(os.path.join(root, "kg.db")):
+        if interpreter and os.path.isdir(os.path.join(root, "graph")):
+            result = subprocess.run([interpreter, os.path.join(root, "kg", "compile.py")],
+                                    capture_output=True, text=True, cwd=root,
+                                    env={**os.environ, "CLAUDE_PROJECT_DIR": root})
+            if result.returncode == 0:
+                built.append("kg.db  (compiled from the reference graph)")
+            else:
+                built.append(f"FAILED to compile the graph: {result.stderr.strip()[:160]}")
+
+    return built, _remaining_for(root, target)
+
+
 def cmd_prepare(args) -> int:
     """Put a workspace at the start of a module, as if the earlier ones had been done.
 
@@ -223,26 +312,24 @@ def cmd_prepare(args) -> int:
     subprocess.run([sys.executable, state_script, "--root", root,
                     "begin-module", target], capture_output=True, text=True)
 
-    # What is still needed before the target module can be taught. Applying stages and
-    # restoring answer keys does not build the vector store or the graph — those are
-    # produced by running something, and Module 3 opens by re-running the retrieval
-    # scoreboard, which needs an ingested corpus.
-    todo = []
-    if target >= "03" and not os.path.exists(os.path.join(root, "rag", "config.json")):
-        todo.append("python3 rag/ingest.py structural"
-                    "   # Module 3 opens on the retrieval scoreboard")
-    if target >= "04":
-        if not os.path.exists(os.path.join(root, "kg.db")):
-            todo.append("python3 kg/compile.py"
-                        "                  # Module 4's suite scores the graph")
-        if not os.path.exists(os.path.join(root, "ontology")):
-            todo.append("(the ontology and graph come from Module 3 — "
-                        "prepare cannot invent them)")
+    # Applying stages does not BUILD anything. The vector store and the graph are produced
+    # by running something, so prepare runs it — otherwise "prepared" is a claim the next
+    # command disproves.
+    #
+    # The line it does not cross: the target module's own step 0. Module 2 opens by creating
+    # the virtualenv and installing chromadb, and Module 3 opens by installing pyyaml. Those
+    # are lessons, not plumbing. So prepare supplies what the EARLIER modules would have
+    # produced, and leaves the target module's first step to the participant.
+    built, todo = [], []
+    if not args.no_install:
+        built, todo = _supply_earlier_artifacts(root, target)
+    else:
+        todo = _remaining_for(root, target)
 
     payload = {"prepared_for": target, "stages_applied": applied,
                "stages_failed": failed, "modules_marked_complete": earlier,
                "reference_restored": reference.returncode == 0,
-               "still_needed": todo}
+               "built": built, "still_needed": todo}
     if getattr(args, "as_json", False):
         print(json.dumps(payload, indent=2))
         return 1 if failed else 0
@@ -255,8 +342,12 @@ def cmd_prepare(args) -> int:
     print(f"  reference answer keys restored: "
           f"{'yes' if reference.returncode == 0 else 'no'}")
     print(f"  marked complete: {', '.join(earlier) or '(none)'}")
+    if built:
+        print("\n  built for you, because the earlier modules would have:")
+        for item in built:
+            print(f"    {item}")
     if todo:
-        print("\n  Before the session, run these in the workspace:")
+        print("\n  still to do:")
         for item in todo:
             print(f"    {item}")
     print("\n  A facilitator shortcut, not part of the course. Somebody working through in")
@@ -742,6 +833,9 @@ def main() -> int:
     p = sub.add_parser("prepare",
                        help="put a workspace at the start of a module (facilitator)")
     p.add_argument("--module", required=True)
+    p.add_argument("--no-install", action="store_true",
+                   help="do not create a venv or install anything; just report what is "
+                        "missing")
     p.add_argument("--json", action="store_true", dest="as_json")
     p.set_defaults(fn=cmd_prepare)
 

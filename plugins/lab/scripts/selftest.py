@@ -72,6 +72,22 @@ def load(path: str) -> dict:
 
 # --------------------------------------------------------------------------
 
+def parse_json(result, label: str, verbose: bool) -> dict:
+    """Parse a subprocess's JSON, reporting a named failure rather than tracebacking.
+
+    A suite that crashes on malformed output tells you less than one that says which check
+    failed and why — and malformed output is itself the thing worth reporting, since these
+    scripts call each other through --json.
+    """
+    payload = (result.stdout or "").strip()
+    try:
+        return json.loads(payload or "{}")
+    except ValueError as exc:
+        check(False, f"{label} returned parseable JSON",
+              f"{exc}: {payload[:110]!r}", verbose=verbose)
+        return {}
+
+
 def check_tracks(verbose: bool) -> None:
     print("tracks")
     for tid in track_ids():
@@ -1371,7 +1387,7 @@ def check_prepare_jumps(verbose: bool) -> None:
             run("state.py", "init")
             run("state.py", "set-track", "support-triage")
             result = run("workspace.py", "prepare", "--module", target, "--json")
-            payload = json.loads(result.stdout or "{}")
+            payload = parse_json(result, f"prepare --module {target} --json", verbose)
             check(result.returncode == 0 and not payload.get("stages_failed"),
                   f"prepare --module {target} applies every earlier stage",
                   str(payload.get("stages_failed"))[:160], verbose=verbose)
@@ -1391,12 +1407,38 @@ def check_prepare_jumps(verbose: bool) -> None:
                   f"prepare --module {target} advances the state", str(progress)[:140],
                   verbose=verbose)
 
-            # the specific failure this exists to prevent
-            if target >= "03":
-                todo = " ".join(payload.get("still_needed") or [])
-                check("ingest" in todo,
-                      f"prepare --module {target} says to ingest before the session",
-                      todo[:140], verbose=verbose)
+            # --no-install must still report honestly, since that is the offline path
+            bare = tempfile.mkdtemp(prefix=f"labprepdry-{target}-")
+            try:
+                dry = lambda script, *a: subprocess.run(
+                    [sys.executable, os.path.join(SCRIPTS, script), "--root", bare, *a],
+                    capture_output=True, text=True)
+                dry("state.py", "init")
+                dry("state.py", "set-track", "support-triage")
+                out = dry("workspace.py", "prepare", "--module", target,
+                          "--no-install", "--json")
+                dry_payload = parse_json(
+                    out, f"prepare --no-install --module {target} --json", verbose)
+                check(dry_payload.get("built") == [],
+                      f"prepare --no-install --module {target} builds nothing",
+                      str(dry_payload.get("built"))[:120], verbose=verbose)
+                if target >= "03":
+                    todo = " ".join(dry_payload.get("still_needed") or [])
+                    check("ingest" in todo,
+                          f"prepare --no-install --module {target} names the ingest",
+                          todo[:140], verbose=verbose)
+                check(not os.path.exists(os.path.join(bare, ".venv")),
+                      f"prepare --no-install --module {target} creates no venv",
+                      verbose=verbose)
+            finally:
+                shutil.rmtree(bare, ignore_errors=True)
+
+            # and the target module's own first step is never pre-applied: Module 2 opens on
+            # creating the virtualenv, so prepare --module 02 must not create one
+            if target == "02":
+                check(not os.path.exists(os.path.join(root, ".venv")),
+                      "prepare --module 02 leaves the virtualenv to Module 2's step 0",
+                      verbose=verbose)
             # and a missing corpus must never read as a score of zero
             bare = tempfile.mkdtemp(prefix="labbare-")
             try:
@@ -1418,6 +1460,57 @@ def check_prepare_jumps(verbose: bool) -> None:
                 shutil.rmtree(bare, ignore_errors=True)
         finally:
             shutil.rmtree(root, ignore_errors=True)
+
+
+def check_json_outputs_are_json(verbose: bool) -> None:
+    """Every --json entry point must emit only JSON on stdout.
+
+    `prepare` printed its progress messages to stdout, so `--json` returned "  installing
+    chromadb...{...}" and every caller that parsed it broke. The gates and evals call each
+    other through these, so one chatty print turns into a silent empty result somewhere
+    else. Progress goes to stderr.
+    """
+    print("--json output is parseable")
+    root = tempfile.mkdtemp(prefix="labjson-")
+    try:
+        run = lambda script, *a: subprocess.run(
+            [sys.executable, os.path.join(SCRIPTS, script), "--root", root, *a],
+            capture_output=True, text=True)
+        run("state.py", "init")
+        run("state.py", "set-track", "support-triage")
+        run("workspace.py", "prepare", "--module", "02", "--no-install")
+
+        cases = [
+            ("workspace.py", ("prepare", "--module", "02", "--no-install", "--json")),
+            ("workspace.py", ("manifest", "--track", "support-triage", "--json")),
+            ("state.py", ("show", "--json")),
+            ("doctor.py", ("--quick", "--json")),
+            ("check_spec.py", ("--json",)),
+            ("check_ontology.py", ("--json",)),
+            ("check_graph.py", ("--json",)),
+            ("check_ingest.py", ("--json",)),
+            ("check_skill.py", ("--json",)),
+            ("check_intent.py", ("--json",)),
+            ("check_plugin.py", ("--json",)),
+            ("check_retrieval_tool.py", ("--json",)),
+            ("check_kg_tool.py", ("--json",)),
+            ("eval_all.py", ("--json",)),
+        ]
+        for script, args in cases:
+            result = run(script, *args)
+            payload = (result.stdout or "").strip()
+            if not payload:
+                check(True, f"{script} {args[0]} produced no stdout (acceptable)",
+                      verbose=verbose)
+                continue
+            try:
+                json.loads(payload)
+                ok, detail = True, ""
+            except ValueError as exc:
+                ok, detail = False, f"{exc}: {payload[:90]!r}"
+            check(ok, f"{script} --json emits only JSON", detail, verbose=verbose)
+    finally:
+        shutil.rmtree(root, ignore_errors=True)
 
 
 def check_promised_commands(verbose: bool) -> None:
@@ -1582,6 +1675,7 @@ def main() -> int:
     check_no_external_database(args.verbose)
     check_optional_extensions(args.verbose)
     check_prepare_jumps(args.verbose)
+    check_json_outputs_are_json(args.verbose)
     check_stage_ids_exist(args.verbose)
     check_tutor_facing_text(args.verbose)
     check_promised_commands(args.verbose)
