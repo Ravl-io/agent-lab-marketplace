@@ -25,7 +25,7 @@ from dataclasses import dataclass, field, asdict
 
 MIN_PYTHON = (3, 10)
 MIN_GIT = (2, 30)
-MIN_SQLITE = (3, 35)
+MIN_SQLITE = (3, 8, 0)   # see check_sqlite: nothing the lab does needs newer
 MIN_NODE = (18, 0)
 MIN_DISK_GB = 2.0
 
@@ -84,9 +84,10 @@ REQUIREMENTS = [
         },
     ),
     Requirement(
-        "sqlite", "SQLite 3.35 or newer (via Python)",
-        "Module 3 stores the knowledge graph in SQLite, and 3.35+ is needed for its queries. "
-        "Python bundles sqlite3, so this is almost never a separate install.",
+        "sqlite", "SQLite (via Python)",
+        "Module 3 stores the knowledge graph in SQLite, and the support-triage corpus "
+        "includes a small database. Python bundles sqlite3, so this is almost never a "
+        "separate install.",
         required=True, needed_from="3",
         install={
             "macos": "ships with python3",
@@ -283,6 +284,17 @@ def check_venv() -> tuple[str, str]:
 
 
 def check_sqlite() -> tuple[str, str]:
+    """Any SQLite Python bundles will do, and the floor is deliberately low.
+
+    This used to demand 3.35+, which was written before Module 3 existed and was never
+    true: the graph code uses CREATE TABLE, INSERT, JOIN, UNION, NOT EXISTS, LIKE and
+    GROUP BY, all of which predate 3.8. Node properties are parsed in Python rather than
+    with json_extract, so there is no JSON1 dependency either.
+
+    The old threshold was not harmless. Debian 11 ships SQLite 3.34, so a participant on a
+    perfectly capable machine would have been told they were blocked from Module 3 by a
+    requirement nothing in the lab needs.
+    """
     code, out = _run([_py(), "-c", "import sqlite3;print(sqlite3.sqlite_version)"])
     if code != 0:
         return FAIL, f"sqlite3 is not available in {_py()}"

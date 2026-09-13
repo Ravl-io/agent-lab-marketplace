@@ -73,7 +73,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.py" --checklist
 
 Present this as a **short list, not an explained list** — names only, grouped on as few
 lines as possible, with no per-item justification. Something like: "Required: Python 3.10+,
-pip, venv, SQLite 3.35+, Git 2.30+, write access here, 2 GB disk, PyPI access. Recommended
+pip, venv, SQLite, Git 2.30+, write access here, 2 GB disk, PyPI access. Recommended
 and never blocking: claude CLI, code CLI, Node 18+, chromadb (installed together in Module
 2)."
 
