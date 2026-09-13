@@ -1275,6 +1275,79 @@ def check_no_external_database(verbose: bool) -> None:
               (result.stdout or result.stderr)[:140], verbose=verbose)
 
 
+def check_optional_extensions(verbose: bool) -> None:
+    """An optional extension has to be genuinely optional.
+
+    Semantica is a 2 GB install that needs a system package on Windows and is pre-1.0. It is
+    offered as a comparison, so nothing may require it: no stage installs it, no requirement
+    mentions it, and the port script must fail with a readable message rather than a
+    traceback when it is absent.
+    """
+    print("optional extensions stay optional")
+    ext = os.path.join(PLUGIN_ROOT, "reference", "extensions")
+    for rel in ("semantica.md", "semantica_port.py"):
+        check(os.path.exists(os.path.join(ext, rel)),
+              f"the extension ships {rel}", verbose=verbose)
+
+    # no stage may install it
+    offenders = []
+    for entry in sorted(os.listdir(os.path.join(PLUGIN_ROOT, "stages"))):
+        path = os.path.join(PLUGIN_ROOT, "stages", entry, "stage.json")
+        if not os.path.exists(path):
+            continue
+        with open(path) as fh:
+            if "semantica" in fh.read().lower():
+                offenders.append(entry)
+    check(not offenders, "no stage installs the optional extension",
+          str(offenders), verbose=verbose)
+
+    # doctor must not require it
+    with open(os.path.join(SCRIPTS, "doctor.py")) as fh:
+        doctor = fh.read()
+    check("semantica" not in doctor.lower(),
+          "doctor does not check for the optional extension", verbose=verbose)
+
+    # and it must degrade readably when absent
+    port = os.path.join(ext, "semantica_port.py")
+    if os.path.exists(port):
+        root = tempfile.mkdtemp(prefix="labext-")
+        try:
+            os.makedirs(os.path.join(root, "graph"), exist_ok=True)
+            for name in ("nodes.jsonl", "edges.jsonl"):
+                shutil.copy2(os.path.join(TRACKS, "support-triage", "reference", "graph",
+                                          name),
+                             os.path.join(root, "graph", name))
+            result = subprocess.run([sys.executable, port, "--root", root],
+                                    capture_output=True, text=True, cwd=root)
+            absent = "semantica" not in sys.modules and result.returncode != 0
+            if absent:
+                message = (result.stderr or result.stdout)
+                check("pip install semantica" in message,
+                      "the port script says how to install it when it is missing",
+                      message[:160], verbose=verbose)
+                check("optional" in message.lower(),
+                      "the port script says it is optional when it is missing",
+                      message[:160], verbose=verbose)
+                check("Traceback" not in message,
+                      "the port script does not traceback when it is missing",
+                      message[:160], verbose=verbose)
+            else:
+                check(result.returncode == 0,
+                      "the port script runs where semantica is installed",
+                      (result.stderr or "")[:160], verbose=verbose)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    # the module points at it without requiring it
+    with open(os.path.join(PLUGIN_ROOT, "modules",
+                           "03-knowledge-graphs-and-ontologies.md")) as fh:
+        module = fh.read()
+    check("reference/extensions/semantica.md" in module,
+          "Module 3 points at the extension note", verbose=verbose)
+    check("Do not install it in the session" in module,
+          "Module 3 tells the facilitator not to install it live", verbose=verbose)
+
+
 def check_promised_commands(verbose: bool) -> None:
     """Any /lab:x named in participant-facing text must exist as a skill.
 
@@ -1435,6 +1508,7 @@ def main() -> int:
     check_catchup_restores_module3(args.verbose)
     check_module4_artifacts(args.verbose)
     check_no_external_database(args.verbose)
+    check_optional_extensions(args.verbose)
     check_stage_ids_exist(args.verbose)
     check_tutor_facing_text(args.verbose)
     check_promised_commands(args.verbose)

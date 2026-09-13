@@ -489,6 +489,31 @@ The most valuable thing some of them will hear today.
 **Build one when** the questions are relational, about completeness, or about state over
 time — and when the facts are scattered across documents that no single query can join.
 
+### 7.3 And when to buy it instead — 2 minutes, optional
+
+If somebody asks whether a library already does this — and on a sharp table somebody will —
+the answer is yes, and it is worth naming rather than deflecting.
+
+`pip install semantica` gets you a pure-Python graph library with no database: OWL/SHACL/SKOS
+ontologies, W3C PROV-O provenance, bitemporal facts, Allen interval algebra, SPARQL, an
+entity resolver and its own 15-tool MCP server. Every item on that list maps onto something
+this module taught them to care about.
+
+It also installs **136 packages and 2.0 GB**, against the 808 lines and one dependency they
+just built. Both numbers are measured; the details are in
+`reference/extensions/semantica.md`, and there is a script that rebuilds *their* graph with
+it so they can compare the two directly.
+
+Put the trade-off as a question rather than an answer:
+
+> A few hundred facts answering three questions — or SHACL validation and PROV-O audit
+> trails because somebody will ask you for them. Which one are you actually doing?
+
+**Do not install it in the session.** It is a 2 GB download, it needs the Microsoft Visual
+C++ Redistributable on Windows, and it is a 0.6 release. Point at the extension note and move
+on — the participants who want it will do it on their own machine, which is exactly where a
+build-or-buy decision belongs.
+
 ### 7.3 Close
 
 ```
