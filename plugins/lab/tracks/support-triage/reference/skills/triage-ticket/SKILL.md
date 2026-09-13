@@ -20,7 +20,7 @@ All paths are relative to the project root. Do not go looking for them.
 | `data/knowledge/` | triage policy, escalation policy, plan entitlements, known issues, how-to guides |
 | `data/examples/triage-note-example.md` | the output format you must match |
 
-Query the database with `sqlite3 data/db/support.db "<sql>"`.
+Query the database with `python3 sql.py "<sql>"`.
 
 Write the finished triage note to `triage/<CASE-ID>.md`.
 

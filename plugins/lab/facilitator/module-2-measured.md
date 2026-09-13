@@ -10,10 +10,10 @@ Measured with `k=5` and Chroma's default local embedding model (all-MiniLM-L6-v2
 
 | Track | Strategy | Answered | Tokens/query | Tokens per answer | MRR |
 |---|---|---|---|---|---|
-| `support-triage` | lexical baseline | **11/12** | 2,111 | 2,303 | 0.83 |
-| | naive | 6/12 | 665 | 1,331 | 0.74 |
-| | **structural** | 10/12 | **585** | **702** | 0.66 |
-| | parent_child | 8/12 | 668 | 1,001 | 0.60 |
+| `support-triage` | lexical baseline | **11/12** | 2,109 | 2,301 | 0.83 |
+| | naive | 7/12 | 656 | 1,125 | 0.74 |
+| | **structural** | 10/12 | **593** | **711** | 0.69 |
+| | parent_child | 8/12 | 685 | 1,027 | 0.60 |
 | `vendor-qa` | lexical baseline | **12/12** | 2,013 | 2,013 | 0.79 |
 | | naive | 8/12 | 685 | 1,028 | 0.65 |
 | | structural | 7/12 | 638 | 1,094 | 0.56 |
@@ -29,7 +29,16 @@ Measured with `k=5` and Chroma's default local embedding model (all-MiniLM-L6-v2
 compresses this whole table into the range 0.4–1.5 and is not what you read off the screen.
 
 Every row here was re-measured with the shipped scaffolds and reference solutions, so a
-participant who gets the implementation right lands on these numbers. Expect the **chunked**
+participant who gets the implementation right lands on these numbers.
+
+**One thing worth knowing about how fragile the chunked rows are.** Adding four sentences of
+documentation to `data/db/schema.md` — explaining a query helper, nothing to do with
+retrieval — moved `support-triage`'s naive score from 6/12 to 7/12 and structural's cost from
+702 to 711. The prose shifted where the fixed windows happened to cut. Nothing about the
+retrieval changed. If a participant's numbers differ from these by a query, that is the most
+likely reason, and it is worth saying: a chunked retriever is sensitive to edits nobody would
+think of as retrieval changes, which is an argument for keeping the scoreboard rather than
+trusting a number somebody wrote down once. Expect the **chunked**
 rows to drift one or two percent between ingests — Chroma's ordering is not perfectly stable
 on ties — while the answered counts hold. The baseline row is deterministic and pinned by
 `selftest.py`; the chunked rows deliberately are not.
@@ -156,7 +165,7 @@ Four beats, and the third one is the whole module:
    store, no embedding model. On `support-triage` it answers 11 of 12.
 2. **Ask the room: so why would you build anything else?** Let it sit. Someone will say
    "it won't scale", which is correct and is not yet an argument — they have no number for it.
-3. **Show the token column.** 2,111 tokens a query, because the thing returns whole
+3. **Show the token column.** 2,109 tokens a query, because the thing returns whole
    documents. That is the answer to their own question, and now they have the number.
 4. **Say what you are about to do to it.** The rest of the module does not chase the
    baseline's accuracy. It tries to keep that accuracy at a third of the price.

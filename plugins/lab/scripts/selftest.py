@@ -559,7 +559,7 @@ def check_golden_sets(verbose: bool) -> None:
 # purpose rather than a floor.
 BASELINE_ANSWERED = {"support-triage": 11, "vendor-qa": 12, "docgen": 8}
 # tokens per answer, the figure the scoreboard prints and the handbook quotes
-BASELINE_COST = {"support-triage": 2303, "vendor-qa": 2013, "docgen": 2409}
+BASELINE_COST = {"support-triage": 2301, "vendor-qa": 2013, "docgen": 2409}
 
 
 def check_baseline_floor(verbose: bool) -> None:
@@ -1217,6 +1217,64 @@ def check_module4_artifacts(verbose: bool) -> None:
         shutil.rmtree(root, ignore_errors=True)
 
 
+def check_no_external_database(verbose: bool) -> None:
+    """The lab must run on Python, VS Code, Git and Claude Code — nothing else.
+
+    Two distinct things get confused here. The sqlite3 *module* is in the Python standard
+    library and bundles its own engine, so the knowledge graph needs no install at all. The
+    sqlite3 *command* is a separate program, absent on Windows and a package on most Linux
+    distributions — so no instruction may depend on it.
+    """
+    print("no instruction depends on a database install")
+    offenders = []
+    for area in ("modules", "references", "facilitator", "skills", "stages", "scaffolds",
+                 "tracks", "reference"):
+        base = os.path.join(PLUGIN_ROOT, area)
+        if not os.path.isdir(base):
+            continue
+        for dirpath, _dirs, names in os.walk(base):
+            if "corpus-design" in dirpath:
+                continue          # facilitator build scripts, not participant instructions
+            for name in names:
+                if not name.endswith((".md", ".py", ".html", ".json")):
+                    continue
+                path = os.path.join(dirpath, name)
+                with open(path, encoding="utf-8", errors="replace") as fh:
+                    text = fh.read()
+                for line in text.splitlines():
+                    # the shell command, not the python module or a bare mention
+                    if re.search(r"(^|[`\s\"'(])sqlite3\s+[\w./{$]", line) \
+                            and "import sqlite3" not in line \
+                            and "sqlite3 module" not in line:
+                        offenders.append(f"{os.path.relpath(path, PLUGIN_ROOT)}: "
+                                         f"{line.strip()[:90]}")
+    check(not offenders,
+          "nothing instructs the sqlite3 command-line program",
+          "; ".join(offenders[:4])[:320], verbose=verbose)
+
+    # and the helper that replaces it has to be in the payload of the track with a database
+    sql = os.path.join(TRACKS, "support-triage", "workspace", "sql.py")
+    check(os.path.exists(sql), "support-triage ships sql.py in its workspace payload",
+          verbose=verbose)
+    if os.path.exists(sql):
+        body = open(sql, encoding="utf-8").read()
+        check("mode=ro" in body, "sql.py opens the database read-only", verbose=verbose)
+        for verb in ("delete", "update", "insert", "drop"):
+            result = subprocess.run(
+                [sys.executable, sql, f"{verb} from accounts"],
+                capture_output=True, text=True,
+                cwd=os.path.join(TRACKS, "support-triage", "workspace"))
+            check(result.returncode != 0,
+                  f"sql.py refuses {verb.upper()}", result.stdout[:120], verbose=verbose)
+        result = subprocess.run(
+            [sys.executable, sql, "SELECT count(*) AS n FROM accounts"],
+            capture_output=True, text=True,
+            cwd=os.path.join(TRACKS, "support-triage", "workspace"))
+        check(result.returncode == 0 and "8" in result.stdout,
+              "sql.py runs a SELECT with only the standard library",
+              (result.stdout or result.stderr)[:140], verbose=verbose)
+
+
 def check_promised_commands(verbose: bool) -> None:
     """Any /lab:x named in participant-facing text must exist as a skill.
 
@@ -1376,6 +1434,7 @@ def main() -> int:
     check_module3_artifacts(args.verbose)
     check_catchup_restores_module3(args.verbose)
     check_module4_artifacts(args.verbose)
+    check_no_external_database(args.verbose)
     check_stage_ids_exist(args.verbose)
     check_tutor_facing_text(args.verbose)
     check_promised_commands(args.verbose)

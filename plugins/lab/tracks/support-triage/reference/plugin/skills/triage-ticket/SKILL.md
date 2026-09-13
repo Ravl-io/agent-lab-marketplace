@@ -32,7 +32,7 @@ April is asking about April.
 
 **The snapshot is authoritative for everything it contains.** Do not re-query the database
 for a fact it already gave you, and do not read `data/db/schema.md` unless you are writing a
-query it cannot answer. Drop to `sqlite3 data/db/support.db "<sql>"` only for something
+query it cannot answer. Drop to `python3 sql.py "<sql>"` only for something
 genuinely outside the snapshot — comparing this account against others, for instance.
 
 Write the finished triage note to `triage/<CASE-ID>.md`.

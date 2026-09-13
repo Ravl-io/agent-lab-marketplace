@@ -24,8 +24,8 @@ This matches the write *tools*. It does not stop `Bash`, which can do the same d
 `rm`, `mv`, `sed -i` or a `>` redirect. Try it and see.
 
 Do not fix that by pattern-matching shell commands. You cannot enumerate the ways to write a
-file, and a rule that greps for "data/" also blocks `sqlite3 data/db/support.db "SELECT ..."`,
-which is a read. This is the same lesson as Step 1: a deny list is incomplete by
+file, and a rule that greps for "data/" also blocks `python3 sql.py "SELECT ..."` and
+`grep -r pattern data/`, both of which are reads. This is the same lesson as Step 1: a deny list is incomplete by
 construction.
 
 The real controls are layered, and this hook is only one layer:

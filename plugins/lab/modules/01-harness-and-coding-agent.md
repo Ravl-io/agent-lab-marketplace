@@ -947,7 +947,7 @@ intent you are not facing.
 
 Do not let anyone fix it by grepping shell commands. That is Step 1's lesson again: you cannot
 enumerate the ways to write a file, and a rule matching `data/` also blocks
-`sqlite3 data/db/support.db "SELECT ..."`, which is a read.
+`python3 sql.py "SELECT ..."`, which is a read.
 
 The real answer is that controls are layered, and this hook is one layer:
 

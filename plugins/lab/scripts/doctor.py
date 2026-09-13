@@ -374,7 +374,9 @@ def check_node() -> tuple[str, str]:
 
 def check_sqlite_cli() -> tuple[str, str]:
     if not shutil.which("sqlite3"):
-        return WARN, "not installed — fine, the lab uses Python's sqlite3 module"
+        return WARN, ("not installed — that is fine and expected on Windows. The lab never "
+                      "needs it: queries go through sql.py, which uses Python's built-in "
+                      "sqlite3 module")
     code, out = _run(["sqlite3", "--version"])
     return (PASS, out.split()[0] if out else "available") if code == 0 else (WARN, "failed to run")
 

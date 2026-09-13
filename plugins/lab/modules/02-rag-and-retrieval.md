@@ -260,12 +260,12 @@ First run downloads the model. Expect a pause.
 
 | Track | Baseline | Naive |
 |---|---|---|
-| `support-triage` | 11/12 at 2,303 per answer | **6/12** at 1,331 |
+| `support-triage` | 11/12 at 2,301 per answer | **7/12** at 1,125 |
 | `vendor-qa` | 12/12 at 2,013 | **8/12** at 1,028 |
 | `docgen` | 8/12 at 2,409 | **8/12** at 894 |
 
-Halve the price, lose a third of the answers — and on `docgen`, hold the answers and halve
-the price. Do not smooth that inconsistency over. Corpora differ; that is the module's
+Roughly halve the price and lose several answers — and on `docgen`, hold the answers and
+halve the price anyway. Do not smooth that inconsistency over. Corpora differ; that is the module's
 second lesson arriving early.
 
 ### 2.4 Name what just happened
@@ -325,7 +325,7 @@ them what the measurement says:
 
 | Track | Winner | Answered | Tokens per answer |
 |---|---|---|---|
-| `support-triage` | `structural` | 10/12 | **702** |
+| `support-triage` | `structural` | 10/12 | **711** |
 | `vendor-qa` | `parent_child` | 10/12 | **881** |
 | `docgen` | `structural` on cost, `parent_child` on answers | 8/12 · 9/12 | 679 · 780 |
 

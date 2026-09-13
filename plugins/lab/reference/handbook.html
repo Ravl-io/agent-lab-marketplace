@@ -809,7 +809,7 @@
             <code>Bash</code> — <code>cp</code>, <code>mv</code>, <code>sed -i</code>, a
             redirect. Don't fix that by grepping shell commands: you can't enumerate the ways to
             write a file, and a rule matching <code>data/</code> also blocks
-            <code>sqlite3 data/db/support.db "SELECT …"</code>, which is a read.</p>
+            <code>python3 sql.py "SELECT …"</code>, which is a read.</p>
             <div class="note-box">
               <span class="kicker">Controls are layered</span>
               <p><code>--tools</code> decides which tools exist at all. <code>permissions</code>
@@ -948,8 +948,8 @@
       the honest answer is in the second column, not the first:</p>
       <div class="scroll"><table>
         <tr><th>Retriever</th><th>Answered</th><th>Tokens per answer</th></tr>
-        <tr><td>Lexical baseline — no dependencies</td><td class="num">11/12</td><td class="num">2,303</td></tr>
-        <tr><td>Structural chunking + embeddings</td><td class="num">10/12</td><td class="num">702</td></tr>
+        <tr><td>Lexical baseline — no dependencies</td><td class="num">11/12</td><td class="num">2,301</td></tr>
+        <tr><td>Structural chunking + embeddings</td><td class="num">10/12</td><td class="num">711</td></tr>
       </table></div>
       <p>Read that carefully, because it is not what RAG is usually sold as. The chunked,
       embedded, vector-searched version answered <em>one fewer question</em>. What it bought

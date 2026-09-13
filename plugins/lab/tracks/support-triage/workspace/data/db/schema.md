@@ -1,9 +1,14 @@
 # support.db — schema
 
-SQLite. Query it directly; the audit log UI truncates at 1,000 rows (see KI-84).
+SQLite, queried with `sql.py` in the project root. Query it directly; the audit log UI
+truncates at 1,000 rows (see KI-84).
+
+`sql.py` uses Python's built-in `sqlite3` module, so nothing needs installing — and it
+refuses anything that is not a read, because this database is evidence. `--tables` and
+`--schema <table>` are there when you want to look around.
 
 ```
-sqlite3 data/db/support.db "SELECT * FROM accounts WHERE account_id='acc-1042';"
+python3 sql.py "SELECT * FROM accounts WHERE account_id = 'acc-1042'"
 ```
 
 ## accounts
