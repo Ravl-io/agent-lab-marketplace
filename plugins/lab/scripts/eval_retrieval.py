@@ -156,6 +156,20 @@ def main() -> int:
         sys.exit(f"no golden set at {os.path.relpath(golden_path, root)}")
 
     golden = load_golden(golden_path)
+
+    # A missing corpus scores 0/12, which looks exactly like a broken retriever. It comes up
+    # whenever somebody starts partway through the course — a test run, a late joiner, a
+    # restored workspace — and the wrong conclusion is expensive: they go looking at their
+    # chunker. Say what is actually wrong.
+    corpus = os.path.join(root, "data")
+    if not os.path.isdir(corpus) or not any(
+            name.endswith((".md", ".txt"))
+            for _d, _s, files in os.walk(corpus) for name in files):
+        sys.exit("there is no corpus under data/, so there is nothing to retrieve — this "
+                 "would score 0 and look like a broken retriever.\n"
+                 "Install it with the Module 1 stages, or jump straight to a module with:\n"
+                 "  python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/workspace.py\" prepare --module 02")
+
     retriever = load_retriever(os.path.join(root, args.retriever)
                                if not os.path.isabs(args.retriever) else args.retriever)
 

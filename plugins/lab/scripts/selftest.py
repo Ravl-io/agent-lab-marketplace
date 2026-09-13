@@ -1348,6 +1348,78 @@ def check_optional_extensions(verbose: bool) -> None:
           "Module 3 tells the facilitator not to install it live", verbose=verbose)
 
 
+def check_prepare_jumps(verbose: bool) -> None:
+    """`prepare --module N` has to leave a workspace where module N's first step can run.
+
+    Sessions are days apart, so starting partway through is the normal case, not the
+    exception. Before this existed, jumping to Module 2 left data/ missing and the
+    scoreboard reported 0/12 — indistinguishable from a broken retriever.
+    """
+    print("prepare puts a workspace at the start of a module")
+    for target, expect_present, expect_absent in (
+            ("02", ("data", "intent.md"), ("evals/retrieval/golden.jsonl",)),
+            ("03", ("data", "rag/retrieve.py", "evals/retrieval/golden.jsonl"),
+             ("ontology", "kg/compile.py")),
+            ("04", ("data", "rag/retrieve.py", "kg/compile.py", "ontology"),
+             ("spec/capability.md",)),
+    ):
+        root = tempfile.mkdtemp(prefix=f"labprep-{target}-")
+        try:
+            run = lambda script, *a: subprocess.run(
+                [sys.executable, os.path.join(SCRIPTS, script), "--root", root, *a],
+                capture_output=True, text=True)
+            run("state.py", "init")
+            run("state.py", "set-track", "support-triage")
+            result = run("workspace.py", "prepare", "--module", target, "--json")
+            payload = json.loads(result.stdout or "{}")
+            check(result.returncode == 0 and not payload.get("stages_failed"),
+                  f"prepare --module {target} applies every earlier stage",
+                  str(payload.get("stages_failed"))[:160], verbose=verbose)
+            check(payload.get("reference_restored") is True,
+                  f"prepare --module {target} restores the earlier answer keys",
+                  verbose=verbose)
+            for rel in expect_present:
+                check(os.path.exists(os.path.join(root, rel)),
+                      f"prepare --module {target} leaves {rel} in place", verbose=verbose)
+            for rel in expect_absent:
+                check(not os.path.exists(os.path.join(root, rel)),
+                      f"prepare --module {target} does not pre-apply {rel}",
+                      verbose=verbose)
+            state = json.loads(run("state.py", "show", "--json").stdout or "{}")
+            progress = state.get("progress") or {}
+            check(progress.get("current_module") == target,
+                  f"prepare --module {target} advances the state", str(progress)[:140],
+                  verbose=verbose)
+
+            # the specific failure this exists to prevent
+            if target >= "03":
+                todo = " ".join(payload.get("still_needed") or [])
+                check("ingest" in todo,
+                      f"prepare --module {target} says to ingest before the session",
+                      todo[:140], verbose=verbose)
+            # and a missing corpus must never read as a score of zero
+            bare = tempfile.mkdtemp(prefix="labbare-")
+            try:
+                shutil.copy2(os.path.join(TRACKS, "support-triage", "scaffolds",
+                                          "golden.jsonl"),
+                             os.path.join(bare, "golden.jsonl"))
+                shutil.copytree(os.path.join(PLUGIN_ROOT, "reference", "rag"),
+                                os.path.join(bare, "rag"))
+                probe = subprocess.run(
+                    [sys.executable, os.path.join(SCRIPTS, "eval_retrieval.py"),
+                     "--root", bare, "--retriever", "rag/baseline_retrieve.py",
+                     "--golden", os.path.join(bare, "golden.jsonl"), "--no-record"],
+                    capture_output=True, text=True)
+                message = probe.stderr + probe.stdout
+                check(probe.returncode != 0 and "no corpus" in message,
+                      "an empty corpus is reported as such, not as a score of zero",
+                      message[:160], verbose=verbose)
+            finally:
+                shutil.rmtree(bare, ignore_errors=True)
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+
 def check_promised_commands(verbose: bool) -> None:
     """Any /lab:x named in participant-facing text must exist as a skill.
 
@@ -1509,6 +1581,7 @@ def main() -> int:
     check_module4_artifacts(args.verbose)
     check_no_external_database(args.verbose)
     check_optional_extensions(args.verbose)
+    check_prepare_jumps(args.verbose)
     check_stage_ids_exist(args.verbose)
     check_tutor_facing_text(args.verbose)
     check_promised_commands(args.verbose)

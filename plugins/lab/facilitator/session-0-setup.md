@@ -97,6 +97,36 @@ The symptom is a line like *"Ignoring 2 permissions.allow entries from
 .claude/settings.json: this workspace has not been trusted."* Tell the room about it before
 it happens; it is thirty seconds to fix and confusing to diagnose mid-exercise.
 
+## Starting at Module 2, 3 or 4
+
+Sessions are days apart, so this comes up constantly: a late joiner, a laptop that died, or
+you rehearsing one module without sitting through the earlier ones.
+
+```
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/workspace.py" prepare --module 03
+```
+
+That applies every stage from the earlier modules, restores their reference answer keys, and
+advances the progress state — so the module you are about to teach has what it depends on. It
+deliberately stops short of the target module's own stages; those still arrive through
+`/lab:next` as the steps run.
+
+**It then tells you what is left**, because applying stages does not build anything:
+
+| Starting at | Also run first |
+|---|---|
+| Module 2 | nothing |
+| Module 3 | `python3 rag/ingest.py structural` — step 1 opens on the retrieval scoreboard |
+| Module 4 | the ingest above, and `python3 kg/compile.py` |
+
+Do those **before** the room arrives. The first ingest downloads a 90 MB embedding model, and
+watching a progress bar is a poor start.
+
+One thing worth knowing about why this exists. Without it, jumping to Module 2 leaves `data/`
+missing and the scoreboard reports **0 of 12** — which looks exactly like a broken retriever
+rather than an empty corpus. The harness now says so explicitly instead, but `prepare` is the
+thing that stops you meeting it at all.
+
 ## When a machine will not cooperate
 
 In priority order:

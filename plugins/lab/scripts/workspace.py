@@ -176,6 +176,94 @@ def substitute(text: str, substitutions: dict) -> str:
     return text
 
 
+# Which stages belong to which module, in order. The single source for "what does a
+# workspace look like at the start of module N", used by `prepare`.
+MODULE_STAGES = {
+    "01": ["m1s1-harness", "m1s2-data", "m1s3-corpus", "m1s4-skill", "m1s5-tool",
+           "m1s6-hook", "m1s7-plugin"],
+    "02": ["m2s1-baseline", "m2s2-vectors", "m2s3-mcp", "m2s4-agentic"],
+    "03": ["m3s1-ontology", "m3s2-extract", "m3s3-kg-tool", "m3s4-hybrid"],
+    "04": ["m4s1-spec", "m4s2-propose", "m4s3-gate", "m4s4-runbook"],
+}
+
+
+def cmd_prepare(args) -> int:
+    """Put a workspace at the start of a module, as if the earlier ones had been done.
+
+    For a test run, a late joiner, or somebody whose laptop died between sessions. It applies
+    every stage from the earlier modules, restores their reference answer keys, and advances
+    the progress state — so the module about to be taught has everything it depends on.
+
+    Without this, starting at Module 2 leaves data/ missing and the scoreboard reports 0/12,
+    which looks exactly like a broken retriever rather than an empty corpus.
+    """
+    root = os.path.abspath(args.root)
+    target = str(args.module).zfill(2)
+    if target not in MODULE_STAGES:
+        sys.exit(f"no module {target}; expected one of {', '.join(sorted(MODULE_STAGES))}")
+
+    earlier = [m for m in sorted(MODULE_STAGES) if m < target]
+    applied, failed = [], []
+    for module in earlier:
+        for stage_id in MODULE_STAGES[module]:
+            result = subprocess.run(
+                [sys.executable, os.path.abspath(__file__), "--root", root,
+                 "stage", stage_id], capture_output=True, text=True)
+            (applied if result.returncode == 0 else failed).append(stage_id)
+
+    # the answer keys for the modules being skipped, so the work is actually present
+    reference = subprocess.run(
+        [sys.executable, os.path.abspath(__file__), "--root", root,
+         "catchup", "--with-reference"], capture_output=True, text=True)
+
+    state_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "state.py")
+    for module in earlier:
+        subprocess.run([sys.executable, state_script, "--root", root,
+                        "complete-module", module], capture_output=True, text=True)
+    subprocess.run([sys.executable, state_script, "--root", root,
+                    "begin-module", target], capture_output=True, text=True)
+
+    # What is still needed before the target module can be taught. Applying stages and
+    # restoring answer keys does not build the vector store or the graph — those are
+    # produced by running something, and Module 3 opens by re-running the retrieval
+    # scoreboard, which needs an ingested corpus.
+    todo = []
+    if target >= "03" and not os.path.exists(os.path.join(root, "rag", "config.json")):
+        todo.append("python3 rag/ingest.py structural"
+                    "   # Module 3 opens on the retrieval scoreboard")
+    if target >= "04":
+        if not os.path.exists(os.path.join(root, "kg.db")):
+            todo.append("python3 kg/compile.py"
+                        "                  # Module 4's suite scores the graph")
+        if not os.path.exists(os.path.join(root, "ontology")):
+            todo.append("(the ontology and graph come from Module 3 — "
+                        "prepare cannot invent them)")
+
+    payload = {"prepared_for": target, "stages_applied": applied,
+               "stages_failed": failed, "modules_marked_complete": earlier,
+               "reference_restored": reference.returncode == 0,
+               "still_needed": todo}
+    if getattr(args, "as_json", False):
+        print(json.dumps(payload, indent=2))
+        return 1 if failed else 0
+    print(f"READY FOR MODULE {target}")
+    print("=" * (17 + len(target)))
+    print(f"\n  applied {len(applied)} stage(s) from module(s) "
+          f"{', '.join(earlier) or '(none)'}")
+    if failed:
+        print(f"  FAILED: {', '.join(failed)}")
+    print(f"  reference answer keys restored: "
+          f"{'yes' if reference.returncode == 0 else 'no'}")
+    print(f"  marked complete: {', '.join(earlier) or '(none)'}")
+    if todo:
+        print("\n  Before the session, run these in the workspace:")
+        for item in todo:
+            print(f"    {item}")
+    print("\n  A facilitator shortcut, not part of the course. Somebody working through in")
+    print("  order never needs it.")
+    return 1 if failed else 0
+
+
 def cmd_stage(args) -> int:
     """Apply one incremental stage: a little more workspace, a little more capability.
 
@@ -650,6 +738,12 @@ def main() -> int:
     p.add_argument("stage_id")
     p.add_argument("--track", default=None)
     p.set_defaults(fn=cmd_stage)
+
+    p = sub.add_parser("prepare",
+                       help="put a workspace at the start of a module (facilitator)")
+    p.add_argument("--module", required=True)
+    p.add_argument("--json", action="store_true", dest="as_json")
+    p.set_defaults(fn=cmd_prepare)
 
     p = sub.add_parser("manifest")
     p.add_argument("--track", required=True)
