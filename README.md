@@ -35,6 +35,10 @@ sets `source` to `./lab`, which does not exist there, and every install fails.
 Bump the version in **both** manifests or installed plugins never pick the change up —
 `plugin install` reports "already installed" and says nothing else.
 
+Bump it **here as well as there**. Publishing only touches the repo's manifests, so this
+sandbox quietly falls behind the published version — which is confusing later when you are
+trying to work out what is live. Four releases in, this copy still said 1.0.0.
+
 - [PLAN.md](PLAN.md) — design, architecture, build phases, risks
 - [docs/CURRICULUM.md](docs/CURRICULUM.md) — the detailed module-by-module outline
 
