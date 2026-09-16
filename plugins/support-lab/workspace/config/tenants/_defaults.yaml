@@ -1,0 +1,9 @@
+# Tenant defaults — Lumen Reports 2.4.x
+timezone: UTC
+export_timeout: 30          # seconds
+export_max_rows: 5000000
+export_engine: openreport   # version follows the release
+rate_limit_per_min: 600
+rate_limit_burst: 100
+deliver_empty: false
+integrations: []

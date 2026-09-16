@@ -1,0 +1,10 @@
+tenant: northwind
+plan: enterprise
+timezone: America/Chicago
+export_timeout: 30
+export_max_rows: 5000000
+export_engine: openreport
+rate_limit_per_min: 600
+integrations:
+  - name: webhooks
+    url: https://hooks.northwind.example/lumen

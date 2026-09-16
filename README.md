@@ -17,6 +17,39 @@ full AI system that accomplishes real, complex work.
 Participants are taught by a plugin, so every primitive they learn has a working reference
 they can open and read.
 
+## Plugins in this marketplace
+
+| Plugin | Audience | Length | Start |
+|---|---|---|---|
+| `lab` | Engineers and technical staff | 8 hours, four modules | `/lab:start` |
+| `support-lab` | L2/L3 support teams, no coding | 90 minutes, one module | say `lab start` |
+
+### Support Lab
+
+A conversational lab for support teams. Participants investigate ticket JIRA-4821 for a
+fictional product, Lumen Reports, by asking Claude Code one thing at a time and judging what
+comes back; then they ask Claude Code to turn that method into a plugin and run it on a second
+ticket in four words. No code is written by hand.
+
+Each participant opens Claude Code in an **empty folder** and runs:
+
+```
+/plugin marketplace add Ravl-io/agent-lab-marketplace
+/plugin install support-lab@agent-lab
+```
+
+then says `lab start`. From there three words drive the whole lab: `next`, `hint`, `status`
+(slash forms: `/support-lab:next`, `/support-lab:hint`, `/support-lab:status`). The sandbox
+(docs, logs, config, tickets, a SQLite case database) is unpacked into their folder by the
+plugin itself, so nothing else needs to be installed.
+
+Facilitator notes, the exact prompt per step and the verified answer keys are in
+[plugins/support-lab/facilitator/FACILITATOR.md](plugins/support-lab/facilitator/FACILITATOR.md);
+the step files the tutor follows are in `plugins/support-lab/modules/01/`.
+
+The two plugins do not conflict: `support-lab` uses its own `/support-lab:` namespace and its
+own `.support-lab/state.json`, so both can be installed on one machine.
+
 ## Publishing
 
 This sandbox and the published marketplace repo have **different layouts**, and one field
@@ -152,6 +185,7 @@ lab/                              the tutor plugin
 │   └── handbook.html             the course companion: one self-contained file
 ├── tracks/{support-triage,vendor-qa,docgen}/track.json
 └── facilitator/
+plugins/support-lab/              the Support Lab tutor (skills, modules/01/, workspace/ payload, facilitator/)
 PLAN.md  docs/                    design and curriculum
 ```
 
