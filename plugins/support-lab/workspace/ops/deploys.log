@@ -1,0 +1,4 @@
+2026-08-20T07:30:11Z deploy release=2.3.9 by=ci notes="hotfix: schedule retry loop"
+2026-09-02T08:02:47Z deploy release=2.4.0 by=ci notes="builder previous_business_day; bi-connector sync_interval; deliver_empty"
+2026-09-09T08:15:03Z deploy release=2.4.0-hf1 by=ci notes="dashboard tile cache"
+2026-09-16T09:09:12Z deploy release=2.4.1 by=ci notes="export engine openreport 3.1 -> 3.2; schedule '+' address fix; dashboard refresh"

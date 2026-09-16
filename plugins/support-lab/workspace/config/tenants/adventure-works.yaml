@@ -1,0 +1,8 @@
+tenant: adventure-works
+plan: enterprise
+timezone: America/Toronto
+export_timeout: 120
+rate_limit_per_min: 1200
+integrations:
+  - name: bi-connector
+    sync_interval: 15m

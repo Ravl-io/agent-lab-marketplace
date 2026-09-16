@@ -1,0 +1,21 @@
+date,tenant,source,score,text
+2026-07-02,adventure-works,survey,5,We had to split our YTD report in four just to export it.
+2026-07-04,northwind,survey,5,The export button just spins and then errors. Give us a progress indicator or a notification.
+2026-07-06,northwind,call-note,,Customer asked twice whether exports can run in the background and email a link.
+2026-07-15,fabrikam,survey,6,Rate limit docs don't say the connector counts against our quota.
+2026-07-19,tailspin,nps,9,Simple and fast for our size.
+2026-07-20,northwind,nps,6,Exports fail silently on our big orders report. We run it at night and hope.
+2026-07-23,adventure-works,nps,7,"Large exports are a lottery. Sometimes 504, sometimes fine."
+2026-07-23,fabrikam,nps,5,"Support was fast, the product docs were not."
+2026-07-24,adventure-works,nps,8,"Raising the timeout to 120 s helped, mostly."
+2026-07-25,northwind,nps,6,Nightly export failures cost us a morning every week.
+2026-07-26,contoso,call-note,,Admin did not realise changing the tenant timezone moves every schedule.
+2026-07-28,contoso,nps,7,Scheduling docs should say the ETL finishes around 4 am.
+2026-07-30,fabrikam,call-note,,Wants a per-client rate limit view in the admin console.
+2026-08-08,tailspin,survey,8,Would like more dashboard templates.
+2026-08-13,fabrikam,nps,4,Enabled the Power BI connector and everything started throwing 429s. Nothing warned us.
+2026-08-16,adventure-works,survey,6,Export timeouts. Again.
+2026-08-26,contoso,survey,7,Empty-report suppression is sensible but we'd like a warning email.
+2026-08-27,northwind,call-note,,Escalation call: export failures after the last release; asked for a fix date.
+2026-09-03,adventure-works,call-note,,Asked for exports over 1M rows to be handled server-side with a download link.
+2026-09-07,contoso,nps,8,Scheduling is great when it works; timezone handling confused our admin.

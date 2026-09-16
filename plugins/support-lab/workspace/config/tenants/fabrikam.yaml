@@ -1,0 +1,10 @@
+tenant: fabrikam
+plan: business
+timezone: Europe/Paris
+export_timeout: 30
+rate_limit_per_min: 600
+rate_limit_burst: 100
+integrations:
+  - name: bi-connector
+    sync_interval: 5m
+    reports: all

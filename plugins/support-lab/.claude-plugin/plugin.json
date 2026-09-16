@@ -1,0 +1,10 @@
+{
+  "name": "support-lab",
+  "displayName": "Support Lab",
+  "version": "0.1.0",
+  "description": "Tutor for the Support Lab. Module 1 (about 90 minutes): investigate ticket JIRA-4821 for Lumen Reports the way a senior engineer would, by asking Claude Code one thing at a time and judging what comes back. Then ask Claude Code to turn that method into a plugin, and run it on a second ticket in four words. Say 'lab start' to begin, 'next' to advance, 'hint' when stuck.",
+  "author": {
+    "name": "Chiheb Dkhil"
+  },
+  "keywords": ["training", "support", "tutor", "skills", "plugins", "no-code"]
+}

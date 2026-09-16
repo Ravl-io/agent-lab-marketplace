@@ -1,0 +1,7 @@
+2026-09-08T14:22:05Z tenant=tailspin user=a.nguyen key=timezone old=UTC new=Australia/Sydney
+2026-09-10T09:41:19Z tenant=adventure-works user=r.kaur key=export_timeout old=60 new=120
+2026-09-11T16:03:44Z tenant=contoso user=j.park key=export_timeout old=30 new=60
+2026-09-13T02:14:37Z tenant=contoso user=j.park key=timezone old=America/Toronto new=UTC
+2026-09-15T14:58:02Z tenant=fabrikam user=m.osei key=integrations.bi-connector.enabled old=false new=true
+2026-09-15T14:58:31Z tenant=fabrikam user=m.osei key=integrations.bi-connector.sync_interval old=15m new=5m
+2026-09-16T08:10:12Z tenant=northwind user=s.okafor key=integrations.webhooks.url old=https://hooks.northwind.example/lumen-old new=https://hooks.northwind.example/lumen

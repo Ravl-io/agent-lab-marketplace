@@ -1,0 +1,6 @@
+tenant: contoso
+plan: business
+timezone: UTC
+export_timeout: 60
+rate_limit_per_min: 600
+integrations: []

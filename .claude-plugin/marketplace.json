@@ -3,8 +3,8 @@
   "owner": {
     "name": "Chiheb Dkhil"
   },
-  "description": "Agent Lab — the hands-on training marketplace for the Enterprise AI Fluency course. Add this marketplace, install the `lab` plugin, and run /lab:start.",
-  "version": "2.0.0",
+  "description": "Agent Lab — the hands-on training marketplace for the Enterprise AI Fluency course. Add this marketplace, then install `lab` (the 8-hour Agent Lab, /lab:start) or `support-lab` (the 90-minute Support Lab, say 'lab start').",
+  "version": "2.1.0",
   "plugins": [
     {
       "name": "lab",
@@ -22,6 +22,21 @@
         "rag",
         "knowledge-graph",
         "ai-sdlc"
+      ]
+    },
+    {
+      "name": "support-lab",
+      "source": "./plugins/support-lab",
+      "version": "0.1.0",
+      "category": "education",
+      "description": "Tutor for the Support Lab, Module 1 (about 90 minutes): investigate a real ticket with Claude Code the way a senior engineer would, one prompt at a time, then turn the method into an installable plugin and run it on a second ticket. No code — you ask, Claude Code investigates, you judge. Say 'lab start' to begin.",
+      "tags": [
+        "training",
+        "support",
+        "tutor",
+        "skills",
+        "plugins",
+        "no-code"
       ]
     }
   ]
