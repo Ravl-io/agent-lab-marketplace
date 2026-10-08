@@ -11,6 +11,10 @@ Three properties matter:
 2. **Skips the experiments.** `experiments/exp.py` starts its sessions with LAB_TRACE=1.
    Those sessions are the subject of the experiment, and must not overwrite the reply.
 3. **Never breaks a session.** Everything is wrapped, and the exit code is always 0.
+
+The reply comes from the event's `last_assistant_message`. The transcript is only a fallback
+for older harnesses: when the Stop hook fires, the final message has often not been flushed
+to it yet, and reading it alone leaves response.md one reply behind.
 """
 
 from __future__ import annotations
@@ -29,8 +33,19 @@ def main() -> int:
     if not os.path.exists(os.path.join(root, ".agent-lab", "state.json")):
         return 0                      # not a lab folder — say nothing
 
+    last = event.get("last_assistant_message")
+    if not (isinstance(last, str) and last.strip()):
+        last = last_text_in_transcript(event["transcript_path"])
+
+    if last:
+        with open(os.path.join(root, "response.md"), "w") as fh:   # "w": clean every turn
+            fh.write(last.rstrip() + "\n")
+    return 0
+
+
+def last_text_in_transcript(path: str) -> str | None:
     last = None
-    with open(event["transcript_path"]) as fh:
+    with open(path) as fh:
         for line in fh:
             try:
                 entry = json.loads(line)
@@ -42,11 +57,7 @@ def main() -> int:
             for block in content if isinstance(content, list) else []:
                 if block.get("type") == "text" and block.get("text", "").strip():
                     last = block["text"]
-
-    if last:
-        with open(os.path.join(root, "response.md"), "w") as fh:   # "w": clean every turn
-            fh.write(last.rstrip() + "\n")
-    return 0
+    return last
 
 
 if __name__ == "__main__":
