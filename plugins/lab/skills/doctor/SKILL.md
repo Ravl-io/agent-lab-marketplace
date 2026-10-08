@@ -32,6 +32,8 @@ is worth knowing:
   them which interpreter the lab will use.
 - a recommended check is a WARN, and it will cost them something later (no `code` on PATH
   means you will print file paths instead of opening files).
+- `trust` or `claude_cli` is a WARN — offer to fix both at once with
+  `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/host_setup.py" all`, then re-run the doctor.
 
 **When not ready** — list only the failed required checks. For each: what failed, the actual
 detail the script reported, and the platform-specific `install` hint. Offer to run the fix

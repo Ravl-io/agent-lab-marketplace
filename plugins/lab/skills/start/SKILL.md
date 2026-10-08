@@ -21,11 +21,13 @@ orientation, not a build log.
 - **Be brief everywhere except the introduction.** The checklist is a list, not an
   explanation. The track options are one line each — the detail comes after they choose.
 
-The **lab root** is the current working directory. Everything below uses these two scripts —
-never hand-edit `.agent-lab/state.json`:
+The **lab root** is the current working directory. Everything below uses these three scripts —
+never hand-edit `.agent-lab/state.json` or `~/.claude.json`:
 
 - `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/state.py"` — progress and track
 - `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.py"` — the setup checklist and validation
+- `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/host_setup.py"` — trusts the lab folder and puts
+  `claude` on PATH
 
 ## Step 0 — sanity check the folder
 
@@ -74,16 +76,31 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.py" --checklist
 Present this as a **short list, not an explained list** — names only, grouped on as few
 lines as possible, with no per-item justification. Something like: "Required: Python 3.10+,
 pip, venv, SQLite, Git 2.30+, write access here, 2 GB disk, PyPI access. Recommended
-and never blocking: claude CLI, code CLI, Node 18+, chromadb (installed together in Module
-2)."
+and never blocking: claude CLI, folder trust, code CLI, Node 18+, chromadb (installed
+together in Module 2)."
 
 Say once that they do not need to check any of it by hand because you are about to verify it
 all automatically. Save the reasons for later: if a check fails, *then* explain why that item
 matters.
 
-## Step 4 — validate the environment
+## Step 4 — prepare Claude Code, then validate the environment
 
-Run the checks **once** — they spawn subprocesses and make a network call, so do not run
+First, the two fixes that otherwise stall Module 1 — run them, do not ask:
+
+```
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/host_setup.py" all --json
+```
+
+It trusts the lab folder in `~/.claude.json` (without it, `settings.json` permissions are
+ignored and every experiment tool call stops to ask), and, only if `claude` is not already on
+PATH, links the binary the VS Code extension ships into `~/.local/bin` and adds that folder to
+their shell profile. It is idempotent, backs up `~/.claude.json` first, and never replaces a
+`claude` it did not create. In the environment verdict, mention in **one line** anything it
+reports as `changed` — a participant should know their shell profile was edited — and that a
+terminal opened before now will not see the new PATH (the experiments find `claude` anyway).
+If either reports `fail`, show the detail; it is not blocking, so carry on.
+
+Then run the checks **once** — they spawn subprocesses and make a network call, so do not run
 them twice to read the result a second time. Save, record, then read the saved file:
 
 ```
@@ -188,8 +205,11 @@ Sessions are days apart, so re-entry has to be cheap and honest:
 
 1. `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/state.py" show` — show them where they are, and
    the scoreboard if it has entries.
-2. `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.py" --quick --json` — re-verify the
-   machine. Record it with `record-env`. If a required check now fails, deal with that first.
+2. `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/host_setup.py" all --json`, then
+   `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/doctor.py" --quick --json` — re-apply the trust and
+   `claude` fixes (a different machine, or an editor extension update, undoes them), then
+   re-verify the machine. Record it with `record-env`. If a required check now fails, deal
+   with that first. Mention a `changed` fix in one line; say nothing about a `pass`.
 3. Check that the artifacts recorded in `artifacts` still exist on disk. If any are missing,
    say exactly which, and offer `/lab:catchup` to restore the last checkpoint.
 4. Recap the previous module's core idea in two or three sentences — not a lecture, a

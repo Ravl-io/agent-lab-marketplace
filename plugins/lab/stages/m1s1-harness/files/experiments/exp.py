@@ -15,7 +15,9 @@ change the prompt and see what happens. That is the point of the exercise.
 
 from __future__ import annotations
 
+import glob
 import os
+import shutil
 import subprocess
 import sys
 
@@ -52,6 +54,33 @@ EXPERIMENTS = {
 }
 
 
+def find_claude() -> str:
+    """`claude` from PATH, else the copy the lab linked into ~/.local/bin, else the binary
+    the VS Code extension ships with. A terminal opened before /lab:start put ~/.local/bin
+    on PATH still works this way. Same order as the lab's scripts/host_setup.py."""
+    found = shutil.which("claude")
+    if found:
+        return found
+    home = os.path.expanduser("~")
+    exe = "claude.exe" if sys.platform == "win32" else "claude"
+    shim = os.path.join(home, ".local", "bin",
+                        "claude.cmd" if sys.platform == "win32" else "claude")
+    if os.path.exists(shim):
+        return shim
+
+    def version(path: str) -> tuple[int, ...]:
+        tag = os.path.basename(path).split("anthropic.claude-code-", 1)[-1].split("-", 1)[0]
+        return tuple(int(p) for p in tag.split(".") if p.isdigit())
+
+    bundled = []
+    for rel in (".vscode", ".vscode-insiders", ".cursor", ".windsurf"):
+        for ext in glob.glob(os.path.join(home, rel, "extensions", "anthropic.claude-code-*")):
+            binary = os.path.join(ext, "resources", "native-binary", exe)
+            if os.path.isfile(binary):
+                bundled.append((version(ext), binary))
+    return max(bundled)[1] if bundled else "claude"
+
+
 def find_plugin(root: str) -> str | None:
     """Locate the participant's plugin by its manifest, so this script needs no config."""
     for entry in sorted(os.listdir(root)):
@@ -78,7 +107,7 @@ def main() -> int:
     with open(prompt_file) as fh:
         prompt = fh.read().strip()
 
-    cmd = ["claude", "--tools", exp["tools"], "--strict-mcp-config"]
+    cmd = [find_claude(), "--tools", exp["tools"], "--strict-mcp-config"]
     plugin = None
     if exp.get("use_plugin"):
         plugin = find_plugin(ROOT)
@@ -109,7 +138,8 @@ def main() -> int:
     try:
         result = subprocess.run(cmd, cwd=ROOT, env=env, stdin=subprocess.DEVNULL)
     except FileNotFoundError:
-        print("The `claude` command is not on your PATH.\n"
+        print("The `claude` command is not on your PATH, and no Claude Code editor\n"
+              "extension was found to borrow it from.\n"
               "Install it with: npm install -g @anthropic-ai/claude-code\n"
               "Or run the command above yourself from a terminal that has it.",
               file=sys.stderr)

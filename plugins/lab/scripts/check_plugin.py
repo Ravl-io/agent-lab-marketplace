@@ -22,6 +22,8 @@ import shutil
 import subprocess
 import sys
 
+from host_setup import find_claude
+
 PLUGIN_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -122,14 +124,16 @@ def main() -> int:
                             f"against this folder — use ${{CLAUDE_PLUGIN_ROOT}}")
 
     # the real validator, when it is available
-    if shutil.which("claude"):
-        result = subprocess.run(["claude", "plugin", "validate", base],
+    claude = find_claude()
+    if claude:
+        result = subprocess.run([claude, "plugin", "validate", base],
                                 capture_output=True, text=True, timeout=120)
         if result.returncode != 0:
             problems.append("`claude plugin validate` failed: "
                             + (result.stdout + result.stderr).strip()[-200:])
     else:
-        notes.append("the claude CLI is not on PATH, so `claude plugin validate` was skipped")
+        notes.append("no claude CLI on PATH or in an editor extension, so "
+                     "`claude plugin validate` was skipped")
 
     # the two files that make this a project rather than a pile
     for filename, purpose in (("CLAUDE.md", "what is true for every task in this project"),

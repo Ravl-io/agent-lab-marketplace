@@ -94,8 +94,21 @@ they must accept it. If they do not, every tool call stops to ask for approval a
 experiments in Module 1 stall.
 
 The symptom is a line like *"Ignoring 2 permissions.allow entries from
-.claude/settings.json: this workspace has not been trusted."* Tell the room about it before
-it happens; it is thirty seconds to fix and confusing to diagnose mid-exercise.
+.claude/settings.json: this workspace has not been trusted."*
+
+`/lab:start` now sets the trust flag itself (`scripts/host_setup.py trust`, which writes
+`hasTrustDialogAccepted` for the lab folder into `~/.claude.json`, after a backup). You only
+see the warning if a participant moved their folder after `/lab:start`, or uses a separate
+`CLAUDE_CONFIG_DIR` in their terminal. Either way `host_setup.py trust` from the lab folder
+fixes it.
+
+## The claude command
+
+The Module 1 experiments start a separate `claude -p` session. Participants who only have the
+VS Code extension have no `claude` on PATH, but the extension ships one. `/lab:start` links it
+into `~/.local/bin` and adds that folder to their shell profile (`host_setup.py cli`); it never
+touches a `claude` that is already there. `exp.py` also falls back to the extension's binary
+on its own, so a terminal opened before the PATH change still runs the experiments.
 
 ## Starting at Module 2, 3 or 4
 

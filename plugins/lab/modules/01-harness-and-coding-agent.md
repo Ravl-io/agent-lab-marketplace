@@ -81,9 +81,11 @@ the modules, the commands, how to read a trace, and what to do when something br
 them to open it from the VS Code file tree and leave it in a browser tab. It is a local file
 on purpose: it needs no network and no access to anything outside their machine.
 
-**If they see a warning about an untrusted workspace**, they need to accept the trust
-dialog once — open Claude Code interactively in the folder and accept it. Until then the
-`permissions` block in `settings.json` is ignored and every tool call stops to ask.
+**If they see a warning about an untrusted workspace**, `/lab:start` should already have
+trusted the folder — so either they skipped it or the folder moved. Run
+`python3 "${CLAUDE_PLUGIN_ROOT}/scripts/host_setup.py" trust` (or have them open Claude Code
+interactively in the folder and accept the dialog). Until then the `permissions` block in
+`settings.json` is ignored and every tool call stops to ask.
 
 ### 0.3 Record it
 

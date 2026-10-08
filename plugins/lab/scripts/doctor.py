@@ -23,6 +23,8 @@ import sys
 import urllib.request
 from dataclasses import dataclass, field, asdict
 
+import host_setup
+
 MIN_PYTHON = (3, 10)
 MIN_GIT = (2, 30)
 MIN_SQLITE = (3, 8, 0)   # see check_sqlite: nothing the lab does needs newer
@@ -30,6 +32,8 @@ MIN_NODE = (18, 0)
 MIN_DISK_GB = 2.0
 
 PASS, FAIL, WARN, INFO = "pass", "fail", "warn", "info"
+
+HOST_SETUP = os.path.join(os.path.dirname(os.path.abspath(__file__)), "host_setup.py")
 
 
 @dataclass
@@ -129,10 +133,21 @@ REQUIREMENTS = [
     # ---- recommended, never blocking -------------------------------------
     Requirement(
         "claude_cli", "claude CLI on PATH",
-        "Handy for installing the plugin and inspecting it outside VS Code. Not required — "
-        "the VS Code extension works without it.",
+        "The Module 1 experiments start a separate `claude -p` session, and the plugin "
+        "check runs `claude plugin validate`. The VS Code extension ships its own copy; "
+        "/lab:start links it onto your PATH.",
         required=False,
-        install={"all": "npm install -g @anthropic-ai/claude-code"},
+        install={"all": f'python3 "{HOST_SETUP}" cli   '
+                        "(or npm install -g @anthropic-ai/claude-code)"},
+    ),
+    Requirement(
+        "trust", "Lab folder trusted by Claude Code",
+        "Claude Code ignores the lab's settings.json permissions until the folder is "
+        "trusted, and every experiment tool call then stops to ask. The trust dialog only "
+        "appears in an interactive terminal session, so /lab:start sets it for you.",
+        required=False,
+        install={"all": f'python3 "{HOST_SETUP}" trust   '
+                        "(or run `claude` here once and accept the dialog)"},
     ),
     Requirement(
         "vscode_cli", "code CLI on PATH",
@@ -351,9 +366,20 @@ def check_network() -> tuple[str, str]:
 
 def check_claude_cli() -> tuple[str, str]:
     if not shutil.which("claude"):
-        return WARN, "not on PATH — fine, the VS Code extension does not need it"
+        bundled = host_setup.find_claude()
+        if bundled:
+            return WARN, (f"not on PATH — the experiments will borrow {bundled}; "
+                          f"`host_setup.py cli` puts it on PATH for your terminal")
+        return WARN, "not on PATH, and no Claude Code editor extension found to borrow it from"
     code, out = _run(["claude", "--version"])
     return (PASS, out) if code == 0 else (WARN, "on PATH but failed to run")
+
+
+def check_trust(root: str) -> tuple[str, str]:
+    if host_setup.is_trusted(root):
+        return PASS, f"{host_setup.project_key(root)} is trusted"
+    return WARN, ("not trusted yet — settings.json permissions are ignored until it is; "
+                  "`host_setup.py trust` fixes it")
 
 
 def check_vscode_cli() -> tuple[str, str]:
@@ -417,6 +443,7 @@ def run_checks(root: str, quick: bool = False) -> list[dict]:
         "disk": lambda: check_disk(root),
         "network": check_network,
         "claude_cli": check_claude_cli,
+        "trust": lambda: check_trust(root),
         "vscode_cli": check_vscode_cli,
         "node": check_node,
         "sqlite_cli": check_sqlite_cli,
