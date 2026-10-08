@@ -23,21 +23,6 @@
         "knowledge-graph",
         "ai-sdlc"
       ]
-    },
-    {
-      "name": "support-lab",
-      "source": "./plugins/support-lab",
-      "version": "0.1.0",
-      "category": "education",
-      "description": "Tutor for the Support Lab, Module 1 (about 90 minutes): investigate a real ticket with Claude Code the way a senior engineer would, one prompt at a time, then turn the method into an installable plugin and run it on a second ticket. No code — you ask, Claude Code investigates, you judge. Say 'lab start' to begin.",
-      "tags": [
-        "training",
-        "support",
-        "tutor",
-        "skills",
-        "plugins",
-        "no-code"
-      ]
-    }
+    }  
   ]
 }
