@@ -1628,9 +1628,85 @@ def check_version_is_publishable(verbose: bool) -> None:
               verbose=verbose)
 
 
+def check_host_setup(verbose: bool) -> None:
+    """host_setup.py edits files outside the lab — ~/.claude.json and a shell profile — so
+    it is held to what it promises: trust is idempotent and keeps every other key, an
+    unparseable config is left alone, the newest extension binary wins, and a `claude` the
+    lab did not create is never replaced. Runs against a throwaway HOME, never the real one.
+    """
+    print("host setup")
+    if sys.platform == "win32":
+        warn("host_setup.py is exercised on POSIX only; the Windows shim is untested here")
+        return
+    script = os.path.join(SCRIPTS, "host_setup.py")
+    with tempfile.TemporaryDirectory() as tmp:
+        home, lab = os.path.join(tmp, "home"), os.path.join(tmp, "lab")
+        os.makedirs(lab)
+        for version in ("2.1.99", "2.1.100"):
+            bin_dir = os.path.join(home, ".vscode", "extensions",
+                                   f"anthropic.claude-code-{version}-darwin-arm64",
+                                   "resources", "native-binary")
+            os.makedirs(bin_dir)
+            binary = os.path.join(bin_dir, "claude")
+            with open(binary, "w") as fh:
+                fh.write(f"#!/bin/sh\necho {version}\n")
+            os.chmod(binary, 0o755)
+        config = os.path.join(home, ".claude.json")
+        with open(config, "w") as fh:
+            json.dump({"userID": "keep-me", "projects": {"/other": {"allowedTools": []}}}, fh)
+        env = {"HOME": home, "SHELL": "/bin/zsh", "PATH": "/usr/bin:/bin"}
+
+        def run(*args: str) -> dict:
+            result = subprocess.run([sys.executable, script, *args, "--root", lab, "--json"],
+                                    capture_output=True, text=True, env=env, cwd=lab)
+            try:
+                return json.loads(result.stdout)
+            except ValueError:
+                return {"ok": False, "stderr": result.stderr.strip()[:160]}
+
+        first = run("all")
+        check(first.get("ok") is True, "host_setup.py all succeeds on a fresh machine",
+              json.dumps(first)[:160], verbose=verbose)
+        data = load(config)
+        key = os.path.abspath(lab)
+        check(data.get("projects", {}).get(key, {}).get("hasTrustDialogAccepted") is True,
+              "trust sets hasTrustDialogAccepted for the lab folder", verbose=verbose)
+        check(data.get("userID") == "keep-me" and "/other" in data.get("projects", {}),
+              "trust keeps every other key in ~/.claude.json", verbose=verbose)
+        check(os.path.exists(config + ".agent-lab-backup"),
+              "trust backs up ~/.claude.json first", verbose=verbose)
+        shim = os.path.join(home, ".local", "bin", "claude")
+        check(os.path.islink(shim) and "2.1.100" in os.readlink(shim),
+              "cli links the newest extension binary (2.1.100 over 2.1.99)", verbose=verbose)
+        profile = os.path.join(home, ".zshrc")
+        check(os.path.exists(profile) and ".local/bin" in open(profile).read(),
+              "cli adds ~/.local/bin to the shell profile", verbose=verbose)
+
+        second = run("all")
+        check(second.get("trust", {}).get("status") == "pass"
+              and second.get("cli", {}).get("status") == "pass",
+              "a second run changes nothing", json.dumps(second)[:160], verbose=verbose)
+        check(open(profile).read().count("Agent Lab") == 1,
+              "the shell profile block is added once", verbose=verbose)
+
+        os.remove(shim)
+        with open(shim, "w") as fh:
+            fh.write("#!/bin/sh\n")
+        run("cli")
+        check(not os.path.islink(shim), "cli never replaces a claude it did not create",
+              verbose=verbose)
+
+        with open(config, "w") as fh:
+            fh.write("{not json")
+        broken = run("trust")
+        check(broken.get("ok") is False and open(config).read() == "{not json",
+              "trust leaves an unparseable ~/.claude.json untouched", verbose=verbose)
+
+
 def check_scripts_run(verbose: bool) -> None:
     print("scripts")
     for name, args in [("doctor.py", ["--checklist"]),
+                       ("host_setup.py", ["trust", "--check", "--root", tempfile.gettempdir()]),
                        ("state.py", ["tracks"]),
                        ("workspace.py", ["manifest", "--track", track_ids()[0]])]:
         result = subprocess.run([sys.executable, os.path.join(SCRIPTS, name)] + args,
@@ -1682,6 +1758,7 @@ def main() -> int:
     check_documented_invocations(args.verbose)
     check_workspace_lifecycle(args.verbose)
     check_version_is_publishable(args.verbose)
+    check_host_setup(args.verbose)
     check_scripts_run(args.verbose)
 
     print()
